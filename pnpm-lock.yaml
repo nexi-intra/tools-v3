@@ -32,6 +32,9 @@ dependencies:
   colors:
     specifier: ^1.4.0
     version: 1.4.0
+  dotenv:
+    specifier: ^16.4.7
+    version: 16.4.7
   lodash-es:
     specifier: ^4.17.21
     version: 4.17.21
@@ -1563,6 +1566,11 @@ packages:
     dependencies:
       esutils: 2.0.3
     dev: true
+
+  /dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /dottie@2.0.6:
     resolution: {integrity: sha512-iGCHkfUc5kFekGiqhe8B/mdaurD+lakO9txNnTvKtA6PISrw86LgqHvRzWYPyoE2Ph5aMIrCw9/uko6XHTKCwA==}
