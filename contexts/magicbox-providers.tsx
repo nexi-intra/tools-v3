@@ -43,6 +43,7 @@ export const MagicboxProvider = ({ children }: Props) => {
       scopes: string[],
       loginHint?: string
     ): Promise<boolean> {
+      debugger
       if (!pca) throw new Error("MSAL not registered");
 
       const request: PopupRequest = {
@@ -79,12 +80,13 @@ export const MagicboxProvider = ({ children }: Props) => {
 
     user,
     registerAuth: function (pca: IPublicClientApplication): void {
+      debugger
       setpca(pca);
     },
     authtoken,
     authSource,
     setAuthToken: function (token: string, source: AuthSource): void {
-
+      debugger
       setauthSource(source);
       setauthtoken(token);
       // getSession(token).then((session) => {

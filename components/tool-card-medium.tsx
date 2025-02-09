@@ -17,6 +17,7 @@ import { FavoriteComponent } from './favorite'
 
 import { z } from "zod";
 import { MagicboxContext } from '@/contexts/magicbox-context'
+import HighlightedText from './highlightedtext'
 
 
 
@@ -25,6 +26,7 @@ interface ToolCardMediumProps {
   isFavorite: boolean
   allowedTags: TagType[]
   showActions?: boolean
+  searchvalue?: string
 }
 
 
@@ -141,7 +143,7 @@ function OpenInSharePoint({ masterdataref, masterdataid }: { masterdataref: stri
   )
 }
 
-export function ToolCardMediumComponent({ tool, allowedTags, isFavorite, showActions }: ToolCardMediumProps) {
+export function ToolCardMediumComponent({ tool, allowedTags, isFavorite, showActions, searchvalue }: ToolCardMediumProps) {
   const { language } = useLanguage();
   const t = translations[language];
 
@@ -183,7 +185,8 @@ export function ToolCardMediumComponent({ tool, allowedTags, isFavorite, showAct
           </div>
           <div className="flex items-center justify-center h-24 ">
             <div className="text-center text-lg font-semibold leading-tight">
-              {tool.name}
+              <HighlightedText text={tool.name} searchWord={searchvalue || ""} />
+
             </div>
           </div>
         </div>
@@ -213,6 +216,7 @@ export function ToolCardMediumComponent({ tool, allowedTags, isFavorite, showAct
                 }}
                 allowedPurposes={[]}
                 allowedCountries={[]}
+                searchvalue={searchvalue}
               />
               {showActions && (
                 <DialogFooter>

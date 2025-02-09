@@ -1,6 +1,7 @@
 // components/TokenInputInternal.tsx
 "use client";
 
+import { Token, tokenizeInput } from "@/lib/search";
 import React, {
   useState,
   useRef,
@@ -51,11 +52,7 @@ interface PropertyNameSuggestion {
   name: string;
 }
 
-interface Token {
-  value: string;
-  start: number;
-  end: number;
-}
+
 
 const TokenInputInternal: React.FC<TokenInputProps> = ({
   properties,
@@ -78,20 +75,7 @@ const TokenInputInternal: React.FC<TokenInputProps> = ({
   const [errors, setErrors] = useState<ErrorDetail[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Function to tokenize the input with positions, including spaces
-  const tokenizeInput = (input: string): Token[] => {
-    const regex = /(\s+)|"([^"]*)"|'([^']*)'|[^\s"]+/g;
-    let match: RegExpExecArray | null;
-    const tokens: Token[] = [];
-    while ((match = regex.exec(input)) !== null) {
-      tokens.push({
-        value: match[0],
-        start: match.index,
-        end: regex.lastIndex,
-      });
-    }
-    return tokens;
-  };
+
 
   // Update tokens whenever inputValue or cursorPosition changes
   useEffect(() => {

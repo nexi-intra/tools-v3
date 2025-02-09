@@ -16,14 +16,18 @@ export async function generateMetadata(props: {
 }
 
 export default async function Page(props: {
-  params: Params
+  params: Params,
+  searchParams: { [key: string]: string | string[] | undefined }
 
 }) {
   const params = await props.params
+  const searchParams = props.searchParams
   const language = params.language
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ToolsPage2 query={''} language={language as SupportedLanguage} />
+
+      <ToolsPage2 query={searchParams.q as string} language={language as SupportedLanguage} />
     </Suspense>
   )
 }

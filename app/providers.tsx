@@ -26,21 +26,21 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 		<TrpcProvider>
 			<ErrorBoundary>
 				<MagicboxProvider>
-					{/* <MSALWrapper> */}
-					<BreadcrumbProvider lookupHandlers={[useExampleHook()]}>
-						<LanguageProvider>
-							<KoksmatSessionProvider>
-								{/* <Authenticate apiScope={UserProfileAPI}> */}
-								<UserProfileProvider>
-									<ApplicationRoot hideBreadcrumb topnav={<TabNavigatorWithReorder />} >
-										{children}
-									</ApplicationRoot>
-								</UserProfileProvider>
-								{/* </Authenticate> */}
-							</KoksmatSessionProvider>
-						</LanguageProvider>
-					</BreadcrumbProvider>
-					{/* </MSALWrapper> */}
+					<MSALWrapper>
+						<BreadcrumbProvider lookupHandlers={[useExampleHook()]}>
+							<LanguageProvider>
+								<KoksmatSessionProvider>
+									<Authenticate apiScope={UserProfileAPI}>
+										<UserProfileProvider>
+											<ApplicationRoot hideBreadcrumb topnav={<TabNavigatorWithReorder />} >
+												{children}
+											</ApplicationRoot>
+										</UserProfileProvider>
+									</Authenticate>
+								</KoksmatSessionProvider>
+							</LanguageProvider>
+						</BreadcrumbProvider>
+					</MSALWrapper>
 				</MagicboxProvider>
 			</ErrorBoundary>
 		</TrpcProvider>

@@ -24,6 +24,20 @@
         "command": "pnpm run script test-app"
     },
     {
+        "name": "Debug script pnp",
+        "type": "node-terminal",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "command": "pnpm run script pnp"
+    },
+    {
+        "name": "Debug script searchtokens",
+        "type": "node-terminal",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "command": "pnpm run script searchtokens"
+    },
+    {
         "name": "Debug script read-users",
         "type": "node-terminal",
         "request": "launch",

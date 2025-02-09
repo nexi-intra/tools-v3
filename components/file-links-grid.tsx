@@ -105,8 +105,8 @@ export function FileLinksGridComponent({ initialLinks, mode, columns, className 
             ) : (
               <>
 
-                <a href={link.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-blue-500">
-                  <span className="flex-grow">{link.name}</span>
+                <a href={link.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-blue-500 flex w-full">
+                  <div className="flex-grow">{link.name}</div>
                   <ExternalLink size={18} />
                 </a>
               </>

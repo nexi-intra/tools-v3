@@ -135,6 +135,7 @@ interface ToolCardProps {
   allowedPurposes: { name: string; code: string; sortorder: string }[]
   allowedCountries: { name: string; code: string }[]
   isFavorite: boolean
+  searchvalue?: string
 }
 
 export default function ToolCard({
@@ -144,6 +145,7 @@ export default function ToolCard({
   className = '',
   allowedTags,
   isFavorite,
+  searchvalue
 }: ToolCardProps) {
   const { language } = useLanguage();
   const t = translations[language];
@@ -272,6 +274,7 @@ export default function ToolCard({
           placeholder={t?.enterToolDescription}
           mode={mode}
           onChange={(_, value) => setDescription(value)}
+          searchFor={searchvalue}
         />
 
         {captionForArray(mode, t?.purposes, purposes)}

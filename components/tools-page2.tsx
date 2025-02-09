@@ -11,7 +11,9 @@ import SearchTools from "./search-tools";
 import { MyToolList } from "@/components//my-tool-list";
 import { MyToolListServer } from "./my-tools-list-server";
 import { getTranslation, translationsSchema } from "@/schemas/_shared";
-import { translationJSONDatabaseField } from "@/schemas/database";
+import { DocumentsJSONDatabaseField, documentsJSONDatabaseFieldSchema, translationJSONDatabaseFieldSchema } from "@/schemas/database";
+import { extractSearchTokens } from "@/lib/search";
+import { FaCircle, FaSquare } from "react-icons/fa";
 
 
 interface ToolsPageProps {
@@ -62,47 +64,75 @@ const translations: Record<SupportedLanguage, Translation> = {
 
 
 export async function ToolsPage2(props: { query: string, language: SupportedLanguage }) {
+  const searchWords = extractSearchTokens(props.query);
+
+
 
   const tools = (await prisma.tool.findMany({
     where: {
-      name: {
-        contains: props.query,
-        mode: "insensitive"
-      }
-    }
+      OR: [
+        {
+          name: {
+            contains: props.query ?? "",
+            mode: "insensitive"
+          },
+        },
 
-  })).sort((a, b) => a.name.localeCompare(b.name));
+        {
+          description: {
+            contains: props.query ?? "",
+            mode: "insensitive"
+          }
+        }
+      ]
+    },
+    orderBy: {
+      name: "asc"
+    },
+  }
+
+  ))
+
+  //const tools = databaseitems.sort((a, b) => a.name.localeCompare(b.name));
   const language = props.language;
   const t = translations[language];
-
-
-
   return (
     <div className="h-full w-full">
       <div className="lg:flex">
         <main className="w-full lg:w-3/4">
-
-
           <div className=" min-w-full ">
             <div className="relative">
               <h3 className="font-semibold mb-2 sticky top-10 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
                 {t?.yourTools}
               </h3>
+              {JSON.stringify(searchWords)}
               <MyToolListServer searchFor={""} />
             </div>
             <div className="sticky top-0 z-10 bg-white dark:bg-gray-800">
-              <SearchTools value={props.query} placeholder={"Search for"} properties={[]} />
+              <SearchTools value={props.query} placeholder={"Search for"} properties={[
+                //   {
+                //   name: "country",
+                //   values: [
+                //     { value: "square", icon: <FaCircle color="red" />, color: "green" },
+                //     { value: "star", icon: <FaSquare />, color: "purple" },
+                //   ]
+                // }
+
+              ]} />
             </div>
             <div className="relative">
               <div className="flex flex-wrap">
                 {tools.map((tool, key) => {
-
-                  const parsedTranslations = translationJSONDatabaseField.safeParse(tool.translations)
+                  const parsedTranslations = translationJSONDatabaseFieldSchema.safeParse(tool.translations)
                   if (!parsedTranslations.success) {
                     console.error(parsedTranslations.error)
                   }
                   const translatedName = getTranslation(parsedTranslations.data, "name", language, tool.name)
                   const translatedDescription = getTranslation(parsedTranslations.data, "description", language, tool.description!)
+                  const parsedDocuments = documentsJSONDatabaseFieldSchema.safeParse(tool.documents)
+                  if (!parsedDocuments.success) {
+                    console.error(parsedDocuments.error)
+                  }
 
                   const toolView: ToolView = {
 
@@ -118,30 +148,21 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
                     updated_at: new Date(),
                     updated_by: "",
                     url: tool.url,
-                    documents: [
-
-                    ],
+                    documents: parsedDocuments.data ?? [],
                     groupId: "",
                     tags: [],
                     version: ""
                   }
                   return <div key={key} className="p-3" >
-                    <ToolCardMediumComponent allowedTags={[]} isFavorite={false} tool={toolView} />
+                    <ToolCardMediumComponent allowedTags={[]} isFavorite={false} tool={toolView} searchvalue={props.query} />
 
                   </div>
                 })}
 
-
-
-
-
               </div>
-
             </div>
           </div>
-
         </main>
-
       </div>
     </div>
   );

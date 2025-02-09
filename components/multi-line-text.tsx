@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { ComponentDoc } from './component-documentation-hub'
+import HighlightedText from './highlightedtext'
 
 /**
  * MultiLineText Component
@@ -26,7 +27,8 @@ export default function MultiLineText({
   className = '',
   placeholder = 'Enter text here...',
   rows = 4,
-  maxLength = 1000
+  maxLength = 1000,
+  searchFor = ""
 }: {
   initialValue?: string
   mode?: 'view' | 'new' | 'edit'
@@ -34,7 +36,8 @@ export default function MultiLineText({
   className?: string
   placeholder?: string
   rows?: number
-  maxLength?: number
+  maxLength?: number,
+  searchFor?: string
 }) {
   const [value, setValue] = useState(initialValue)
 
@@ -53,7 +56,9 @@ export default function MultiLineText({
     return (
       <div className="space-y-2">
         {paragraphs.map((paragraph, index) => (
-          <p key={index} className="text-gray-800">{paragraph}</p>
+          <p key={index} className="text-gray-800">
+            <HighlightedText text={paragraph} searchWord={searchFor!} />
+          </p>
         ))}
       </div>
     )

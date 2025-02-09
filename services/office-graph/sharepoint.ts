@@ -233,4 +233,70 @@ export class SharePointGraphClient extends OfficeGraphClient {
 	public get url(): string {
 		return this._siteUrl;
 	}
+
+	/**
+	 * Fetch attachments for a given SharePoint list item.
+	 */
+	async getItemAttachments<T extends ZodType<any, any, any>>(
+		listId: string,
+		itemId: string,
+		schema: ZodSchema<any>,
+	) {
+		const siteId: string = await this.getSiteId();
+		const item = await this.get(`/sites/${siteId}/lists/${listId}/items/${itemId}/attachments`, {}, schema);
+		return item;
+	}
+
+	/*
+async  fetchAttachments() {
+  try {
+    const response = await fetch(attachmentsUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Graph API request failed with status ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    // data.value is expected to be an array of attachment objects.
+    const attachments = data.value;
+
+    attachments.forEach((attachment: any) => {
+      // Check if this is a fileAttachment; other types might be present.
+      if (attachment['@odata.type'] === '#microsoft.graph.fileAttachment') {
+        const fileName = attachment.name;
+        const contentType = attachment.contentType;
+        const size = attachment.size;
+        const base64Content = attachment.contentBytes; // Already Base64 encoded
+
+        console.log(`Attachment: ${fileName}`);
+        console.log(`Type: ${contentType}, Size: ${size} bytes`);
+        console.log(`Base64 Encoded Content (first 100 chars): ${base64Content.substring(0, 100)}...`);
+
+        // If you need to include the attachment in a JSON element,
+        // you can structure it as follows:
+        const attachmentJson = {
+          fileName,
+          contentType,
+          size,
+          base64Content
+        };
+
+        // Do something with attachmentJson (e.g., store it, send it, etc.)
+        console.log(attachmentJson);
+      } else {
+        console.warn('Attachment is not a fileAttachment:', attachment);
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching attachments:', error);
+  }
+}
+
+*/
 }
