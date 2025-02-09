@@ -1,5 +1,3 @@
-// src/trpc/routers/post.ts
-
 import { z } from 'zod';
 import getTrpc from '..';
 import { userLogin } from '../handlers';

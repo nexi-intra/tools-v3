@@ -1,4 +1,4 @@
-// src/app/providers.tsx
+
 
 'use client';
 
@@ -9,20 +9,42 @@ import { UserProvider } from '@/contexts/UserContext';
 import { MSALWrapper } from '@/components/msal/auth';
 import { LanguageProvider } from '@/contexts/language-context';
 import { KoksmatSessionProvider } from '@/contexts/koksmat-provider';
+import { MagicboxProvider } from '@/contexts/magicbox-providers';
+import ErrorBoundary from '@/components/error-boundary';
+import Authenticate, { UserProfileAPI } from '@/components/authenticate';
+import { UserProfileProvider } from '@/contexts/userprofile-context';
+import { ApplicationRoot } from '@/components/application-root';
+import TabNavigatorWithReorder from '@/components/tab-navigator-with-reorder';
+import { BreadcrumbProvider } from '@/contexts/breadcrumb-context';
+import { useExampleHook } from '@/contexts/lookup-provider';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-	return <TrpcProvider>
-		<MSALWrapper>
+	//return <div>{children}</div>
 
-			<LanguageProvider>
-				<KoksmatSessionProvider>
+	return (
 
-					<UserProvider>
-						{children}
-					</UserProvider>
-				</KoksmatSessionProvider>
-			</LanguageProvider>
-		</MSALWrapper>
-	</TrpcProvider>
+		<TrpcProvider>
+			<ErrorBoundary>
+				<MagicboxProvider>
+					{/* <MSALWrapper> */}
+					<BreadcrumbProvider lookupHandlers={[useExampleHook()]}>
+						<LanguageProvider>
+							<KoksmatSessionProvider>
+								{/* <Authenticate apiScope={UserProfileAPI}> */}
+								<UserProfileProvider>
+									<ApplicationRoot hideBreadcrumb topnav={<TabNavigatorWithReorder />} >
+										{children}
+									</ApplicationRoot>
+								</UserProfileProvider>
+								{/* </Authenticate> */}
+							</KoksmatSessionProvider>
+						</LanguageProvider>
+					</BreadcrumbProvider>
+					{/* </MSALWrapper> */}
+				</MagicboxProvider>
+			</ErrorBoundary>
+		</TrpcProvider>
+
+	)
 
 }

@@ -1,4 +1,4 @@
-// src/trpc/provider.tsx
+
 
 import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

@@ -59,7 +59,7 @@ const translations: Record<SupportedLanguage, Translation> = {
 
 
 
-export async function ToolsPage2(props: { query: string }) {
+export async function ToolsPage2(props: { query: string, language: SupportedLanguage }) {
 
   const tools = (await prisma.tool.findMany({
     where: {
@@ -70,8 +70,8 @@ export async function ToolsPage2(props: { query: string }) {
     }
 
   })).sort((a, b) => a.name.localeCompare(b.name));
-
-  const t = translations["en"];
+  const language = props.language;
+  const t = translations[language];
 
 
 

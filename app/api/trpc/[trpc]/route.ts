@@ -1,5 +1,3 @@
-// src/app/api/trpc/[trpc]/route.ts
-
 import { NextRequest } from 'next/server';
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 import { trpcRouter } from '@/trpc/routers';

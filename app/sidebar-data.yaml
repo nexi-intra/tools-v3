@@ -1,0 +1,189 @@
+language: "en"
+teams:
+  - name:
+      en: "Tools"
+      da: "Værktøjer"
+      it: "Strumenti"
+    logo: "Link"
+    plan:
+      en: "Beta - Production"
+      da: "Beta - Produktion"
+      it: "Beta - Produzione"
+navMain:
+  - title:
+      en: "Integration Pages"
+      da: "Integrationssider"
+      it: "Pagine di Integrazione"
+    url: "#"
+    icon: "SquareTerminal"
+    isActive: true
+    items:
+      - title:
+          en: "Explorer"
+          da: "Udforsker"
+          it: "Esploratore"
+        url: "/tools/pages/explorer"
+      - title:
+          en: "Favourites"
+          da: "Favoritter"
+          it: "Preferiti"
+        # label: new
+        url: "/tools/pages/profile"
+      - title:
+          en: "App Launcher"
+          da: "Start Menu"
+          it: "Lancio App"
+        # label: new
+        url: "/tools/pages/app"
+
+  - title:
+      en: "Tables"
+      da: "Tabeller"
+      it: "Tabelle"
+    url: "#"
+    icon: "Database"
+    # label: preview
+    items:
+      - title:
+          en: "Regions"
+          da: "Regioner"
+          it: "Regioni"
+        url: "/tools/admin/data/regions"
+        icon: "BookOpen"
+      - title:
+          en: "Countries"
+          da: "Lande"
+          it: "Paesi"
+        url: "/tools/admin/data/countries"
+        icon: "BookOpen"
+      - title:
+          en: "Categories"
+          da: "Kategorier"
+          it: "Categorie"
+        url: "/tools/admin/data/categories"
+        icon: "BookOpen"
+      - title:
+          en: "Access Points"
+          da: "Adgangspunkter"
+          it: "Punti di Accesso"
+        url: "/tools/admin/data/access-points"
+        icon: "BookOpen"
+      - title:
+          en: "Languages"
+          da: "Sprog"
+          it: "Lingue"
+        url: "/tools/admin/data/languages"
+        icon: "BookOpen"
+      - title:
+          en: "Purposes"
+          da: "Formål"
+          it: "Scopi"
+        url: "/tools/admin/data/purposes"
+        icon: "BookOpen"
+      - title:
+          en: "Boards"
+          da: "Oversigter"
+          it: "Bacheche"
+        url: "/tools/admin/data/boards"
+        icon: "BookOpen"
+      - title:
+          en: "Tenants"
+          da: "Lejere"
+          it: "Inquilini"
+        url: "/tools/admin/data/tenants"
+        icon: "BookOpen"
+      - title:
+          en: "Tool Groups"
+          da: "Værktøjsgrupper"
+          it: "Gruppi di Strumenti"
+        url: "/tools/admin/data/tool-groups"
+        icon: "BookOpen"
+      - title:
+          en: "Tools"
+          da: "Værktøjer"
+          it: "Strumenti"
+        url: "/tools/admin/data/tools"
+        icon: "BookOpen"
+      - title:
+          en: "User Groups"
+          da: "Brugergrupper"
+          it: "Gruppi Utente"
+        url: "/tools/admin/data/user-groups"
+        icon: "BookOpen"
+      - title:
+          en: "User Profiles"
+          da: "Bruger Profiler"
+          it: "Profili Utente"
+        url: "/tools/admin/data/user-profiles"
+        icon: "BookOpen"
+      - title:
+          en: "User Roles"
+          da: "Brugerroller"
+          it: "Ruoli Utente"
+        url: "/tools/admin/data/user-roles"
+        icon: "BookOpen"
+  # - title:
+  #     en: "Settings"
+  #     da: "Indstillinger"
+  #     it: "Impostazioni"
+  #   url: "#"
+  #   icon: "Settings2"
+  #   items:
+  #     - title:
+  #         en: "Mapping"
+  #         da: "Kortlægning"
+  #         it: "Mappatura"
+  #       url: "/tools/admin/mapping"
+  #       label: "alpha"
+  #       icon: "BookOpen"
+  - title:
+      en: "Documentation"
+      da: "Dokumentation"
+      it: "Documentazione"
+    url: "#"
+    icon: "BookOpen"
+    items:
+      - title:
+          en: "Use cases"
+          da: "Brugsscenarier"
+          it: "Casi d'Uso"
+        url: "/tools/docs/use-cases"
+      - title:
+          en: "Components"
+          da: "Komponenter"
+          it: "Componenti"
+        url: "/tools/docs/components"
+  - title:
+      en: "Outlook Integration"
+      da: "Outlook Integration"
+      it: "Integrazione Outlook"
+    url: "#"
+    icon: "SquareTerminal"
+    label: test
+    isActive: true
+    items:
+      - title:
+          en: "Bank Holiday"
+          da: "Bank Holiday"
+          it: "Festa Bancaria"
+        url: "/tools/pages/international/bankholiday"
+projects:
+  - title:
+      en: "Tools v1.0"
+      da: "Tools v1.0"
+      it: "Strumenti v1.0"
+    url: "#"
+    icon: "SquareTerminal"
+    isActive: true
+    items:
+      - title:
+          en: "Explorer"
+          da: "Udforsker"
+          it: "Esploratore"
+        url: "/tools/integration/explorer"
+      - title:
+          en: "Favourites"
+          da: "Favoritter"
+          it: "Preferiti"
+        label: coming
+        url: "/tools/pages/profile"

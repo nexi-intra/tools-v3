@@ -1,5 +1,3 @@
-// src/trpc/routers/index.ts
-
 import getTrpc from '..';
 
 // Routers
