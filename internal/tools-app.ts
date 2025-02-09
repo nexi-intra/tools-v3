@@ -12,7 +12,7 @@ import {
 } from './models';
 import { genericSharePointItem } from '@/services/office-graph/models';
 import { ToolSpokeSite } from './toolspokesite';
-import { LoggerInterface } from '@/models/Logger';
+import { LoggerInterface } from '@/interfaces/Logger';
 import { logger } from './logger';
 import { UserGraphClient } from './userprofiles';
 import { syncUserProfiles } from './sync-user-profiles';

@@ -2,7 +2,7 @@ import { OfficeGraphClient } from '@/services/office-graph';
 
 import { z, ZodSchema, ZodType } from 'zod';
 
-import { LoggerInterface } from '@/models/Logger';
+import { LoggerInterface } from '@/interfaces/Logger';
 // Validate a GET response using a Zod schema.
 const usersSchema = z.object({
 	value: z.array(

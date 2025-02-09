@@ -1,4 +1,4 @@
-import { LoggerInterface } from '@/models/Logger';
+import { LoggerInterface } from '@/interfaces/Logger';
 
 const loglevel = process.env.LOG_LEVEL || 'warn';
 export const logger: LoggerInterface = {

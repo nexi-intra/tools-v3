@@ -1,5 +1,5 @@
 "use client"
-import { useUser } from "../lib/UserContext"
+import { useUser } from "../contexts/UserContext"
 
 export default function Profile() {
   const { user, isLoggedIn, logout, updateUser } = useUser()

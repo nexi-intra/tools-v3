@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { useUser } from "../lib/UserContext"
+import { useUser } from "../contexts/UserContext"
 import { trpc } from '@/trpc/provider';
 
 export default function Login() {
@@ -32,10 +32,10 @@ export default function Login() {
 
   return (
     <form onSubmit={handleLogin}>
-      
+
       <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
       <input
-        
+
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"

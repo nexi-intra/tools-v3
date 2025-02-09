@@ -3,7 +3,7 @@
 // If you need node-fetch, install it and uncomment the following line:
 // import fetch from 'node-fetch';
 import { z, ZodSchema } from 'zod';
-import { LoggerInterface } from '@/models/Logger';
+import { LoggerInterface } from '@/interfaces/Logger';
 
 /**
  * A simple default logger that uses console.

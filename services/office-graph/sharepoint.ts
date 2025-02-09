@@ -3,7 +3,7 @@ import { OfficeGraphClient } from '@/services/office-graph';
 import { z, ZodSchema, ZodType } from 'zod';
 import { genericSharePointItem } from './models';
 
-import { LoggerInterface } from '@/models/Logger';
+import { LoggerInterface } from '@/interfaces/Logger';
 /*
   url = https://site.sharepoint.com/sites/site-name/lists/list-name/items/item-id
   */

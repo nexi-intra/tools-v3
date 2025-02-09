@@ -1,4 +1,4 @@
-import { LoggerInterface } from '@/models/Logger';
+import { LoggerInterface } from '@/interfaces/Logger';
 import { SharePointGraphClient, splitUrl } from '@/services/office-graph/sharepoint';
 import { z } from 'zod';
 import {

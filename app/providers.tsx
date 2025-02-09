@@ -5,7 +5,7 @@
 import React from 'react';
 import TrpcProvider from '../trpc/provider';
 
-import { UserProvider } from '@/lib/UserContext';
+import { UserProvider } from '@/contexts/UserContext';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
 	return <TrpcProvider>
