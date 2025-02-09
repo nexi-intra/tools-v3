@@ -3,14 +3,15 @@
 import getTrpc from '..';
 
 // Routers
-import { authorRouter } from './author';
+
 import { postRouter } from './post';
+import { userRouter } from './user';
 
 const t = getTrpc();
 
 export const trpcRouter = t.router({
-	author: authorRouter,
 	post: postRouter,
+	user: userRouter,
 });
 
 export type AppRouter = typeof trpcRouter;

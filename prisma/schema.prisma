@@ -1,0 +1,268 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator markdown {
+  provider = "prisma-markdown"
+  output   = "./ERD.md"
+  title    = "Tool Application"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TOOL_DATABASE_URL")
+}
+
+model SynchronizationLog {
+  id          Int       @id @default(autoincrement())
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  created_by  String?   @db.VarChar
+  updated_at  DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by  String?   @db.VarChar
+  deleted_at  DateTime? @db.Timestamptz(6)
+  name        String    @db.VarChar
+  description String?   @db.VarChar
+  category    String    @db.VarChar
+  details     Json?
+  hasError    Boolean   @db.Boolean
+  error       String?   @db.VarChar
+}
+
+model AccessPoint {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @unique(map: "unique_accesspoint_name") @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  sortorder    String?   @db.VarChar
+}
+
+model AuditLog {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  action       String    @db.VarChar
+  status       String    @db.VarChar
+  entity       String    @db.VarChar
+  entityid     String    @db.VarChar
+  actor        String    @db.VarChar
+  metadata     Json?
+}
+
+model Board {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  status       String?   @db.VarChar
+  layout       Json?
+  metadata     Json?
+}
+
+model Category {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @unique(map: "unique_category_name") @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  sortorder    String?   @db.VarChar
+  color        String?   @db.VarChar
+  tool         Tool[]
+}
+
+model Country {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @unique(map: "unique_country_name") @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  region_id    Int
+  sortorder    String?   @db.VarChar
+  region       Region    @relation(fields: [region_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Language {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @unique(map: "unique_language_name") @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  code         String    @db.VarChar
+  sortorder    String?   @db.VarChar
+}
+
+model Purpose {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @unique(map: "unique_purpose_name") @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  sortorder    String?   @db.VarChar
+
+  // Many-to-many relation with Tool
+  tools Tool[] @relation("ToolPurposes")
+}
+
+model Region {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @unique(map: "unique_region_name") @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  sortOrder    String?   @db.VarChar
+  Country      Country[]
+}
+
+model Setting {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  data         Json?
+}
+
+model Tool {
+  id                      Int          @id @default(autoincrement())
+  created_at              DateTime     @default(now()) @db.Timestamptz(6)
+  created_by              String?      @db.VarChar
+  updated_at              DateTime     @default(now()) @db.Timestamptz(6)
+  updated_by              String?      @db.VarChar
+  deleted_at              DateTime?    @db.Timestamptz(6)
+  koksmat_masterdataref   String?      @db.VarChar
+  koksmat_masterdata_id   String?      @db.VarChar
+  koksmat_masterdata_etag String?      @db.VarChar
+  name                    String       @db.VarChar
+  description             String?      @db.VarChar
+  translations            Json?
+  url                     String       @db.VarChar
+  status                  String?      @db.VarChar
+  documents               Json?
+  metadata                Json?
+  icon                    String?      @db.VarChar
+  category                Category     @relation(fields: [categoryId], references: [id])
+  // Many-to-many relation with Purpose
+  purposes                Purpose[]    @relation("ToolPurposes")
+  categoryId              Int
+  UserProfile             UserProfile? @relation(fields: [userProfileId], references: [id])
+  userProfileId           Int?
+}
+
+model ToolGroup {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @unique(map: "unique_toolgroup_name") @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  status       String?   @db.VarChar
+  metadata     Json?
+}
+
+model UserGroup {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @unique(map: "unique_usergroup_name") @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  sortorder    String?   @db.VarChar
+}
+
+model UserProfile {
+  id                      Int       @id @default(autoincrement())
+  created_at              DateTime  @default(now()) @db.Timestamptz(6)
+  created_by              String?   @db.VarChar
+  updated_at              DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by              String?   @db.VarChar
+  deleted_at              DateTime? @db.Timestamptz(6)
+  koksmat_masterdataref   String?   @db.VarChar
+  koksmat_masterdata_id   String?   @db.VarChar
+  koksmat_masterdata_etag String?   @db.VarChar
+  name                    String    @unique(map: "unique_userprofile_name") @db.VarChar
+  displayName             String?   @db.VarChar
+  description             String?   @db.VarChar
+  translations            Json?
+  email                   String    @db.VarChar
+  status                  String?   @db.VarChar
+  company                 String?   @db.VarChar
+  country                 String?   @db.VarChar
+  companykey              String?   @db.VarChar
+  isExternal              Boolean   @default(false) @db.Boolean
+  CurrentEmail            String?   @db.VarChar
+  OldEmail                String?   @db.VarChar
+  OnPremisesId            String?   @db.VarChar
+  tools                   Tool[]
+  Session                 Session[]
+}
+
+model UserRole {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @unique(map: "unique_userrole_name") @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  sortorder    String?   @db.VarChar
+}
+
+model Session {
+  id            Int         @id @default(autoincrement())
+  created_at    DateTime    @default(now()) @db.Timestamptz(6)
+  created_by    String?     @db.VarChar
+  updated_at    DateTime    @default(now()) @db.Timestamptz(6)
+  updated_by    String?     @db.VarChar
+  deleted_at    DateTime?   @db.Timestamptz(6)
+  name          String      @db.VarChar
+  data          Json?
+  user          UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId Int
+}
