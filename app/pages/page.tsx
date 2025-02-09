@@ -10,9 +10,8 @@ export default async function Page() {
   const pathname = usePathname()
   return (
     <div>
-
-      <Link href={`${pathname}/explorer`} > <Button>Explorer</Button> </ Link>
-
+      <Link href={`${pathname}/en`} > <Button>English</Button> </ Link>
+      <Link href={`${pathname}/it`} > <Button>Italian</Button> </ Link>
     </div>
   )
 }

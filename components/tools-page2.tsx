@@ -10,6 +10,8 @@ import { ToolView } from "@/schemas/forms";
 import SearchTools from "./search-tools";
 import { MyToolList } from "@/components//my-tool-list";
 import { MyToolListServer } from "./my-tools-list-server";
+import { getTranslation, translationsSchema } from "@/schemas/_shared";
+import { translationJSONDatabaseField } from "@/schemas/database";
 
 
 interface ToolsPageProps {
@@ -94,14 +96,22 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
             <div className="relative">
               <div className="flex flex-wrap">
                 {tools.map((tool, key) => {
+
+                  const parsedTranslations = translationJSONDatabaseField.safeParse(tool.translations)
+                  if (!parsedTranslations.success) {
+                    console.error(parsedTranslations.error)
+                  }
+                  const translatedName = getTranslation(parsedTranslations.data, "name", language, tool.name)
+                  const translatedDescription = getTranslation(parsedTranslations.data, "description", language, tool.description!)
+
                   const toolView: ToolView = {
 
                     purposes: [],
-                    description: tool.description!,
+                    description: translatedDescription,
                     status: "deprecated",
                     deleted_at: null,
                     category: { value: "Corp", color: "#123141", id: 0, order: "" },
-                    name: tool.name,
+                    name: translatedName,
                     id: 0,
                     created_at: new Date(),
                     created_by: "",

@@ -1,48 +1,47 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const SharedAttributes = z.object({
-  id: z.number().describe("Unique identifier"),
-  name: z.string().describe("Name"),
-  created_at: z.coerce.date().describe(`Created date`),
-  created_by: z.string().describe(`Created by
+	id: z.number().describe('Unique identifier'),
+	name: z.string().describe('Name'),
+	created_at: z.coerce.date().describe(`Created date`),
+	created_by: z.string().describe(`Created by
     ID of the user who created this entity`),
-  updated_at: z.coerce.date().describe(`Updated date`),
-  updated_by: z.string().describe(`Updated by
+	updated_at: z.coerce.date().describe(`Updated date`),
+	updated_by: z.string().describe(`Updated by
     ID of the user who updated this entity`),
-  deleted_at: z.coerce.date().nullable().describe(`Soft deletion date
+	deleted_at: z.coerce.date().nullable().describe(`Soft deletion date
       If soft deleted, the date of deletion`),
-  calculatedsearchindex: z.string().nullable().optional()
-    .describe(`Calculated search index
+	calculatedsearchindex: z.string().nullable().optional().describe(`Calculated search index
     optional field that can be used to store a calculated search index`),
-  deletedBy: z
-    .string()
-    .nullable()
-    .optional()
+	deletedBy: z
+		.string()
+		.nullable()
+		.optional()
 
-    .describe("ID of the user who deleted this entity, if applicable"),
+		.describe('ID of the user who deleted this entity, if applicable'),
 });
 
 // Schema for individual translations
 const translationSchema = z.object({
-  language: z.string().optional().nullable(),
-  translation: z.string().optional().nullable(),
+	language: z.string().optional().nullable(),
+	translation: z.string().optional().nullable(),
 });
 
 // Schema for each field (e.g., name, description)
 const fieldSchema = z.object({
-  language: z.string().optional().nullable(),
-  original: z.string().optional().nullable(),
-  translations: z.array(translationSchema),
+	language: z.string().optional().nullable(),
+	original: z.string().optional().nullable(),
+	translations: z.array(translationSchema),
 });
 
 // Main schema encompassing all fields and the source language
 export const translationsSchema = z
-  .object({
-    fields: z.record(fieldSchema),
-    source_language: z.string(),
-  })
-  .optional()
-  .nullable();
+	.object({
+		fields: z.record(fieldSchema),
+		source_language: z.string(),
+	})
+	.optional()
+	.nullable();
 
 // TypeScript types inferred from Zod schemas
 type Translation = z.infer<typeof translationSchema>;
@@ -56,41 +55,47 @@ type TranslationsData = z.infer<typeof translationsSchema>;
  *
  * @param data - The validated data object.
  * @param fieldName - The name of the field to retrieve (e.g., "name", "description").
- * @param languageCode - The target language code (e.g., "en", "da").
+ * @param translateToLanguageCode - The target language code (e.g., "en", "da").
  * @param defaultValue - The value to return if the translation is not found.
  * @returns The translated string if available; otherwise, the default value.
  */
 export function getTranslation(
-  data: TranslationsData | null,
-  fieldName: string,
-  languageCode: string,
-  defaultValue: string
+	data: TranslationsData | null,
+	fieldName: string,
+	translateToLanguageCode: string,
+	defaultValue: string,
 ): string {
-  if (!data) {
-    return defaultValue;
-  }
-  const field: Field | undefined = data.fields[fieldName];
+	if (!data) {
+		return defaultValue;
+	}
+	const field: Field | undefined = data.fields[fieldName];
 
-  if (!field) {
-    console.warn(
-      `Field "${fieldName}" does not exist. Returning default value.`
-    );
-    return defaultValue;
-  }
+	if (!field) {
+		return defaultValue;
+	}
+	switch (translateToLanguageCode) {
+		case 'en':
+			translateToLanguageCode = 'English';
+			break;
+		case 'da':
+			translateToLanguageCode = 'Danish';
+			break;
+		case 'it':
+			translateToLanguageCode = 'Italian';
+			break;
+		default:
+			break;
+	}
+	// Find the translation matching the languageCode
+	const translation: Translation | undefined = field.translations.find(
+		t => t.language?.toLowerCase() === translateToLanguageCode.toLowerCase(),
+	);
 
-  // Find the translation matching the languageCode
-  const translation: Translation | undefined = field.translations.find(
-    (t) => t.language?.toLowerCase() === languageCode.toLowerCase()
-  );
-
-  if (translation) {
-    return translation.translation!;
-  } else {
-    console.warn(
-      `Translation for language "${languageCode}" not found in field "${fieldName}". Returning default value.`
-    );
-    return defaultValue;
-  }
+	if (translation) {
+		return translation.translation!;
+	} else {
+		return defaultValue;
+	}
 }
 
 // --- Example Usage ---

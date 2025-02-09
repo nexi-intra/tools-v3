@@ -1,12 +1,14 @@
-import Login from "../components/Login"
-import Profile from "../components/Profile"
+"use client";
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import React from 'react'
 
-export default function Page() {
+
+export default async function Page() {
+
+
   return (
-    <>
-      <Login />
-      <Profile />
-    </>
+    <Link href={`/pages`} > <Button>Pages</Button> </ Link>
   )
 }
-

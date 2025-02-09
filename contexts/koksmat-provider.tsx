@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 // Define the shape of the context
@@ -71,7 +71,9 @@ const KoksmatProviderSchema = z.object({
 export function KoksmatSessionProvider({ children }: KoksmatProviderProps) {
   return (
     <>
-      <KoksmatProvider>{children}</KoksmatProvider>
+      <Suspense>
+        <KoksmatProvider>{children}</KoksmatProvider>
+      </Suspense>
     </>
   )
 }

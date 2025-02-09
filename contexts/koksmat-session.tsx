@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect } from 'react'
+import { Suspense, useCallback, useEffect } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { z } from 'zod'
 import { ZeroTrust } from '@/components/zero-trust'
@@ -170,7 +170,9 @@ export const examplesKoksmatSession: ComponentDoc[] = [
     `,
     example: (
       <KoksmatSessionProvider>
-        <KoksmatSession />
+        <Suspense>
+          <KoksmatSession />
+        </Suspense>
       </KoksmatSessionProvider>
     ),
   },
