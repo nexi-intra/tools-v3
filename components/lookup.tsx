@@ -11,6 +11,7 @@ import { kError, kVerbose } from '@/lib/koksmat-logger-client';
 
 import { CodeViewer } from './code-viewer';
 import { isEqual } from '@/lib/isequal';
+import { ComponentDoc } from './component-documentation-hub';
 
 // Define the IdValue interface
 export interface IdValue {
@@ -19,14 +20,6 @@ export interface IdValue {
   sortorder: string; // Sorting will be done based on this field
 }
 
-// Define the ComponentDoc interface
-export interface ComponentDoc {
-  id: string;
-  name: string;
-  description: string;
-  usage: string;
-  example: JSX.Element;
-}
 
 type LazyLoad = {
   lazyLoad?: true;

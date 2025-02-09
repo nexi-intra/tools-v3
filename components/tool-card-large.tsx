@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useContext } from 'react'
-import { SupportedLanguage, useLanguage } from "@/components/language-context"
+import { SupportedLanguage, useLanguage } from "@/contexts/language-context"
 
 
 import IconUploader from './icon-uploader'

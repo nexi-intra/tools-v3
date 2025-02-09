@@ -6,7 +6,7 @@ import { z } from "zod"
 import { ComponentDoc } from './component-documentation-hub'
 import { kError, kVerbose } from '@/lib/koksmat-logger-client'
 
-import { useLanguage, SupportedLanguage } from "@/components/language-context"
+import { useLanguage, SupportedLanguage } from "@/contexts/language-context"
 
 const favoriteTranslationSchema = z.object({
   removeFavorites: z.string(),

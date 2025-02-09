@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useState } from 'react'
-import { SupportedLanguage, useLanguage } from "@/components/language-context"
+import { SupportedLanguage, useLanguage } from "@/contexts/language-context"
 
 import { ToolView } from '@/schemas/forms'
 
