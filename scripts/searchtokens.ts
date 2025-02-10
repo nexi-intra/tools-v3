@@ -1,4 +1,4 @@
-import { tokenizeInput } from '@/components/token-input-internal';
+import { tokenizeInput } from '@/lib/search';
 
 export async function main() {
 	console.log('Hello, world!');

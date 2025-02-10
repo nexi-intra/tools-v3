@@ -2,32 +2,42 @@ import ToolsPage2 from '@/components/tools-page2'
 import { SupportedLanguage } from '@/contexts/language-context'
 import React, { Suspense } from 'react'
 
+import PageProps from 'next';
 
-type Params = Promise<{ language: string }>
 
 
-export async function generateMetadata(props: {
-  params: Params
-
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ language: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const params = await props.params
-  const language = params.language
+  const _params = await params
+  const _searchParams = await searchParams
+  const language = _params.language
+
+
 
 }
 
-export default async function Page(props: {
-  params: Params,
-  searchParams: { [key: string]: string | string[] | undefined }
 
+
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ language: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const params = await props.params
-  const searchParams = props.searchParams
-  const language = params.language
+  const _params = await params
+  const _searchParams = await searchParams
+  const language = _params.language
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
 
-      <ToolsPage2 query={searchParams.q as string} language={language as SupportedLanguage} />
+      <ToolsPage2 query={_searchParams.q as string} language={language as SupportedLanguage} />
     </Suspense>
   )
 }
