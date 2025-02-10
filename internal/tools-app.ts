@@ -212,6 +212,12 @@ export class ToolsApp {
 		const site = new ToolSpokeSite(this, listurl);
 		return site;
 	}
+
+	syncOne(listurl: string, id: string) {
+		const site = new ToolSpokeSite(this, listurl);
+		site.getToolItems;
+		//this.syncItem()
+	}
 	static buildDocumentCollection(tool: ToolsSchemaType) {
 		const docs: { name: string; url: string }[] = [];
 		const pushDoc = (doc?: SpLinkFieldType) => {
@@ -563,7 +569,7 @@ export class ToolsApp {
 					sharePointItem._UIVersionString,
 					'No changes',
 				);
-				return;
+				return result;
 			}
 			/**
 			 *  --------------------------------------------------------------------------------
@@ -776,7 +782,7 @@ export class ToolsApp {
 		this.log.highlight('Syncronising Tools');
 		toolLists.forEach(async tool => {
 			this.log.info('Tool:', tool.name, tool.format);
-			const koksmat_masterdataref = await tool.site.masterdataKey();
+			const koksmat_masterdataref = tool.site.masterdataKey();
 
 			this.syncList(
 				tool.name,

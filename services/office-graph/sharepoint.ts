@@ -19,7 +19,7 @@ import * as forge from 'node-forge';
 /*
   url = https://site.sharepoint.com/sites/site-name/lists/list-name/items/item-id
   */
-export async function splitUrl(url: string) {
+export function splitUrl(url: string) {
 	const parts1 = url.split('https://');
 	const parts2 = parts1[1].split('/sites/');
 	const dns = parts2[0];
@@ -114,7 +114,7 @@ export class SharePointGraphClient extends OfficeGraphClient {
 		logger?: LoggerInterface,
 	) {
 		super(tenantId, clientId, clientSecret, logger);
-		this._siteUrl = sharePointSiteUrl;
+		this._siteUrl = splitUrl(sharePointSiteUrl).siteUrl;
 	}
 
 	async getSiteId() {
@@ -123,7 +123,7 @@ export class SharePointGraphClient extends OfficeGraphClient {
 		}
 
 		try {
-			const url = await splitUrl(this._siteUrl);
+			const url = splitUrl(this._siteUrl);
 			const siteUrl = url.siteUrl.replace('sharepoint.com/', 'sharepoint.com:/').replace('https://', '');
 
 			const site = await this.get(`/sites/${siteUrl}`, {});
@@ -220,14 +220,19 @@ export class SharePointGraphClient extends OfficeGraphClient {
 		}
 		return itemsMap;
 	}
-	async getItem<T extends ZodType<any, any, any>>(listId: string, itemId: string, schema: ZodSchema<any>) {
+	async getSharePointItem<T extends ZodType<any, any, any>>(listId: string, itemId: string, schema: ZodSchema<any>) {
 		const siteId: string = await this.getSiteId();
-		const item = await this.get(
-			`/sites/${siteId}/lists/${listId}/items/${itemId}`,
-			{ $expand: 'fields' },
-			schema,
-		);
-		return item;
+		const wrappedShema = z.object({
+			fields: schema,
+		});
+		const item = await this.get(`/sites/${siteId}/lists/${listId}/items/${itemId}`, { $expand: 'fields' });
+		const wrappedItem = { ...item.fields, createdBy: item.createdBy, lastModifiedBy: item.lastModifiedBy };
+		const parsedItem = schema.safeParse(wrappedItem);
+		if (!parsedItem.success) {
+			this.logger.warn('Error parsing item', parsedItem.error);
+			return null;
+		}
+		return parsedItem.data;
 	}
 
 	async getSiteMetadata() {
