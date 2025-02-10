@@ -68,33 +68,63 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
 
 
 
-  const tools = (await prisma.tool.findMany({
+  // const tools = (await prisma.tool.findMany({
+  //   where: {
+  //     OR: [
+  //       {
+  //         name: {
+  //           contains: props.query ?? "",
+  //           mode: "insensitive"
+  //         },
+  //       },
+
+  //       {
+  //         description: {
+  //           contains: props.query ?? "",
+  //           mode: "insensitive"
+  //         }
+  //       }
+  //     ]
+  //   },
+  //   orderBy: {
+  //     name: "asc"
+  //   },
+  // }
+
+  // ))
+  const searchText = "your search text";
+  const languageCode = "en"; // For example, "en" for English
+  const language = props.language;
+  const tools = await prisma.tool.findMany({
     where: {
-      OR: [
-        {
-          name: {
-            contains: props.query ?? "",
-            mode: "insensitive"
+      ToolTexts: {
+        // Using the "some" filter ensures that at least one related ToolText meets the criteria.
+        some: {
+          language: {
+            code: language, // Filtering by the language code in the related Language record.
           },
+          OR: [
+            {
+              name: {
+                contains: props.query ?? "",
+                mode: "insensitive", // Optional: makes the search case-insensitive.
+              },
+            },
+            {
+              description: {
+                contains: props.query ?? "",
+                mode: "insensitive",
+              },
+            },
+          ],
         },
-
-        {
-          description: {
-            contains: props.query ?? "",
-            mode: "insensitive"
-          }
-        }
-      ]
+      },
     },
-    orderBy: {
-      name: "asc"
-    },
-  }
+  });
 
-  ))
 
   //const tools = databaseitems.sort((a, b) => a.name.localeCompare(b.name));
-  const language = props.language;
+
   const t = translations[language];
   return (
     <div className="h-full w-full">

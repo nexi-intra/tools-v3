@@ -159,6 +159,18 @@ erDiagram
   Int categoryId FK
   Int userProfileId FK "nullable"
 }
+"ToolTexts" {
+  Int id PK
+  DateTime created_at
+  String created_by "nullable"
+  DateTime updated_at
+  String updated_by "nullable"
+  DateTime deleted_at "nullable"
+  String name
+  String description "nullable"
+  Int toolId FK
+  Int languageId FK
+}
 "ToolGroup" {
   Int id PK
   DateTime created_at
@@ -238,6 +250,8 @@ erDiagram
 "Country" }o--|| "Region" : region
 "Tool" }o--|| "Category" : category
 "Tool" }o--o| "UserProfile" : UserProfile
+"ToolTexts" }o--|| "Tool" : tool
+"ToolTexts" }o--|| "Language" : language
 "Session" }o--|| "UserProfile" : user
 "_PurposeToTool" }o--|| "Purpose" : Purpose
 "_PurposeToTool" }o--|| "Tool" : Tool
@@ -417,6 +431,20 @@ erDiagram
   - `icon`: 
   - `categoryId`: 
   - `userProfileId`: 
+
+### `ToolTexts`
+
+**Properties**
+  - `id`: 
+  - `created_at`: 
+  - `created_by`: 
+  - `updated_at`: 
+  - `updated_by`: 
+  - `deleted_at`: 
+  - `name`: 
+  - `description`: 
+  - `toolId`: 
+  - `languageId`: 
 
 ### `ToolGroup`
 

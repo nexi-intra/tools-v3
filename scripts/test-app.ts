@@ -1,11 +1,11 @@
-import { ToolsApp } from "@/internal/tools-app";
-import { ToolSpokeSite } from "@/internal/toolspokesite";
+import { ToolsApp } from '@/internal/tools-app';
+import { ToolSpokeSite } from '@/internal/toolspokesite';
 
 async function main() {
-  const app = new ToolsApp();
+	const app = new ToolsApp();
 
-  await app.syncronizeAll({ force: true });
-  await app.syncUserProfiles({ createOnly: true, force: false });
+	await app.syncronizeAll({ force: true });
+	// await app.syncUserProfiles({ createOnly: true, force: false });
 }
 main();
-console.log("done");
+console.log('done');

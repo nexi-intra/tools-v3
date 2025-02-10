@@ -16,6 +16,7 @@ import { LoggerInterface } from '@/interfaces/Logger';
 import { logger } from './logger';
 import { UserGraphClient } from './userprofiles';
 import { syncUserProfiles } from './sync-user-profiles';
+import { getTranslation } from '@/schemas/_shared';
 
 type SynclogTypes = 'update' | 'create' | 'delete';
 export class ToolsApp {
@@ -29,6 +30,10 @@ export class ToolsApp {
 	}
 
 	constructor() {
+		const toolSite = process.env.TOOL_SITE;
+		if (!toolSite) {
+			throw new Error('TOOL_SITE environment variable not set');
+		}
 		this._tenantId = process.env.APP_TENANT_ID!;
 		this._clientId = process.env.APP_CLIENT_ID!;
 		this._clientSecret = process.env.APP_CLIENT_SECRET!;
@@ -36,7 +41,7 @@ export class ToolsApp {
 			this._tenantId,
 			this._clientId,
 			this._clientSecret,
-			process.env.TOOL_SITE!,
+			toolSite,
 			logger,
 		);
 	}
@@ -195,10 +200,22 @@ export class ToolsApp {
 			const items = await site.getToolItems(format);
 			let created = 0;
 			let updated = 0;
-			let deleted = 0;
+			let deleted = 0; // Ensure the Languages exist (if not done elsewhere)
+			const englishLanguage = await prisma.language.upsert({
+				where: { name: 'English' },
+				update: {},
+				create: { name: 'English', code: 'en' },
+			});
+			const italianLanguage = await prisma.language.upsert({
+				where: { name: 'Italian' },
+				update: {},
+				create: { name: 'Italian', code: 'it' },
+			});
+
 			await Promise.all(
 				items.map(async sharePointItem => {
 					const dbItem = db.find(item => item.koksmat_masterdata_id === sharePointItem.id);
+					const translations = ToolsApp.buildTranslations(sharePointItem);
 					if (dbItem) {
 						if (
 							dbItem.koksmat_masterdata_etag === sharePointItem._UIVersionString &&
@@ -226,41 +243,124 @@ export class ToolsApp {
 							'Updating item',
 						);
 						try {
-							const updatedRecord = await prisma.tool.update({
-								where: {
-									id: dbItem.id,
-								},
-								data: {
-									koksmat_masterdata_etag: sharePointItem._UIVersionString,
-									name: sharePointItem.TitleEnglish,
-									description: sharePointItem.DescriptionEnglish,
-									updated_by: sharePointItem.UpdateBy,
-									created_by: sharePointItem.CreatedBy,
-									documents: ToolsApp.buildDocumentCollection(sharePointItem),
-
-									translations: ToolsApp.buildTranslations(sharePointItem),
-									purposes: {
-										connectOrCreate: {
-											where: {
-												name: sharePointItem.Business_Purpose?.Label ?? 'Unknown',
+							// Now run the update and upserts in a transaction:
+							const updatedRecord = await prisma.$transaction(async tx => {
+								// Update the Tool record
+								const updatedTool = await tx.tool.update({
+									where: { id: dbItem.id },
+									data: {
+										koksmat_masterdata_etag: sharePointItem._UIVersionString,
+										name: sharePointItem.TitleEnglish,
+										description: sharePointItem.DescriptionEnglish,
+										updated_by: sharePointItem.UpdateBy,
+										created_by: sharePointItem.CreatedBy,
+										documents: ToolsApp.buildDocumentCollection(sharePointItem),
+										translations: ToolsApp.buildTranslations(sharePointItem),
+										purposes: {
+											connectOrCreate: {
+												where: {
+													name:
+														sharePointItem.Business_Purpose?.Label ??
+														'Unknown',
+												},
+												create: {
+													name:
+														sharePointItem.Business_Purpose?.Label ??
+														'Unknown',
+												},
 											},
-											create: {
-												name: sharePointItem.Business_Purpose?.Label ?? 'Unknown',
+										},
+										category: {
+											connectOrCreate: {
+												where: { name: sharePointItem.Category },
+												create: { name: sharePointItem.Category },
 											},
 										},
 									},
+								});
 
-									category: {
-										connectOrCreate: {
-											where: {
-												name: sharePointItem.Category,
-											},
-											create: {
-												name: sharePointItem.Category,
-											},
+								// Upsert the English translation for this tool
+								await tx.toolTexts.upsert({
+									// Use the composite unique key (toolId, languageId)
+									where: {
+										toolId_languageId: {
+											toolId: dbItem.id,
+											languageId: englishLanguage.id,
 										},
 									},
-								},
+									update: {
+										name: getTranslation(
+											translations,
+											'name',
+											'en',
+											sharePointItem.TitleEnglish!,
+										),
+										description: getTranslation(
+											translations,
+											'description',
+											'en',
+											sharePointItem.DescriptionEnglish!,
+										),
+									},
+									create: {
+										name: getTranslation(
+											translations,
+											'name',
+											'en',
+											sharePointItem.TitleEnglish!,
+										),
+										description: getTranslation(
+											translations,
+											'description',
+											'en',
+											sharePointItem.DescriptionEnglish!,
+										),
+										tool: { connect: { id: dbItem.id } },
+										language: { connect: { id: englishLanguage.id } },
+									},
+								});
+
+								// Upsert the Italian translation for this tool
+								await tx.toolTexts.upsert({
+									where: {
+										toolId_languageId: {
+											toolId: dbItem.id,
+											languageId: italianLanguage.id,
+										},
+									},
+									update: {
+										name: getTranslation(
+											translations,
+											'name',
+											'it',
+											sharePointItem.TitleEnglish!,
+										),
+										description: getTranslation(
+											translations,
+											'description',
+											'it',
+											sharePointItem.DescriptionEnglish!,
+										),
+									},
+									create: {
+										name: getTranslation(
+											translations,
+											'name',
+											'it',
+											sharePointItem.TitleEnglish!,
+										),
+										description: getTranslation(
+											translations,
+											'description',
+											'it',
+											sharePointItem.DescriptionEnglish!,
+										),
+										tool: { connect: { id: dbItem.id } },
+										language: { connect: { id: italianLanguage.id } },
+									},
+								});
+
+								return updatedTool;
 							});
 							this.log.info('Updated', updatedRecord.id);
 							await this.writeSyncLogInfo('update', {
