@@ -5,7 +5,6 @@ async function main() {
 	const app = new ToolsApp();
 
 	await app.syncronizeAll({ force: true });
-	// await app.syncUserProfiles({ createOnly: true, force: false });
+	await app.syncUserProfiles({ createOnly: true, force: false });
 }
 main();
-console.log('done');

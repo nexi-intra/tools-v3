@@ -11,7 +11,7 @@ import { MyToolListServer } from "./my-tools-list-server";
 import { getTranslation } from "@/schemas/_shared";
 import { documentsJSONDatabaseFieldSchema, translationJSONDatabaseFieldSchema } from "@/schemas/database";
 import { extractSearchTokens } from "@/lib/search";
-
+import { Tool } from "@prisma/client"
 
 interface ToolsPageProps {
   className?: string;
@@ -149,7 +149,8 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
             </div>
             <div className="relative">
               <div className="flex flex-wrap">
-                {tools.map((tool, key) => {
+
+                {tools.map((tool: Tool, key): React.JSX.Element => {
                   const parsedTranslations = translationJSONDatabaseFieldSchema.safeParse(tool.translations)
                   if (!parsedTranslations.success) {
                     console.error(parsedTranslations.error)
