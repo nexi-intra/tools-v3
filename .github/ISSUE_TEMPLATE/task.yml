@@ -1,0 +1,30 @@
+name: "Task Request"
+description: "Submit a request for a artifact ."
+title: "[Task]: "
+type: Task
+
+assignees: []
+body:
+- type: checkboxes
+  id: types
+  attributes:
+    label: Type of artifacts?
+    options:
+      - label: API
+      - label: Page
+      - label: Component
+
+- type: textarea
+  id: behaviour
+  attributes:
+    label: Behaviour
+    description: "High  level description of the expected flow."
+    value: |
+      1.
+      2.
+      3.
+      ...
+    render: bash
+  validations:
+    required: true      
+

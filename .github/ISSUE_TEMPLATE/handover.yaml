@@ -1,0 +1,21 @@
+name: ℹ️ Knowledge Bite
+description: Register a information to share
+title: "[INFO] <title>"
+labels: ["Info"]
+body:
+- type: textarea
+  attributes:
+    label: TLDR;
+    description: A one liner explaining this bite
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Details
+    description: |
+      Links? References? Anything that will give you more context about this knowledge bite
+
+      Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+  validations:
+    required: false

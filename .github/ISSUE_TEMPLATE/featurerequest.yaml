@@ -1,0 +1,63 @@
+name: "Feature Request"
+description: "Submit a request for a new feature or enhancement."
+title: "[Feature]: "
+labels: 
+  - feature
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Description
+        Please provide a detailed description of the feature you'd like to see implemented.
+
+  - type: input
+    id: feature_overview
+    attributes:
+      label: "Overview"
+      description: "Provide a concise summary of the feature. What is the problem or opportunity it will address?"
+      placeholder: "Feature overview..."
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: "Expected Behavior"
+      description: "Describe the desired outcome of this feature. What should happen when the feature is implemented?"
+      placeholder: "Expected behavior..."
+
+  - type: textarea
+    id: use_cases
+    attributes:
+      label: "Use Cases"
+      description: "Describe the specific use cases for the feature. Include any relevant examples or scenarios."
+      placeholder: "Use case details..."
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: "Benefits"
+      description: "How will this feature benefit the project? Who are the primary beneficiaries?"
+      placeholder: "Project benefits..."
+
+  - type: textarea
+    id: technical_requirements
+    attributes:
+      label: "Technical Requirements"
+      description: "List any technical requirements, constraints, or dependencies relevant to this feature (optional)."
+      placeholder: "Technical requirements (optional)..."
+      render: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "Describe any alternative solutions you considered, and why this feature is the better option."
+      placeholder: "Alternatives considered..."
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Provide any other information or context for this feature (optional)."
+      placeholder: "Additional context (optional)..."
+      render: false
