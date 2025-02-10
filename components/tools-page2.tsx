@@ -3,17 +3,14 @@
 import React, { } from "react";
 import { SupportedLanguage } from "@/contexts/language-context";
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
 import prisma from "@/prisma";
 import { ToolCardMediumComponent } from "./tool-card-medium";
 import { ToolView } from "@/schemas/forms";
 import SearchTools from "./search-tools";
-import { MyToolList } from "@/components//my-tool-list";
 import { MyToolListServer } from "./my-tools-list-server";
-import { getTranslation, translationsSchema } from "@/schemas/_shared";
-import { DocumentsJSONDatabaseField, documentsJSONDatabaseFieldSchema, translationJSONDatabaseFieldSchema } from "@/schemas/database";
+import { getTranslation } from "@/schemas/_shared";
+import { documentsJSONDatabaseFieldSchema, translationJSONDatabaseFieldSchema } from "@/schemas/database";
 import { extractSearchTokens } from "@/lib/search";
-import { FaCircle, FaSquare } from "react-icons/fa";
 
 
 interface ToolsPageProps {
