@@ -3,11 +3,11 @@ generator client {
   previewFeatures = ["typedSql"]
 }
 
-generator markdown {
-  provider = "prisma-markdown"
-  output   = "./ERD.md"
-  title    = "Tool Application"
-}
+// generator markdown {
+//   provider = "prisma-markdown"
+//   output   = "./ERD.md"
+//   title    = "Tool Application"
+// }
 
 datasource db {
   provider = "postgresql"
