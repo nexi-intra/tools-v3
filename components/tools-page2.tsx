@@ -65,30 +65,6 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
 
 
 
-  // const tools = (await prisma.tool.findMany({
-  //   where: {
-  //     OR: [
-  //       {
-  //         name: {
-  //           contains: props.query ?? "",
-  //           mode: "insensitive"
-  //         },
-  //       },
-
-  //       {
-  //         description: {
-  //           contains: props.query ?? "",
-  //           mode: "insensitive"
-  //         }
-  //       }
-  //     ]
-  //   },
-  //   orderBy: {
-  //     name: "asc"
-  //   },
-  // }
-
-  // ))
   const searchText = "your search text";
   const languageCode = "en"; // For example, "en" for English
   const language = props.language;
@@ -126,7 +102,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
   return (
     <div className="h-full w-full">
       <div className="lg:flex">
-        <main className="w-full lg:w-3/4">
+        <main className="w-full">
           <div className=" min-w-full ">
             <div className="relative">
               <h3 className="font-semibold mb-2 sticky top-10 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
@@ -170,7 +146,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
                     deleted_at: null,
                     category: { value: "Corp", color: "#123141", id: 0, order: "" },
                     name: translatedName,
-                    id: 0,
+                    id: tool.id,
                     created_at: new Date(),
                     created_by: "",
                     updated_at: new Date(),

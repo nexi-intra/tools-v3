@@ -1,17 +1,23 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Star } from 'lucide-react'
 import { z } from "zod"
 import { ComponentDoc } from './component-documentation-hub'
 import { kError, kVerbose } from '@/lib/koksmat-logger-client'
 
 import { useLanguage, SupportedLanguage } from "@/contexts/language-context"
+import { favouriteConnect, favouriteDisconnect } from '@/actions/user-actions'
+import { MagicboxContext } from '@/contexts/magicbox-context'
+import { useToast } from "@/hooks/use-toast"
+import { add } from 'lodash-es'
 
 const favoriteTranslationSchema = z.object({
   removeFavorites: z.string(),
   addFavorites: z.string(),
   favoriteStatus: z.string(),
+  added: z.string(),
+  error: z.string(),
 });
 
 type FavoriteTranslation = z.infer<typeof favoriteTranslationSchema>;
@@ -25,16 +31,22 @@ const translations: FavoriteTranslations = {
     removeFavorites: "Remove from favorites",
     addFavorites: "Add to favorites",
     favoriteStatus: "Favorite status",
+    added: "Added to favorites",
+    error: "Error updating favorite",
   },
   da: {
     removeFavorites: "Fjern fra favoritter",
     addFavorites: "Tilføj til favoritter",
     favoriteStatus: "Favoritstatus",
+    added: "Tilføjet til favoritter",
+    error: "Fejl ved opdatering af favorit",
   },
   it: {
     removeFavorites: "Rimuovi dai preferiti",
     addFavorites: "Aggiungi ai preferiti",
     favoriteStatus: "Stato preferito",
+    added: "Aggiunto ai preferiti",
+    error: "Errore durante l'aggiornamento dei preferiti",
   },
 };
 
@@ -55,6 +67,8 @@ export function FavoriteComponent({
   tool_id,
   email
 }: FavoriteProps) {
+  const { toast } = useToast()
+  const magicbox = useContext(MagicboxContext)
   const { language } = useLanguage();
   const t = translations[language];
 
@@ -67,6 +81,7 @@ export function FavoriteComponent({
   }, [defaultIsFavorite])
 
   const handleToggle = async () => {
+    debugger
     if (mode !== 'view') {
       const newState = !isFavorite
       try {
@@ -75,8 +90,12 @@ export function FavoriteComponent({
             email, tool_id, is_favorite: newState
           }
           kVerbose("component", "FavoriteComponent onSave", data, mode);
-          //TODO: Implement the databaseActions and useKoksmatDatabase
-          // const writeOperation = await table.execute(actionName, data)
+          const success = newState ? await favouriteConnect(magicbox.authtoken, tool_id) : await favouriteDisconnect(magicbox.authtoken, tool_id)
+          toast({
+
+            description: success ? t?.added : t?.error,
+          })
+
 
         }
         setIsFavorite(newState)
