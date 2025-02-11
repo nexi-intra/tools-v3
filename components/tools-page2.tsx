@@ -176,6 +176,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
                     updated_at: new Date(),
                     updated_by: "",
                     url: tool.url,
+                    icon: tool.icon!,
                     documents: parsedDocuments.data ?? [],
                     groupId: "",
                     tags: [],

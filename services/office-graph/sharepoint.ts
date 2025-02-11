@@ -15,6 +15,14 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import * as forge from 'node-forge';
+import { ToolsApp } from '@/internal/tools-app';
+import { ToolSpokeSite } from '@/internal/toolspokesite';
+import { IAttachmentInfo } from '@pnp/sp/attachments';
+import { IItem } from '@pnp/sp/items/types';
+import '@pnp/sp/webs';
+import '@pnp/sp/lists/web';
+import '@pnp/sp/items';
+import '@pnp/sp/attachments';
 
 /*
   url = https://site.sharepoint.com/sites/site-name/lists/list-name/items/item-id
@@ -341,69 +349,40 @@ export class SharePointGraphClient extends OfficeGraphClient {
 			AzureIdentity(credential, ['https://graph.microsoft.com/.default']),
 		);
 
-		// Example: Retrieve SharePoint web details.
-		// const webData = await sp.web();
-		// this.logger.verbose('SharePoint site title:', webData.Title);
-
-		// // Example: Retrieve a list of users (avoid using /me in app-only mode).
-		// const users = await graph.users();
-		// this.logger.verbose('First user from Graph:', users[0]);
-
-		// Optionally, remove the temporary PEM file if no longer needed.
-		// fs.unlinkSync(pemFilePath);
 		return { sp, graph };
 	}
 
-	/*
-async  fetchAttachments() {
-  try {
-    const response = await fetch(attachmentsUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
+	async getSharePointFirstItemAttachment(listName: string, itemId: number) {
+		const pnp = await this.getPnpConnections();
+		const item = await pnp.sp.web.lists.getByTitle(listName).items.getById(itemId);
+		const web = await pnp.sp.web();
+		this.logger.info('Connected to site named', web.Title);
+		// get all the attachments
+		const info: IAttachmentInfo[] = await item.attachmentFiles();
 
-    if (!response.ok) {
-      throw new Error(`Graph API request failed with status ${response.status}: ${response.statusText}`);
-    }
+		if (info.length > 0) {
+			const file = info[0];
+			// Download the file as a Blob
+			const fileBlob = await item.attachmentFiles.getByName(file.FileName).getBlob();
 
-    const data = await response.json();
-    // data.value is expected to be an array of attachment objects.
-    const attachments = data.value;
+			// Convert the Blob to an ArrayBuffer
+			const arrayBuffer = await fileBlob.arrayBuffer();
 
-    attachments.forEach((attachment: any) => {
-      // Check if this is a fileAttachment; other types might be present.
-      if (attachment['@odata.type'] === '#microsoft.graph.fileAttachment') {
-        const fileName = attachment.name;
-        const contentType = attachment.contentType;
-        const size = attachment.size;
-        const base64Content = attachment.contentBytes; // Already Base64 encoded
+			// Convert the ArrayBuffer to a Node Buffer and then to a base64 string
+			const base64String = Buffer.from(arrayBuffer).toString('base64');
 
-        console.log(`Attachment: ${fileName}`);
-        console.log(`Type: ${contentType}, Size: ${size} bytes`);
-        console.log(`Base64 Encoded Content (first 100 chars): ${base64Content.substring(0, 100)}...`);
+			// Use the Blob's MIME type if available, otherwise fallback to a generic type
+			const mimeType = fileBlob.type || 'application/octet-stream';
 
-        // If you need to include the attachment in a JSON element,
-        // you can structure it as follows:
-        const attachmentJson = {
-          fileName,
-          contentType,
-          size,
-          base64Content
-        };
+			// Create a data URL with the base64 string
+			const dataUrl = `data:${mimeType};base64,${base64String}`;
 
-        // Do something with attachmentJson (e.g., store it, send it, etc.)
-        console.log(attachmentJson);
-      } else {
-        console.warn('Attachment is not a fileAttachment:', attachment);
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching attachments:', error);
-  }
-}
-
-*/
+			this.logger.verbose('Data URL:', dataUrl);
+			return dataUrl;
+			// Now you can use `dataUrl` as the href for a link, e.g., write it to a file or send it in a response.
+		} else {
+			this.logger.verbose('No attachments found');
+			return null;
+		}
+	}
 }

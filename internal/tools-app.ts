@@ -340,190 +340,9 @@ export class ToolsApp {
 
 			await Promise.all(
 				items.map(async sharePointItem => {
-					const result = await this.syncItem(sharePointItem, koksmat_masterdataref, options);
+					const result = await this.syncItem(site, sharePointItem, koksmat_masterdataref, options);
 					if (result?.created) created++;
 					if (result?.updated) updated++;
-					// const dbItem = db.find(item => item.koksmat_masterdata_id === sharePointItem.id);
-					// const translations = ToolsApp.buildTranslations(sharePointItem);
-					// if (dbItem) {
-					// 	if (
-					// 		dbItem.koksmat_masterdata_etag === sharePointItem._UIVersionString &&
-					// 		!options.force
-					// 	) {
-					// 		this.log.verbose(
-					// 			`SharePoint : ${sharePointItem.id}`,
-					// 			koksmat_masterdataref,
-					// 			sharePointItem.id,
-					// 			sharePointItem._UIVersionString,
-					// 			'No changes',
-					// 		);
-					// 		return;
-					// 	}
-					// 	/**
-					// 	 *  --------------------------------------------------------------------------------
-					// 	 *  Updating
-					// 	 *  --------------------------------------------------------------------------------
-					// 	 *  */
-					// 	this.log.highlight(
-					// 		`SharePoint : ${sharePointItem.id}`,
-					// 		koksmat_masterdataref,
-					// 		sharePointItem.id,
-					// 		sharePointItem._UIVersionString,
-					// 		'Updating item',
-					// 	);
-					// 	try {
-					// 		// Now run the update and upserts in a transaction:
-					// 		const updatedRecord = await prisma.$transaction(async tx => {
-					// 			// Update the Tool record
-					// 			/**
-					// 			 * Updates a tool record in the database with the provided SharePoint item data.
-					// 			 *
-					// 			 * @param {Object} tx - The transaction object used to perform the update.
-					// 			 * @param {Object} dbItem - The database item to be updated.
-					// 			 * @param {Object} sharePointItem - The SharePoint item containing the updated data.
-					// 			 * @returns {Promise<Object>} The updated tool record.
-					// 			 *
-					// 			 * @property {string} koksmat_masterdata_etag - The eTag from the SharePoint item.
-					// 			 * @property {string} name - The English title of the SharePoint item.
-					// 			 * @property {string} description - The English description of the SharePoint item.
-					// 			 * @property {string} updated_by - The user who updated the SharePoint item.
-					// 			 * @property {string} created_by - The user who created the SharePoint item.
-					// 			 * @property {Object} documents - The document collection built from the SharePoint item.
-					// 			 * @property {Object} translations - The translations built from the SharePoint item.
-					// 			 * @property {Object} purposes - The business purpose of the tool, connected or created if not existing.
-					// 			 * @property {Object} category - The category of the tool, connected or created if not existing.
-					// 			 */
-					// 			const updatedTool = await tx.tool.update({
-					// 				where: { id: dbItem.id },
-					// 				data: {
-					// 					koksmat_masterdata_etag: sharePointItem._UIVersionString,
-					// 					name: sharePointItem.TitleEnglish,
-					// 					description: sharePointItem.DescriptionEnglish,
-					// 					updated_by: sharePointItem.UpdateBy,
-					// 					created_by: sharePointItem.CreatedBy,
-					// 					documents: ToolsApp.buildDocumentCollection(sharePointItem),
-					// 					translations: ToolsApp.buildTranslations(sharePointItem),
-					// 					purposes: {
-					// 						connectOrCreate: {
-					// 							where: {
-					// 								name:
-					// 									sharePointItem.Business_Purpose?.Label ??
-					// 									'Unknown',
-					// 							},
-					// 							create: {
-					// 								name:
-					// 									sharePointItem.Business_Purpose?.Label ??
-					// 									'Unknown',
-					// 							},
-					// 						},
-					// 					},
-					// 					category: {
-					// 						connectOrCreate: {
-					// 							where: { name: sharePointItem.Category },
-					// 							create: { name: sharePointItem.Category },
-					// 						},
-					// 					},
-					// 				},
-					// 			});
-
-					// 			await upsertToolTranslations(
-					// 				tx,
-					// 				dbItem,
-					// 				englishLanguage,
-					// 				translations,
-					// 				sharePointItem,
-					// 				italianLanguage,
-					// 			);
-
-					// 			return updatedTool;
-					// 		});
-					// 		this.log.info('Updated', updatedRecord.id);
-					// 		await this.writeSyncLogInfo('update', {
-					// 			sharePointItem,
-					// 			updatedRecord,
-					// 		});
-
-					// 		updated++;
-					// 	} catch (error) {
-					// 		this.log.error('Syncronising Tools', (error as Error).message);
-					// 		await this.writeSyncLogError('update', { sharePointItem }, error as Error);
-					// 	}
-					// } else {
-					// 	/**
-					// 	 *  --------------------------------------------------------------------------------
-					// 	 *  Creating
-					// 	 *  --------------------------------------------------------------------------------
-					// 	 *  */
-
-					// 	this.log.highlight(
-					// 		`SharePoint : ${sharePointItem.id}`,
-					// 		koksmat_masterdataref,
-					// 		sharePointItem.id,
-					// 		sharePointItem._UIVersionString,
-					// 		'New item',
-					// 	);
-					// 	try {
-					// 		const newRecord = await prisma.$transaction(async tx => {
-					// 			const newTool = await tx.tool.create({
-					// 				data: {
-					// 					koksmat_masterdata_etag: sharePointItem._UIVersionString,
-					// 					koksmat_masterdata_id: sharePointItem.id,
-					// 					koksmat_masterdataref: koksmat_masterdataref,
-					// 					updated_by: sharePointItem.UpdateBy,
-					// 					created_by: sharePointItem.CreatedBy,
-					// 					documents: ToolsApp.buildDocumentCollection(sharePointItem),
-					// 					url: sharePointItem.Link.Url,
-					// 					purposes: {
-					// 						connectOrCreate: {
-					// 							where: {
-					// 								name:
-					// 									sharePointItem.Business_Purpose?.Label ??
-					// 									'Unknown',
-					// 							},
-					// 							create: {
-					// 								name:
-					// 									sharePointItem.Business_Purpose?.Label ??
-					// 									'Unknown',
-					// 							},
-					// 						},
-					// 					},
-
-					// 					category: {
-					// 						connectOrCreate: {
-					// 							where: {
-					// 								name: sharePointItem.Category,
-					// 							},
-					// 							create: {
-					// 								name: sharePointItem.Category,
-					// 							},
-					// 						},
-					// 					},
-					// 					name: sharePointItem.TitleEnglish!,
-					// 					description: sharePointItem.DescriptionEnglish!,
-					// 				},
-					// 			});
-					// 			await this.writeSyncLogInfo('create', {
-					// 				sharePointItem,
-					// 				newRecord,
-					// 			});
-
-					// 			created++;
-					// 			this.log.info('Created', newRecord.id);
-					// 			await upsertToolTranslations(
-					// 				tx,
-					// 				newRecord,
-					// 				englishLanguage,
-					// 				translations,
-					// 				sharePointItem,
-					// 				italianLanguage,
-					// 			);
-					// 			return newTool;
-					// 		});
-					// 	} catch (error) {
-					// 		this.log.error('Syncronising Tools', (error as Error).message);
-					// 		await this.writeSyncLogError('create', { sharePointItem }, error as Error);
-					// 	}
-					// }
 				}),
 			);
 
@@ -535,6 +354,7 @@ export class ToolsApp {
 		}
 	}
 	async syncItem(
+		site: ToolSpokeSite,
 		sharePointItem: ToolsSchemaType,
 		koksmat_masterdataref: string,
 		options: { force: boolean } = { force: false },
@@ -559,6 +379,7 @@ export class ToolsApp {
 			updated: 0,
 			deleted: 0,
 		};
+
 		const translations = ToolsApp.buildTranslations(sharePointItem);
 		if (dbItem) {
 			if (dbItem.koksmat_masterdata_etag === sharePointItem._UIVersionString && !options.force) {
@@ -582,6 +403,11 @@ export class ToolsApp {
 				sharePointItem.id,
 				sharePointItem._UIVersionString,
 				'Updating item',
+			);
+
+			const image = await site.getSharePointFirstItemAttachment(
+				await site.getToolListName(),
+				parseInt(sharePointItem.id),
 			);
 			try {
 				// Now run the update and upserts in a transaction:
@@ -613,6 +439,7 @@ export class ToolsApp {
 							description: sharePointItem.DescriptionEnglish,
 							updated_by: sharePointItem.UpdateBy,
 							created_by: sharePointItem.CreatedBy,
+							icon: image!,
 							documents: ToolsApp.buildDocumentCollection(sharePointItem),
 							translations: ToolsApp.buildTranslations(sharePointItem),
 							purposes: {

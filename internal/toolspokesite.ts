@@ -27,7 +27,7 @@ export class ToolSpokeSite extends SharePointGraphClient {
 	}
 
 	async getToolListName() {
-		return this._toolListName;
+		return decodeURIComponent(this._toolListName);
 	}
 
 	async getToolItem(format: ToolFormatTypes, id: string): Promise<ToolsSchemaType> {
