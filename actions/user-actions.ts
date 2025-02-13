@@ -1,15 +1,16 @@
 'use server';
+import { getKoksmatTokenCookie } from '@/lib/auth';
 import { decodeJwt } from '@/lib/tokens';
 import prisma from '@/prisma';
 
-export async function favouriteConnect(accessToken: string, toolId: number) {
-	const token = decodeJwt(accessToken);
-	const upn = token.upn;
+export async function actionFavouriteConnect(toolId: number) {
+	const session = await getKoksmatTokenCookie();
+	if (!session) return;
 	let result = false;
 	try {
 		await prisma.userProfile.update({
 			where: {
-				name: upn,
+				id: session.userId,
 			},
 			data: {
 				tools: {
@@ -25,14 +26,14 @@ export async function favouriteConnect(accessToken: string, toolId: number) {
 	}
 	return result;
 }
-export async function favouriteDisconnect(accessToken: string, toolId: number) {
-	const token = decodeJwt(accessToken);
-	const upn = token.upn;
+export async function actionFavouriteDisconnect(toolId: number) {
+	const session = await getKoksmatTokenCookie();
+	if (!session) return;
 	let result = false;
 	try {
 		await prisma.userProfile.update({
 			where: {
-				name: upn,
+				id: session.userId,
 			},
 			data: {
 				tools: {

@@ -11,6 +11,8 @@ import {
   appModeTypes,
 } from "./magicbox-context";
 import { IPublicClientApplication, PopupRequest } from "@azure/msal-browser";
+import { actionSignIn } from "@/actions/session-actions";
+import { set } from "zod";
 
 
 
@@ -19,6 +21,7 @@ type Props = {
 };
 
 export const MagicboxProvider = ({ children }: Props) => {
+  const [roles, setroles] = useState<string[]>([])
   const [session, setsession] = useState<Session>();
   const [version, setversion] = useState(0);
   const [user, setuser] = useState<User>();
@@ -34,6 +37,7 @@ export const MagicboxProvider = ({ children }: Props) => {
 
   const [showtracer, setshowtracer] = useState(false);
   const magicbox: MagicboxContextType = {
+    roles,
     session,
     version,
     refresh: () => {
@@ -43,7 +47,7 @@ export const MagicboxProvider = ({ children }: Props) => {
       scopes: string[],
       loginHint?: string
     ): Promise<boolean> {
-      debugger
+
       if (!pca) throw new Error("MSAL not registered");
 
       const request: PopupRequest = {
@@ -60,6 +64,7 @@ export const MagicboxProvider = ({ children }: Props) => {
           id: result.account.localAccountId,
           roles: result.account.idTokenClaims?.roles ?? [],
         });
+
         return true;
       } catch (error) {
         return false;
@@ -80,13 +85,13 @@ export const MagicboxProvider = ({ children }: Props) => {
 
     user,
     registerAuth: function (pca: IPublicClientApplication): void {
-      debugger
+
       setpca(pca);
     },
     authtoken,
     authSource,
     setAuthToken: function (token: string, source: AuthSource): void {
-      debugger
+
       setauthSource(source);
       setauthtoken(token);
       // getSession(token).then((session) => {
@@ -124,6 +129,19 @@ export const MagicboxProvider = ({ children }: Props) => {
       setshowtracer(showtracer === "true");
     }
   }, []);
+
+
+  useEffect(() => {
+    const load = async () => {
+      if (!authtoken) return;
+
+      const roles = await actionSignIn(authtoken)
+      setroles(roles)
+
+    }
+    load();
+  }, [authtoken]);
+
   return (
     <MagicboxContext.Provider value={magicbox}>
       {children}

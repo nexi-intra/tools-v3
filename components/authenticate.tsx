@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useMsal, useAccount } from "@azure/msal-react";
 import { MagicboxContext } from "@/contexts/magicbox-context";
 import { https } from "@/contexts/httphelper";
+import { useRouter } from "next/navigation";
+import { set } from "zod";
 
 interface APIScopeProps {
   scopes: string[];
@@ -29,8 +31,12 @@ export default function Authenticate(props: {
   const [latestResponse, setlatestResponse] = useState<any>();
   const [token, settoken] = useState("");
   const [latestError, setlatestError] = useState<any>();
+  const router = useRouter();
+  const [signinError, setsigninError] = useState(false)
 
-  const aquireToken = async (apiScope: APIScopeProps) => {
+  async function aquireToken(apiScope: APIScopeProps): Promise<string | null> {
+    let result: string | null = null;
+    //debugger
     setlatestError(undefined);
     setlatestResponse(undefined);
     await instance.initialize();
@@ -49,6 +55,7 @@ export default function Authenticate(props: {
           apiScope.testurl
         );
         setlatestResponse(getResponse);
+        result = response.accessToken;
       } catch (error) {
         try {
           const response = await instance.acquireTokenPopup({
@@ -64,11 +71,13 @@ export default function Authenticate(props: {
             apiScope.testurl
           );
           setlatestResponse(getResponse);
+          result = response.accessToken;
         } catch (error) {
           setlatestError(error);
         }
       }
     }
+    return result;
   };
 
   useEffect(() => {
@@ -78,8 +87,13 @@ export default function Authenticate(props: {
         settoken(magicbox.authtoken);
         return;
       }
-      //TODO: make the aquiring of token return a value that can be used here
-      await aquireToken(apiScope);
+
+      const token = await aquireToken(apiScope);
+      if (!token) return;
+      settoken(token);
+
+      router.refresh();
+
     };
     if (!apiScope || apiScope === undefined) return;
     load();
@@ -94,7 +108,7 @@ export default function Authenticate(props: {
   if (!magicbox) {
     return <div>no magicbox</div>;
   }
-  if (!magicbox.user) {
+  if (!magicbox.user && magicbox.authtoken === "") {
     return (
       <div className="flex h-screen">
         <div className="grow"></div>
@@ -105,11 +119,25 @@ export default function Authenticate(props: {
             <Button
               onClick={async () => {
                 const signedIn = await magicbox.signIn(["User.Read"], "");
-                magicbox.refresh();
+                if (!signedIn) {
+                  setsigninError(true);
+                  return
+                }
+                const token = await aquireToken(apiScope);
+                if (!token) {
+
+                  window.location.reload();
+                } else {
+                  settoken(token);
+                  magicbox.refresh();
+                }
+
               }}
             >
               Sign In using Microsoft 365 account
             </Button>
+
+            {signinError && <div>Last sign in failed - {latestError}</div>}
           </div>
           <div className="grow"></div>
         </div>

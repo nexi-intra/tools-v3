@@ -31,7 +31,7 @@ export function MSALWrapper({
   useEffect(() => {
     const load = async () => {
       if (!msalInstance) return;
-      debugger
+
       await msalInstance.initialize();
       magicbox.registerAuth(msalInstance);
       // Account selection logic is app dependent. Adjust as needed for different use cases.

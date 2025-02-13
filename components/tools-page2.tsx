@@ -12,6 +12,9 @@ import { getTranslation } from "@/schemas/_shared";
 import { documentsJSONDatabaseFieldSchema, translationJSONDatabaseFieldSchema } from "@/schemas/database";
 import { extractSearchTokens } from "@/lib/search";
 import { Tool } from "@prisma/client"
+import { ToolCardMiniComponent } from "./tool-card-mini";
+import IconWithDetail from "./icon-with-detail";
+import { getKoksmatTokenCookie } from "@/lib/auth";
 
 interface ToolsPageProps {
   className?: string;
@@ -27,6 +30,10 @@ const translationSchema = z.object({
   purposes: z.string(),
   categories: z.string(),
   searchTools: z.string(),
+  noToolFoundTitle: z.string(),
+  noToolFoundGuide: z.string(),
+  searchFor: z.string(),
+  notLoggedIn: z.string(),
 });
 
 type Translation = z.infer<typeof translationSchema>;
@@ -39,6 +46,10 @@ const translations: Record<SupportedLanguage, Translation> = {
     purposes: "Purposes",
     categories: "Categories",
     searchTools: "Search tools...",
+    noToolFoundTitle: "No tools found",
+    noToolFoundGuide: "Find a tool in the list and click the star to mark it as a Favorite",
+    searchFor: "Search for",
+    notLoggedIn: "Not logged in",
   },
   da: {
     yourTools: "Dine værktøjer",
@@ -47,6 +58,10 @@ const translations: Record<SupportedLanguage, Translation> = {
     purposes: "Formål",
     categories: "Kategorier",
     searchTools: "Søg værktøjer...",
+    noToolFoundTitle: "Ingen værktøjer fundet",
+    noToolFoundGuide: "Find et værktøj på listen og klik på stjernen for at markere det som en favorit",
+    searchFor: "Søg efter",
+    notLoggedIn: "Ikke logget ind",
   },
   it: {
     yourTools: "I tuoi strumenti",
@@ -55,12 +70,17 @@ const translations: Record<SupportedLanguage, Translation> = {
     purposes: "Scopi",
     categories: "Categorie",
     searchTools: "Cerca strumenti...",
+    noToolFoundTitle: "Nessun strumento trovato",
+    noToolFoundGuide: "Trova uno strumento nell'elenco e fai clic sulla stella per contrassegnarlo come preferito",
+    searchFor: "Cerca",
+    notLoggedIn: "Non connesso",
   },
 };
 
 
 
 export async function ToolsPage2(props: { query: string, language: SupportedLanguage }) {
+
   const searchWords = extractSearchTokens(props.query);
 
 
@@ -68,8 +88,18 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
   const searchText = "your search text";
   const languageCode = "en"; // For example, "en" for English
   const language = props.language;
+  const session = await getKoksmatTokenCookie();
+  if (!session) {
+    return <div className="text-red-500 p-20">Not logged in</div>
+  }
+  const currentUserProfile = await prisma.userProfile.findUnique({
+    where: {
+      id: session.userId,
+    },
+  });
   const tools = await prisma.tool.findMany({
     where: {
+
       ToolTexts: {
         // Using the "some" filter ensures that at least one related ToolText meets the criteria.
         some: {
@@ -93,6 +123,35 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
         },
       },
     },
+    include: {
+      userProfiles: {
+        where: { id: currentUserProfile?.id },
+        // Optionally, if you expect only one result, you can limit it:
+        take: 1,
+      },
+      category: true,
+    }
+  });
+  const yourTools = await prisma.tool.findMany({
+    where: {
+      userProfiles: {
+        some: {
+          id: currentUserProfile?.id,
+        },
+
+      },
+
+
+    },
+    include: {
+      userProfiles: {
+        where: { id: currentUserProfile?.id },
+        // Optionally, if you expect only one result, you can limit it:
+        take: 1,
+      },
+      purposes: true,
+      category: true,
+    }
   });
 
 
@@ -106,13 +165,40 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
           <div className=" min-w-full ">
             <div className="relative">
               <h3 className="font-semibold mb-2 sticky top-10 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
-                {t?.yourTools}
+                {currentUserProfile?.displayName} - {t?.yourTools}
               </h3>
-              {JSON.stringify(searchWords)}
-              <MyToolListServer searchFor={""} />
+              <div className="relative">
+                <div className="flex flex-wrap">
+                  {yourTools.length === 0 && <div className="p-3" >
+                    <div className="text-center text-2xl p-10">{t.noToolFoundTitle}</div>
+                    <div>{t.noToolFoundGuide}</div>
+                  </div>}
+
+
+                  {yourTools.map((tool, key): React.JSX.Element => {
+                    // const p = tool.purposes.map((purpose) => purpose.name).join(", ");
+                    // tool.name = tool.name + " " + p
+                    const toolView: ToolView = mapTool(tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
+                    return <div key={key} className="p-3" >
+                      {/* <ToolCardMiniComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} /> */}
+                      {/* <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} /> */}
+                      <IconWithDetail id={tool.id}
+
+                        isFavorite={tool.userProfiles.length > 0}
+                        icon={toolView.icon!} title={toolView.name} description={toolView.description} name={toolView.name} link={toolView.url} />
+                    </div>
+                  })}
+
+                </div>
+              </div>
+
             </div>
             <div className="sticky top-0 z-10 bg-white dark:bg-gray-800">
-              <SearchTools value={props.query} placeholder={"Search for"} properties={[
+              <h3 className="font-semibold mb-2 sticky top-15 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
+                {t?.allTools}
+              </h3>
+
+              <SearchTools value={props.query} placeholder={t.searchFor} properties={[
                 //   {
                 //   name: "country",
                 //   values: [
@@ -126,40 +212,10 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
             <div className="relative">
               <div className="flex flex-wrap">
 
-                {tools.map((tool: Tool, key): React.JSX.Element => {
-                  const parsedTranslations = translationJSONDatabaseFieldSchema.safeParse(tool.translations)
-                  if (!parsedTranslations.success) {
-                    console.error(parsedTranslations.error)
-                  }
-                  const translatedName = getTranslation(parsedTranslations.data, "name", language, tool.name)
-                  const translatedDescription = getTranslation(parsedTranslations.data, "description", language, tool.description!)
-                  const parsedDocuments = documentsJSONDatabaseFieldSchema.safeParse(tool.documents)
-                  if (!parsedDocuments.success) {
-                    console.error(parsedDocuments.error)
-                  }
-
-                  const toolView: ToolView = {
-
-                    purposes: [],
-                    description: translatedDescription,
-                    status: "deprecated",
-                    deleted_at: null,
-                    category: { value: "Corp", color: "#123141", id: 0, order: "" },
-                    name: translatedName,
-                    id: tool.id,
-                    created_at: new Date(),
-                    created_by: "",
-                    updated_at: new Date(),
-                    updated_by: "",
-                    url: tool.url,
-                    icon: tool.icon!,
-                    documents: parsedDocuments.data ?? [],
-                    groupId: "",
-                    tags: [],
-                    version: ""
-                  }
+                {tools.map((tool, key): React.JSX.Element => {
+                  const toolView: ToolView = mapTool(tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
                   return <div key={key} className="p-3" >
-                    <ToolCardMediumComponent allowedTags={[]} isFavorite={false} tool={toolView} searchvalue={props.query} />
+                    <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} />
 
                   </div>
                 })}
@@ -171,6 +227,42 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
       </div>
     </div>
   );
+
+
+
+  function mapTool(tool: Tool, categoryName: string, categoryColor: string, categoryId: number, categoryOrder: string): ToolView {
+    const parsedTranslations = translationJSONDatabaseFieldSchema.safeParse(tool.translations);
+    if (!parsedTranslations.success) {
+      console.error(parsedTranslations.error);
+    }
+    const translatedName = getTranslation(parsedTranslations.data, "name", language, tool.name);
+    const translatedDescription = getTranslation(parsedTranslations.data, "description", language, tool.description!);
+    const parsedDocuments = documentsJSONDatabaseFieldSchema.safeParse(tool.documents);
+    if (!parsedDocuments.success) {
+      console.error(parsedDocuments.error);
+    }
+
+    const toolView: ToolView = {
+      purposes: [],
+      description: translatedDescription,
+      status: "deprecated",
+      deleted_at: null,
+      category: { value: categoryName, color: categoryColor, id: categoryId, order: categoryOrder },
+      name: translatedName,
+      id: tool.id,
+      created_at: new Date(),
+      created_by: "",
+      updated_at: new Date(),
+      updated_by: "",
+      url: tool.url,
+      icon: tool.icon!,
+      documents: parsedDocuments.data ?? [],
+      groupId: "",
+      tags: [],
+      version: ""
+    };
+    return toolView;
+  }
 }
 
 

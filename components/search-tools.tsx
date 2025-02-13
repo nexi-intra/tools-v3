@@ -3,6 +3,7 @@ import React, { use, useEffect, useState } from 'react'
 import TokenInput, { ErrorDetail } from './token-input';
 import { Property } from './token-input-internal';
 import { useRouter, usePathname } from "next/navigation";
+import { Search } from 'lucide-react';
 export type SearchToolsProps = {
   value: string
   placeholder: string
@@ -31,18 +32,20 @@ export default function SearchTools({ value, placeholder, properties }: SearchTo
   }, [searchFor, pathname, router]);
 
   return (
-    <TokenInput
-      placeholder={placeholder}
-      properties={properties}
-      value={searchFor}
-      onChange={function (
-        value: string,
-        hasErrors: boolean,
-        errors: ErrorDetail[]
-      ): void {
-        setsearchFor(value);
-      }}
-    />
+    <div className="flex">
+      <Search />
+      <TokenInput
+        placeholder={placeholder}
+        properties={properties}
+        value={searchFor}
+        onChange={function (
+          value: string,
+          hasErrors: boolean,
+          errors: ErrorDetail[]
+        ): void {
+          setsearchFor(value);
+        }}
+      /></div>
 
   )
 }

@@ -32,6 +32,7 @@ export type MagicboxContextType = {
   session?: Session;
   version: number;
   user?: User;
+  roles: string[];
   setAccount: (
     username: string,
     email: string,
@@ -109,5 +110,6 @@ export const MagicboxContext = createContext<MagicboxContextType>({
   setAppMode: function (mode: appModeTypes): void {
     throw new Error("Function not implemented.");
   },
-  appMode: "normal"
+  appMode: "normal",
+  roles: []
 });

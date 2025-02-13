@@ -15,6 +15,7 @@ import { ComponentDoc } from './component-documentation-hub'
 import { FavoriteComponent } from './favorite'
 import TagSelector, { TagType } from './tag'
 import { MagicboxContext } from '@/contexts/magicbox-context'
+import HighlightedText from './highlightedtext'
 
 
 
@@ -66,7 +67,13 @@ export function ToolCardMiniComponent({ tool, allowedTags, isFavorite }: ToolCar
                   className="rounded-full"
                 />
               </div>
-              <h3 className="text-lg font-semibold text-center">{tool.name}</h3>
+              <div className="flex items-center justify-center h-24 ">
+                <div className="text-center text font-semibold leading-tight text-wrap">
+                  <HighlightedText text={tool.name} searchWord={""} />
+
+                </div>
+              </div>
+
             </div>
           </Button>
         </Link>

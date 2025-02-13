@@ -7,10 +7,10 @@ import { ComponentDoc } from './component-documentation-hub'
 import { kError, kVerbose } from '@/lib/koksmat-logger-client'
 
 import { useLanguage, SupportedLanguage } from "@/contexts/language-context"
-import { favouriteConnect, favouriteDisconnect } from '@/actions/user-actions'
-import { MagicboxContext } from '@/contexts/magicbox-context'
+import { actionFavouriteConnect, actionFavouriteDisconnect } from '@/actions/user-actions'
 import { useToast } from "@/hooks/use-toast"
 import { add } from 'lodash-es'
+import { useRouter } from 'next/navigation'
 
 const favoriteTranslationSchema = z.object({
   removeFavorites: z.string(),
@@ -68,9 +68,10 @@ export function FavoriteComponent({
   email
 }: FavoriteProps) {
   const { toast } = useToast()
-  const magicbox = useContext(MagicboxContext)
+
   const { language } = useLanguage();
   const t = translations[language];
+  const router = useRouter()
 
 
   const [isFavorite, setIsFavorite] = useState(defaultIsFavorite)
@@ -81,7 +82,7 @@ export function FavoriteComponent({
   }, [defaultIsFavorite])
 
   const handleToggle = async () => {
-    debugger
+
     if (mode !== 'view') {
       const newState = !isFavorite
       try {
@@ -90,12 +91,12 @@ export function FavoriteComponent({
             email, tool_id, is_favorite: newState
           }
           kVerbose("component", "FavoriteComponent onSave", data, mode);
-          const success = newState ? await favouriteConnect(magicbox.authtoken, tool_id) : await favouriteDisconnect(magicbox.authtoken, tool_id)
+          const success = newState ? await actionFavouriteConnect(tool_id) : await actionFavouriteDisconnect(tool_id)
           toast({
 
             description: success ? t?.added : t?.error,
           })
-
+          router.refresh()
 
         }
         setIsFavorite(newState)
