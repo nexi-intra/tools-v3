@@ -4,38 +4,44 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner"
 import { Toaster as TT } from "@/components/ui/toaster"
 import './globals.css';
-
+import { headers } from 'next/headers';
 import Providers from './providers';
 import { APPNAME } from './global';
-export const metadata: Metadata = {
-	metadataBase: new URL(
-		"https://tools.intra.nexigroup.com"
-	),
-	title: {
-		template: "%s | Nexi Tools",
-		default: "Nexi Tools",
-	},
-	openGraph: {
-		title: "Nexi Tools",
+
+export async function generateMetadata() {
+	const host = (await headers()).get('host') || 't.intra.nexigroup.com';
+	const metadata: Metadata = {
+		metadataBase: new URL(
+			"https://" + host,
+		),
+		title: {
+			template: "%s | Nexi Tools",
+			default: "Nexi Tools",
+		},
+		openGraph: {
+			title: "Nexi Tools",
+			description: "Nexi tools provide access to your tools",
+			images: [
+				{
+					url: "/og",
+					width: 1200,
+					height: 600,
+
+					alt: "Koksmat image",
+				},
+			],
+		},
+
+		applicationName: "Nexi Tools",
+		referrer: "origin-when-cross-origin",
+		keywords: ["no code", "low code", "power apps", "power automate"],
+		creator: "Niels Gregers Johansen",
+		publisher: "Niels Gregers Johansen",
 		description: "Nexi tools provide access to your tools",
-		images: [
-			{
-				url: "/og",
-				width: 1200,
-				height: 600,
+	};
+	return metadata
+}
 
-				alt: "Koksmat image",
-			},
-		],
-	},
-
-	applicationName: "Nexi Tools",
-	referrer: "origin-when-cross-origin",
-	keywords: ["no code", "low code", "power apps", "power automate"],
-	creator: "Niels Gregers Johansen",
-	publisher: "Niels Gregers Johansen",
-	description: "Nexi tools provide access to your tools",
-};
 const geistSans = Geist({
 	variable: '--font-geist-sans',
 	subsets: ['latin'],
