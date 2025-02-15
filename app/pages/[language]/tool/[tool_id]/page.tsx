@@ -66,11 +66,11 @@ export async function generateMetadata({
       description: tool?.ToolTexts[0].description!,
       images: [
         {
-          url: tool?.icon!,
+          url: "/og/tool/" + tool_id,
           width: 1200,
           height: 600,
 
-          alt: "Koksmat image",
+          alt: tool?.ToolTexts[0].name,
         },
       ],
     },
