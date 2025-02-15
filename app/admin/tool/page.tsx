@@ -1,52 +1,12 @@
-import ToolPage from '@/components/tool-page'
-import ToolsPage2 from '@/components/tools-page2'
-import { SupportedLanguage } from '@/contexts/language-context'
-import prisma from '@/prisma'
-import { t } from '@/trpc/routers/post'
+import React from 'react'
+import dynamic from 'next/dynamic';
 
-import { Metadata } from 'next'
-import Link from 'next/link'
-import React, { Suspense } from 'react'
-import { z } from 'zod'
+// Dynamically import your component with SSR disabled
+const NoSSRComponent = dynamic(() => import('.'), {
+  ssr: false,
+});
 
-
-type PageProps = {
-
-
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+export default function Page() {
+  return <NoSSRComponent />;
 }
 
-
-
-
-export default async function Page({
-
-  searchParams,
-}: PageProps) {
-
-  const _searchParams = await searchParams
-
-
-
-
-  const tools = await prisma.tool.findMany({
-    orderBy: {
-      name: 'asc'
-    },
-
-
-  });
-
-
-  return (
-    <Suspense fallback={<div>...</div>}>
-      {tools.map(tool => (
-        <div key={tool.id}>
-          <Link href={`/admin/tool/${tool.id}`} >
-            {tool.name}
-          </Link>
-        </div>
-      ))}
-    </Suspense>
-  )
-}
