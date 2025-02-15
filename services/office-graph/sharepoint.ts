@@ -27,7 +27,8 @@ import '@pnp/sp/attachments';
 /*
   url = https://site.sharepoint.com/sites/site-name/lists/list-name/items/item-id
   */
-export function splitUrl(url: string) {
+export function splitUrl(_url: string) {
+	const url = decodeURIComponent(_url.toLowerCase());
 	const parts1 = url.split('https://');
 	const parts2 = parts1[1].split('/sites/');
 	const dns = parts2[0];

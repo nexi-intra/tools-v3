@@ -81,7 +81,8 @@ export function FileLinksGridComponent({ initialLinks, mode, columns, className 
             {...provided.dragHandleProps}
             className="flex items-center p-2 border rounded mb-2"
           >
-            <File className="mr-2" />
+            <FileIcon filename={link.name} className="w-6 h-6 mr-2" />
+
             {isEditMode ? (
               <>
                 <input
@@ -144,6 +145,7 @@ export function FileLinksGridComponent({ initialLinks, mode, columns, className 
 
 // Example usage documentation
 import { ComponentDoc } from './component-documentation-hub';
+import FileIcon from './file-icon';
 
 export const examplesFileLinksGrid: ComponentDoc[] = [
   {

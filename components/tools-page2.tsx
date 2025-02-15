@@ -15,6 +15,7 @@ import { Tool } from "@prisma/client"
 import { ToolCardMiniComponent } from "./tool-card-mini";
 import IconWithDetail from "./icon-with-detail";
 import { getKoksmatTokenCookie } from "@/lib/auth";
+import { mapTool2ToolView } from "@/internal/maps";
 
 interface ToolsPageProps {
   className?: string;
@@ -74,7 +75,7 @@ const translations: Record<SupportedLanguage, Translation> = {
     noToolFoundGuide: "Trova uno strumento nell'elenco e fai clic sulla stella per contrassegnarlo come preferito",
     searchFor: "Cerca",
     notLoggedIn: "Non connesso",
-  },
+  }
 };
 
 
@@ -178,7 +179,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
                   {yourTools.map((tool, key): React.JSX.Element => {
                     // const p = tool.purposes.map((purpose) => purpose.name).join(", ");
                     // tool.name = tool.name + " " + p
-                    const toolView: ToolView = mapTool(tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
+                    const toolView: ToolView = mapTool2ToolView(language, tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
                     return <div key={key} className="p-3" >
                       {/* <ToolCardMiniComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} /> */}
                       {/* <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} /> */}
@@ -213,7 +214,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
               <div className="flex flex-wrap">
 
                 {tools.map((tool, key): React.JSX.Element => {
-                  const toolView: ToolView = mapTool(tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
+                  const toolView: ToolView = mapTool2ToolView(language, tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
                   return <div key={key} className="p-3" >
                     <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} />
 
@@ -228,42 +229,9 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
     </div>
   );
 
-
-
-  function mapTool(tool: Tool, categoryName: string, categoryColor: string, categoryId: number, categoryOrder: string): ToolView {
-    const parsedTranslations = translationJSONDatabaseFieldSchema.safeParse(tool.translations);
-    if (!parsedTranslations.success) {
-      console.error(parsedTranslations.error);
-    }
-    const translatedName = getTranslation(parsedTranslations.data, "name", language, tool.name);
-    const translatedDescription = getTranslation(parsedTranslations.data, "description", language, tool.description!);
-    const parsedDocuments = documentsJSONDatabaseFieldSchema.safeParse(tool.documents);
-    if (!parsedDocuments.success) {
-      console.error(parsedDocuments.error);
-    }
-
-    const toolView: ToolView = {
-      purposes: [],
-      description: translatedDescription,
-      status: "deprecated",
-      deleted_at: null,
-      category: { value: categoryName, color: categoryColor, id: categoryId, order: categoryOrder },
-      name: translatedName,
-      id: tool.id,
-      created_at: new Date(),
-      created_by: "",
-      updated_at: new Date(),
-      updated_by: "",
-      url: tool.url,
-      icon: tool.icon!,
-      documents: parsedDocuments.data ?? [],
-      groupId: "",
-      tags: [],
-      version: ""
-    };
-    return toolView;
-  }
 }
+
+
 
 
 export default ToolsPage2;

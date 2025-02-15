@@ -17,7 +17,7 @@ import { logger } from './logger';
 import { UserGraphClient } from './userprofiles';
 import { syncUserProfiles } from './sync-user-profiles';
 import { getTranslation } from '@/schemas/_shared';
-import { PrismaClient, Prisma } from '@prisma/client';
+
 import { DefaultArgs, JsonValue } from '@prisma/client/runtime/library';
 import { PrismaTransaction } from '@/interfaces/prisma';
 async function upsertToolTranslations(
@@ -371,6 +371,7 @@ export class ToolsApp {
 		});
 		const dbItem = await prisma.tool.findFirst({
 			where: {
+				koksmat_masterdataref: koksmat_masterdataref,
 				koksmat_masterdata_id: sharePointItem.id,
 			},
 		});
@@ -497,58 +498,48 @@ export class ToolsApp {
 				'New item',
 			);
 			try {
-				const newRecord = await prisma.$transaction(async tx => {
-					const newTool = await tx.tool.create({
-						data: {
-							koksmat_masterdata_etag: sharePointItem._UIVersionString,
-							koksmat_masterdata_id: sharePointItem.id,
-							koksmat_masterdataref: koksmat_masterdataref,
-							updated_by: sharePointItem.UpdateBy,
-							created_by: sharePointItem.CreatedBy,
-							documents: ToolsApp.buildDocumentCollection(sharePointItem),
-							url: sharePointItem.Link.Url,
-							purposes: {
-								connectOrCreate: {
-									where: {
-										name: sharePointItem.Business_Purpose?.Label ?? 'Unknown',
-									},
-									create: {
-										name: sharePointItem.Business_Purpose?.Label ?? 'Unknown',
-									},
+				const newRecord = await prisma.tool.create({
+					data: {
+						// Don't set eTag for new records to ensure that the update is triggered on the next sync
+						koksmat_masterdata_etag: '', // sharePointItem._UIVersionString,
+						koksmat_masterdata_id: sharePointItem.id,
+						koksmat_masterdataref: koksmat_masterdataref,
+						updated_by: sharePointItem.UpdateBy,
+						created_by: sharePointItem.CreatedBy,
+						documents: ToolsApp.buildDocumentCollection(sharePointItem),
+						url: sharePointItem.Link.Url,
+						purposes: {
+							connectOrCreate: {
+								where: {
+									name: sharePointItem.Business_Purpose?.Label ?? 'Unknown',
+								},
+								create: {
+									name: sharePointItem.Business_Purpose?.Label ?? 'Unknown',
 								},
 							},
-
-							category: {
-								connectOrCreate: {
-									where: {
-										name: sharePointItem.Category,
-									},
-									create: {
-										name: sharePointItem.Category,
-									},
-								},
-							},
-							name: sharePointItem.TitleEnglish!,
-							description: sharePointItem.DescriptionEnglish!,
 						},
-					});
-					await this.writeSyncLogInfo('create', {
-						sharePointItem,
-						newRecord,
-					});
 
-					this.log.info('Created', newRecord.id);
-					result.created++;
-					await upsertToolTranslations(
-						tx,
-						newRecord,
-						englishLanguage,
-						translations,
-						sharePointItem,
-						italianLanguage,
-					);
-					return newTool;
+						category: {
+							connectOrCreate: {
+								where: {
+									name: sharePointItem.Category,
+								},
+								create: {
+									name: sharePointItem.Category,
+								},
+							},
+						},
+						name: sharePointItem.TitleEnglish!,
+						description: sharePointItem.DescriptionEnglish!,
+					},
 				});
+				await this.writeSyncLogInfo('create', {
+					sharePointItem,
+					newRecord,
+				});
+
+				this.log.info('Created', newRecord.id);
+				result.created++;
 			} catch (error) {
 				this.log.error('Syncronising Tools', (error as Error).message);
 				await this.writeSyncLogError('create', { sharePointItem }, error as Error);

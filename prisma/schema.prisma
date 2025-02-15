@@ -290,3 +290,57 @@ model Session {
   user          UserProfile @relation(fields: [userProfileId], references: [id])
   userProfileId Int
 }
+
+model AppFeature {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_by   String?   @db.VarChar
+  updated_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by   String?   @db.VarChar
+  deleted_at   DateTime? @db.Timestamptz(6)
+  name         String    @unique(map: "unique_appfeature_name") @db.VarChar
+  description  String?   @db.VarChar
+  translations Json?
+  status       String?   @db.VarChar
+  appLink      AppLink[]
+  AppMenu      AppNode?  @relation(fields: [appMenuId], references: [id])
+  appMenuId    Int?
+}
+
+model AppLink {
+  id           Int         @id @default(autoincrement())
+  created_at   DateTime    @default(now()) @db.Timestamptz(6)
+  created_by   String?     @db.VarChar
+  updated_at   DateTime    @default(now()) @db.Timestamptz(6)
+  updated_by   String?     @db.VarChar
+  deleted_at   DateTime?   @db.Timestamptz(6)
+  name         String      @unique(map: "unique_applink_name") @db.VarChar
+  description  String?     @db.VarChar
+  translations Json?
+  url          String      @db.VarChar
+  status       String?     @db.VarChar
+  AppFeature   AppFeature? @relation(fields: [appFeatureId], references: [id])
+  appFeatureId Int?
+  AppMenu      AppNode[]
+}
+
+model AppNode {
+  id           Int          @id @default(autoincrement())
+  created_at   DateTime     @default(now()) @db.Timestamptz(6)
+  created_by   String?      @db.VarChar
+  updated_at   DateTime     @default(now()) @db.Timestamptz(6)
+  updated_by   String?      @db.VarChar
+  deleted_at   DateTime?    @db.Timestamptz(6)
+  name         String       @unique(map: "unique_appmenu_name") @db.VarChar
+  displayName  String?      @db.VarChar
+  description  String?      @db.VarChar
+  translations Json?
+  status       String?      @db.VarChar
+  sortorder    Decimal?
+  parentId     Int?
+  parent       AppNode?     @relation("AppMenuTree", fields: [parentId], references: [id])
+  children     AppNode[]    @relation("AppMenuTree")
+  features     AppFeature[]
+  link         AppLink?     @relation(fields: [appLinkId], references: [id])
+  appLinkId    Int?
+}

@@ -18,12 +18,12 @@ export class ToolSpokeSite extends SharePointGraphClient {
 		const credentials = app.credentials;
 		super(credentials.tenantId, credentials.clientId, credentials.clientSecret, sharePointListUrl, app.log);
 		this._app = app;
-		this._toolListName = sharePointListUrl.toLowerCase().split('/lists/')[1].split('/')[0];
+		this._toolListName = decodeURIComponent(sharePointListUrl.toLowerCase().split('/lists/')[1].split('/')[0]);
 	}
 
 	masterdataKey() {
 		const { host, site } = splitUrl(this.url);
-		return `${host}|${site}|${this._toolListName}`;
+		return `${host}/sites/${site}/lists/${this._toolListName}`;
 	}
 
 	async getToolListName() {
