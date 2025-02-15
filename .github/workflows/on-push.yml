@@ -10,7 +10,7 @@ on:
 env:
      REGISTRY: ghcr.io
      IMAGE_NAME: ${{ github.repository }}-web
-
+     TOOL_DATABASE_URL: postgres://dummy.no.where:5432/tools_v2?sslmode=require&schema=tools
 jobs:
      build-and-deploy:
           runs-on: ubuntu-latest
