@@ -15,8 +15,8 @@ visualisation of a given item
 		"href": {
 			"operator": "+",
 			"operands": [
-				"https://nexi-intra-nexi-toolsv2-alpha.intra.nexigroup.com",
-				"/badges/details",
+				"https://nexi-intra-tools-v3-main.intra.nexigroup.com/",
+				"/badge/details",
 				"?",
 				"source=",
 				"https://christianiabpos.sharepoint.com/sites/nexiintra-home/lists/all%20tools/",
@@ -35,8 +35,8 @@ visualisation of a given item
 				"src": {
 					"operator": "+",
 					"operands": [
-						"https://nexi-intra-nexi-toolsv2-alpha.intra.nexigroup.com",
-						"/badges/sync-status",
+						"https://nexi-intra-tools-v3-main.intra.nexigroup.com/",
+						"/badge/sync-status",
 						"?",
 						"source=",
 						"https://christianiabpos.sharepoint.com/sites/nexiintra-home/lists/all%20tools/",

@@ -108,6 +108,8 @@ jobs:
                                       value: ${{ vars.PNPTENANTID }}
                                     - name: PNPCERTIFICATE
                                       value: ${{ secrets.PNPCERTIFICATE }}
+                                    - name: JWT_SECRET_KEY
+                                      value: ${{ secrets.JWT_SECRET_KEY }}
 
                                     
                                     
