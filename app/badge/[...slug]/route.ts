@@ -2,7 +2,7 @@ import React from 'react';
 import { NextRequest, NextResponse } from 'next/server';
 import { ImageResponse } from 'next/og';
 import prisma from '@/prisma';
-
+import { redirect } from 'next/navigation';
 //export const runtime = "edge";
 async function readItem(ref: string, id: string) {
 	return await prisma.tool.findFirst({
@@ -46,7 +46,8 @@ export async function GET(request: NextRequest) {
 			if (!item) {
 				return new NextResponse('Not found', { status: 404 });
 			}
-			return NextResponse.redirect(new URL('/admin/tool/' + item.id, request.nextUrl.origin).toString());
+			redirect('/admin/tool/' + item.id);
+			return new NextResponse('Redirected', { status: 200 });
 
 			break;
 		case 'sync-status':
