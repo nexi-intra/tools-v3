@@ -20,7 +20,7 @@ async function readBadgeStatus(ref: string, id: string, tag: string) {
 		},
 	});
 	if (!item) {
-		return 'red';
+		return 'gray';
 	}
 
 	if (item.koksmat_masterdata_etag === tag) {
@@ -43,40 +43,11 @@ export async function GET(request: NextRequest) {
 	switch (type) {
 		case 'details':
 			const item = await readItem(sourceList, itemId);
+			if (!item) {
+				return new NextResponse('Not found', { status: 404 });
+			}
+			return NextResponse.redirect(new URL('/admin/tool/' + item.id, request.nextUrl.origin).toString());
 
-			const { searchParams } = new URL(request.url);
-			const color = searchParams.get('color') || 'red';
-			const text = searchParams.get('text') || 'SVG';
-			const json = JSON.stringify(
-				{
-					item: {
-						name: { ...item, icon: '' },
-						image: null,
-					},
-				},
-				null,
-				2,
-			);
-			const svgContent = `
-        
-           <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet">
-           <!--
-           
-        ${json}   
-           -->
-      <rect width="100%" height="100%" fill="black" />
-      <text x="50%" y="50%" fill="white" font-size="18" text-anchor="middle" alignment-baseline="middle" font-family="Arial, sans-serif">
-        Right click and view source to see the JSON data
-      </text>
-    </svg>
-      `;
-
-			return new NextResponse(svgContent, {
-				headers: {
-					'Content-Type': 'image/svg+xml',
-					'Cache-Control': 'no-cache',
-				},
-			});
 			break;
 		case 'sync-status':
 			const status = await readBadgeStatus(sourceList, itemId, itemVersion);
