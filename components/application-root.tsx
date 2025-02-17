@@ -68,6 +68,7 @@ import Image from "next/image"
 import { SupportedLanguage, useLanguage } from "@/contexts/language-context"
 import { useIsInIframe } from "@/hooks/use-isiniframe"
 import { MagicboxContext } from "@/contexts/magicbox-context"
+import Authenticate, { UserProfileAPI } from "./authenticate"
 
 
 function appName() {
@@ -424,7 +425,12 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
             </SidebarContent>
             <SidebarFooter>
               <SidebarMenu>
-                <SidebarMenuItem>
+                <SidebarMenuButton className="text-sidebar-foreground/70">
+                  <Authenticate apiScope={UserProfileAPI} />
+
+                </SidebarMenuButton>
+                <SidebarMenuItem className={!magicbox.authtoken ? "hidden" : ""}>
+
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <SidebarMenuButton

@@ -30,13 +30,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 						<BreadcrumbProvider lookupHandlers={[useExampleHook()]}>
 							<LanguageProvider>
 								<KoksmatSessionProvider>
-									<Authenticate apiScope={UserProfileAPI}>
-										<UserProfileProvider>
-											<ApplicationRoot hideBreadcrumb topnav={<TabNavigatorWithReorder />} >
-												{children}
-											</ApplicationRoot>
-										</UserProfileProvider>
-									</Authenticate>
+
+									<UserProfileProvider>
+										<ApplicationRoot hideBreadcrumb topnav={<TabNavigatorWithReorder />} >
+											{children}
+										</ApplicationRoot>
+									</UserProfileProvider>
+
 								</KoksmatSessionProvider>
 							</LanguageProvider>
 						</BreadcrumbProvider>

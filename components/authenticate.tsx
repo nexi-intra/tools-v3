@@ -6,8 +6,27 @@ import { useMsal, useAccount } from "@azure/msal-react";
 import { MagicboxContext } from "@/contexts/magicbox-context";
 import { https } from "@/contexts/httphelper";
 import { useRouter } from "next/navigation";
-import { set } from "zod";
+import { set, z } from "zod";
+import { SupportedLanguage, useLanguage } from "@/contexts/language-context";
+const translationSchema = z.object({
+  login: z.string(),
 
+});
+
+type Translation = z.infer<typeof translationSchema>;
+
+const translations: Record<SupportedLanguage, Translation> = {
+  en: {
+    login: "Login"
+  },
+  da: {
+    login: "Log ind"
+  },
+  it: {
+    login: "Accesso"
+  }
+
+};
 interface APIScopeProps {
   scopes: string[];
   title: string;
@@ -22,9 +41,9 @@ export const UserProfileAPI: APIScopeProps = {
 
 export default function Authenticate(props: {
   apiScope: APIScopeProps;
-  children: any;
+
 }) {
-  const { apiScope, children } = props;
+  const { apiScope } = props;
   const magicbox = useContext(MagicboxContext);
   const { instance, accounts } = useMsal();
   const account = useAccount(accounts[0] || {});
@@ -33,7 +52,8 @@ export default function Authenticate(props: {
   const [latestError, setlatestError] = useState<any>();
   const router = useRouter();
   const [signinError, setsigninError] = useState(false)
-
+  const { language } = useLanguage()
+  const t = translations[language]
   async function aquireToken(apiScope: APIScopeProps): Promise<string | null> {
     let result: string | null = null;
     //debugger
@@ -117,6 +137,9 @@ export default function Authenticate(props: {
           <div>
             {" "}
             <Button
+              variant="outline"
+              className="bg-black text-white dark:bg-white dark:text-black"
+
               onClick={async () => {
                 const signedIn = await magicbox.signIn(["User.Read"], "");
                 if (!signedIn) {
@@ -134,7 +157,7 @@ export default function Authenticate(props: {
 
               }}
             >
-              Sign In using Microsoft 365 account
+              {t.login}
             </Button>
 
             {signinError && <div>Last sign in failed - {latestError}</div>}
@@ -145,5 +168,5 @@ export default function Authenticate(props: {
       </div>
     );
   }
-  return <div>{children}</div>;
+  return null;
 }

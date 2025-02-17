@@ -57,6 +57,7 @@ export default function SSO() {
       if (!token) {
         return;
       }
+      debugger
       const result = await https<Me>(
         token,
         "GET",
