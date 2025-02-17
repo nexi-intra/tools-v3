@@ -1,3 +1,4 @@
+import { sessionGetLanguage } from '@/actions/session-actions'
 import ToolPage from '@/components/tool-page'
 import ToolsPage2 from '@/components/tools-page2'
 import { SupportedLanguage } from '@/contexts/language-context'
@@ -21,7 +22,7 @@ export default async function Page({
   searchParams,
 }: PageProps) {
   const _params = await params
-  const _searchParams = await searchParams
+  const language = await sessionGetLanguage()
 
   const tool_id = _params.tool_id
 
@@ -43,7 +44,7 @@ export default async function Page({
   return (
     <Suspense fallback={<div>...</div>}>
 
-      <ToolPage language={"en"} id={id} />
+      <ToolPage language={language} id={id} />
       <div className="w-full overflow-auto max-w-full overflow-scroll">
         <textarea className='w-full h-96' readOnly>
           {JSON.stringify(tool, null, 2)}

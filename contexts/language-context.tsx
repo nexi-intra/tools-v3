@@ -1,5 +1,7 @@
 'use client'
 
+import { sessionSetLanguage } from '@/actions/session-actions';
+import { useToast } from '@/hooks/use-toast';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Types
@@ -34,10 +36,23 @@ type LanguageProviderProps = {
 };
 
 export function LanguageProvider({ children, initialLanguage }: LanguageProviderProps) {
-  const [language, setLanguage] = useState<SupportedLanguage>(() => {
+  const { toast } = useToast()
+  const [language, _setLanguage] = useState<SupportedLanguage>(() => {
     return initialLanguage || detectBrowserLanguage();
   });
 
+  function setLanguage(lang: SupportedLanguage) {
+    sessionSetLanguage(lang).then(() => {
+      _setLanguage(lang);
+    }).catch((error) => {
+      toast({
+        title: "Error",
+        description: "Failed to set language",
+      })
+
+    })
+
+  }
   return (
     <LanguageContext.Provider value={{ language, setLanguage }}>
       {children}

@@ -5,6 +5,7 @@ import { LogLevel } from '@azure/msal-browser';
 export const msalConfig: Configuration = {
 	auth: MSAL,
 	cache: {
+		temporaryCacheLocation: 'localStorage',
 		//cacheLocation: 'localStorage', // This configures where your cache will be stored
 		storeAuthStateInCookie: true, // Set this to "true" if you are having issues on IE11 or Edge
 	},
