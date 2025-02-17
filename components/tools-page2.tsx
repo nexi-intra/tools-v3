@@ -16,6 +16,7 @@ import { ToolCardMiniComponent } from "./tool-card-mini";
 import IconWithDetail from "./icon-with-detail";
 import { getKoksmatTokenCookie } from "@/lib/auth";
 import { mapTool2ToolView } from "@/internal/maps";
+import { decodeJwt } from "@/lib/tokens";
 
 interface ToolsPageProps {
   className?: string;
@@ -80,7 +81,7 @@ const translations: Record<SupportedLanguage, Translation> = {
 
 
 
-export async function ToolsPage2(props: { query: string, language: SupportedLanguage }) {
+export async function ToolsPage2(props: { query: string, language: SupportedLanguage, token?: string }) {
 
   const searchWords = extractSearchTokens(props.query);
 
@@ -90,12 +91,38 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
   const languageCode = "en"; // For example, "en" for English
   const language = props.language;
   const session = await getKoksmatTokenCookie();
-  if (!session) {
+  const token = props.token;
+  let id: number = -1
+  if (!session && !props.token) {
     return <div className="text-red-500 p-20">Not logged in</div>
   }
+  else {
+    if (session) {
+      id = session.userId
+    }
+    else if (token) {
+      const jwt = decodeJwt(token);
+      const upn = jwt.upn;
+      const user = await prisma.userProfile.findFirst({
+        where: {
+          name: upn,
+        },
+        include: {
+          Session: true,
+        },
+      });
+      if (!user) {
+        return <div className="text-red-500 p-20">Not logged in</div>
+      }
+      id = user.id
+
+    }
+
+  }
+
   const currentUserProfile = await prisma.userProfile.findUnique({
     where: {
-      id: session.userId,
+      id
     },
   });
   const tools = await prisma.tool.findMany({

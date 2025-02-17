@@ -53,11 +53,12 @@ export default function SSO() {
   const msal = useMsal();
 
   useEffect(() => {
+
     const load = async () => {
       if (!token) {
         return;
       }
-      debugger
+
       const result = await https<Me>(
         token,
         "GET",
@@ -80,7 +81,7 @@ export default function SSO() {
         setframeHref("/sso/?cmd=framed&token=" + token + "&path=" + route);
       } else if (cmd === "framed") {
         if (route) {
-          router.push("/" + route);
+          router.push("/" + route + "?token=" + token);
         } else { router.push("/" + APPNAME); }
 
       }

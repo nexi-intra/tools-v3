@@ -90,10 +90,17 @@ export const MagicboxProvider = ({ children }: Props) => {
     },
     authtoken,
     authSource,
-    setAuthToken: function (token: string, source: AuthSource): void {
+    setAuthToken: function (token: string, source: AuthSource) {
 
       setauthSource(source);
       setauthtoken(token);
+      actionSignIn(token).then((roles) => {
+        console.log("actionSignIn", roles);
+
+      }).catch((error) => {
+        console.error("actionSignIn", error);
+      }
+      );
       // getSession(token).then((session) => {
       //   console.log(session);
       //   // setsession(session);

@@ -425,10 +425,10 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
             </SidebarContent>
             <SidebarFooter>
               <SidebarMenu>
-                <SidebarMenuButton className="text-sidebar-foreground/70">
+                <SidebarMenuItem className="text-sidebar-foreground/70">
                   <Authenticate apiScope={UserProfileAPI} />
 
-                </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem className={!magicbox.authtoken ? "hidden" : ""}>
 
                   <DropdownMenu>

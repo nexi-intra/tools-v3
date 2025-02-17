@@ -33,11 +33,12 @@ export default async function Page({
   const _params = await params
   const _searchParams = await searchParams
   const language = _params.language
+  const token = _searchParams.token as string
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
 
-      <ToolsPage2 query={_searchParams.q as string} language={language as SupportedLanguage} />
+      <ToolsPage2 query={_searchParams.q as string} language={language as SupportedLanguage} token={token} />
     </Suspense>
   )
 }
