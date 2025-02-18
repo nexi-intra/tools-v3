@@ -29,6 +29,7 @@ export const MagicboxProvider = ({ children }: Props) => {
   const [authSource, setauthSource] = useState<AuthSource>("");
   const [pca, setpca] = useState<IPublicClientApplication>();
   const [transactionId, settransactionId] = useState("");
+  const [koksmatToken, setkoksmatToken] = useState("")
   const servicecalllog = useMemo<ServiceCallLogEntry[]>(() => {
     return [];
   }, []);
@@ -37,6 +38,7 @@ export const MagicboxProvider = ({ children }: Props) => {
 
   const [showtracer, setshowtracer] = useState(false);
   const magicbox: MagicboxContextType = {
+
     roles,
     session,
     version,
@@ -94,13 +96,7 @@ export const MagicboxProvider = ({ children }: Props) => {
 
       setauthSource(source);
       setauthtoken(token);
-      actionSignIn(token).then((roles) => {
-        console.log("actionSignIn", roles);
 
-      }).catch((error) => {
-        console.error("actionSignIn", error);
-      }
-      );
       // getSession(token).then((session) => {
       //   console.log(session);
       //   // setsession(session);
@@ -142,8 +138,8 @@ export const MagicboxProvider = ({ children }: Props) => {
     const load = async () => {
       if (!authtoken) return;
 
-      const roles = await actionSignIn(authtoken)
-      setroles(roles)
+      const token = await actionSignIn(authtoken)
+      setkoksmatToken(token)
 
     }
     load();

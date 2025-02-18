@@ -1,10 +1,10 @@
 'use server';
-import { getKoksmatTokenCookie } from '@/lib/auth';
+import { getKoksmatTokenCookie, parseSessionToken } from '@/lib/auth';
 import { decodeJwt } from '@/lib/tokens';
 import prisma from '@/prisma';
 
-export async function actionFavouriteConnect(toolId: number) {
-	const session = await getKoksmatTokenCookie();
+export async function actionFavouriteConnect(sessionToken: string, toolId: number) {
+	const session = await parseSessionToken(sessionToken);
 	if (!session) return;
 	let result = false;
 	try {
@@ -26,8 +26,8 @@ export async function actionFavouriteConnect(toolId: number) {
 	}
 	return result;
 }
-export async function actionFavouriteDisconnect(toolId: number) {
-	const session = await getKoksmatTokenCookie();
+export async function actionFavouriteDisconnect(koksmatToken: string, toolId: number) {
+	const session = await parseSessionToken(koksmatToken);
 	if (!session) return;
 	let result = false;
 	try {

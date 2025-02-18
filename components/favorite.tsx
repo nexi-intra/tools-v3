@@ -11,6 +11,8 @@ import { actionFavouriteConnect, actionFavouriteDisconnect } from '@/actions/use
 import { useToast } from "@/hooks/use-toast"
 import { add } from 'lodash-es'
 import { useRouter } from 'next/navigation'
+import { MagicboxContext } from '@/contexts/magicbox-context'
+import { useSession } from '@/contexts/koksmat-provider'
 
 const favoriteTranslationSchema = z.object({
   removeFavorites: z.string(),
@@ -75,6 +77,8 @@ export function FavoriteComponent({
 
 
   const [isFavorite, setIsFavorite] = useState(defaultIsFavorite)
+  const magicbox = useContext(MagicboxContext);
+  const session = useSession()
   const actionName = "userprofileFavourite"
 
   useEffect(() => {
@@ -91,7 +95,7 @@ export function FavoriteComponent({
             email, tool_id, is_favorite: newState
           }
           kVerbose("component", "FavoriteComponent onSave", data, mode);
-          const success = newState ? await actionFavouriteConnect(tool_id) : await actionFavouriteDisconnect(tool_id)
+          const success = newState ? await actionFavouriteConnect(session.token, tool_id) : await actionFavouriteDisconnect(session.token, tool_id)
           toast({
 
             description: success ? t?.added : t?.error,

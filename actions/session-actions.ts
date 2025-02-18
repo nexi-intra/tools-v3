@@ -7,10 +7,10 @@ import prisma from '@/prisma';
 import { createKoksmatToken, setKoksmatTokenCookie } from '@/lib/auth';
 import { SupportedLanguage } from '@/contexts/language-context';
 
-export async function actionSignIn(accessToken: string): Promise<string[]> {
+export async function actionSignIn(accessToken: string): Promise<string> {
 	const token = decodeJwt(accessToken);
 	const upn = token.upn;
-	let result = [];
+	let result = '';
 	try {
 		const user = await prisma.userProfile.findFirst({
 			where: {
@@ -27,7 +27,7 @@ export async function actionSignIn(accessToken: string): Promise<string[]> {
 		const userId = user.id;
 		const newToken = await createKoksmatToken(userId, 1);
 		await setKoksmatTokenCookie(newToken);
-		result = ['signedin'];
+		result = newToken;
 	} catch (e) {
 		console.error(e);
 		throw new Error('Cannot sign in');

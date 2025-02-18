@@ -17,6 +17,7 @@ import IconWithDetail from "./icon-with-detail";
 import { getKoksmatTokenCookie } from "@/lib/auth";
 import { mapTool2ToolView } from "@/internal/maps";
 import { decodeJwt } from "@/lib/tokens";
+import Authenticate, { UserProfileAPI } from "./authenticate";
 
 interface ToolsPageProps {
   className?: string;
@@ -94,7 +95,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
   const token = props.token;
   let id: number = -1
   if (!session && !props.token) {
-    return <div className="text-red-500 p-20">Not logged in</div>
+    return <Authenticate apiScope={UserProfileAPI} />
   }
   else {
     if (session) {

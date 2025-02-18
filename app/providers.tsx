@@ -17,6 +17,7 @@ import { ApplicationRoot } from '@/components/application-root';
 import TabNavigatorWithReorder from '@/components/tab-navigator-with-reorder';
 import { BreadcrumbProvider } from '@/contexts/breadcrumb-context';
 import { useExampleHook } from '@/contexts/lookup-provider';
+import KoksmatSession from '@/contexts/koksmat-session';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
 	//return <div>{children}</div>
@@ -33,7 +34,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
 									<UserProfileProvider>
 										<ApplicationRoot hideBreadcrumb topnav={<TabNavigatorWithReorder />} >
+
 											{children}
+											<KoksmatSession />
 										</ApplicationRoot>
 									</UserProfileProvider>
 

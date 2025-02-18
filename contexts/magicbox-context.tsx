@@ -58,6 +58,7 @@ export type MagicboxContextType = {
   appMode: appModeTypes;
 
 
+
 };
 export const MagicboxContext = createContext<MagicboxContextType>({
   session: {

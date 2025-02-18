@@ -13,6 +13,7 @@ import { set } from "zod"
 import { toast } from "sonner"
 import { SupportedLanguage, useLanguage } from "@/contexts/language-context"
 import { ExternalLink } from "./external-link";
+import { useSession } from "@/contexts/koksmat-provider";
 interface IconWithDetailProps {
   icon: string
   name: string
@@ -67,7 +68,7 @@ const translations: Record<SupportedLanguage, Translation> = {
 export default function IconWithDetail({ icon, name, description, title, link, id, isFavorite }: IconWithDetailProps) {
   const { language } = useLanguage();
   const t = translations[language];
-
+  const session = useSession()
 
 
   const router = useRouter()
@@ -118,7 +119,7 @@ export default function IconWithDetail({ icon, name, description, title, link, i
               <Button onClick={
                 async () => {
                   setisRemoving(true)
-                  await actionFavouriteDisconnect(id)
+                  await actionFavouriteDisconnect(session.token, id)
                   toast(t.favouriteHasBeenRemoved)
 
                   router.refresh()

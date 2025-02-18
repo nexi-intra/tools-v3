@@ -19,7 +19,7 @@ export async function createKoksmatToken(userId: number, sessionId: number): Pro
 	return jwt;
 }
 
-export async function validateKoksmatToken(token: string): Promise<{ userId: number; sessionId: number } | null> {
+export async function validateSessionToken(token: string): Promise<{ userId: number; sessionId: number } | null> {
 	try {
 		const { payload } = await jwtVerify(token, getKey());
 		return { userId: payload.userId as number, sessionId: payload.sessionId as number };
@@ -44,7 +44,15 @@ export async function getKoksmatTokenCookie(): Promise<{ userId: number; session
 	if (!token) {
 		return null;
 	}
-	const tokenData = await validateKoksmatToken(token.value);
+	const tokenData = await validateSessionToken(token.value);
+	if (!tokenData) {
+		throw new Error('Invalid token');
+	}
+	return tokenData;
+}
+
+export async function parseSessionToken(token: string): Promise<{ userId: number; sessionId: number } | null> {
+	const tokenData = await validateSessionToken(token);
 	if (!tokenData) {
 		throw new Error('Invalid token');
 	}

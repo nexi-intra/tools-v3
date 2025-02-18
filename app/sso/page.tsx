@@ -25,6 +25,8 @@ import { APPNAME } from "@/app/global";
 import { useMsal } from "@azure/msal-react";
 import { MagicboxContext } from "@/contexts/magicbox-context";
 import { https } from "@/contexts/httphelper";
+import { useSession } from "@/contexts/koksmat-provider";
+import { actionSignIn } from "@/actions/session-actions";
 export interface Me {
   "@odata.context": string;
   businessPhones: string[];
@@ -42,11 +44,13 @@ export interface Me {
 
 export default function SSO() {
   const magicbox = useContext(MagicboxContext);
+  const session = useSession()
   const searchParams = useSearchParams();
   const [jwtToken, setjwtToken] = useState<jwt.JwtPayload>();
   const token = searchParams.get("token");
   const route = searchParams.get("path");
   const cmd = searchParams.get("cmd");
+  const debug = searchParams.get("debug") ?? "";
   const [data, setdata] = useState<any>();
   const router = useRouter();
   const [frameHref, setframeHref] = useState("");
@@ -76,6 +80,9 @@ export default function SSO() {
         []
       );
       magicbox.setAuthToken(token, "SharePoint");
+      debugger
+      await session.signIn(token);
+
 
       if (!cmd) {
         setframeHref("/sso/?cmd=framed&token=" + token + "&path=" + route);
@@ -94,6 +101,14 @@ export default function SSO() {
       load();
     }
   }, [token]);
+
+  useEffect(() => {
+    session.setShowTool(debug !== "")
+
+
+  }, [debug])
+
+
   switch (cmd) {
     case "login":
       return <pre>{JSON.stringify(data, null, 2)}</pre>;

@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useCallback, useEffect } from 'react'
+import { Suspense, useCallback, useContext, useEffect, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { z } from 'zod'
 import { ZeroTrust } from '@/components/zero-trust'
@@ -10,9 +10,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { ChefHat, Minimize2 } from 'lucide-react'
 
 
-import { KoksmatSessionProvider, useKoksmat } from './koksmat-provider'
+import { KoksmatSessionProvider, useSession } from './koksmat-provider'
 import { createSession, deleteSession, listSessions } from '@/dev/session-manager'
 import { ComponentDoc } from '@/components/component-documentation-hub'
+import { MagicboxContext } from './magicbox-context'
 
 // AI-friendly component description:
 // KoksmatSession is a React component that manages session creation, deletion, and reuse.
@@ -29,65 +30,27 @@ type KoksmatSessionProps = z.infer<typeof KoksmatSessionSchema>
 export default function KoksmatSession({ className = '' }: KoksmatSessionProps) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
-  const { sessionId, setSessionId, isMinimized, setIsMinimized } = useKoksmat()
+  const { sessionId, setSessionId, isMinimized, setIsMinimized } = useSession()
   const router = useRouter()
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString())
-      params.set(name, value)
+  const session = useSession()
+  const magicbox = useContext(MagicboxContext)
+  const [show, setshow] = useState(false)
 
-      return params.toString()
-    },
-    [searchParams]
-  )
   useEffect(() => {
-    if (!sessionId) {
-      createNewSession()
-    } else {
-      checkSession(sessionId)
+    if (process.env.NODE_ENV !== 'development') {
+      setshow(true)
+      return
     }
-  }, [sessionId])
+    setshow(session.showTool)
 
-  const checkSession = async (id: string) => {
-    try {
-      const sessions = await listSessions()
-      if (!sessions.includes(id)) {
-        setSessionId(null)
-      }
-    } catch (err) {
-      console.error('Failed to check session:', err)
-    }
-  }
-
-  const createNewSession = async () => {
-    try {
-      const newSessionPath = await createSession({ prefix: 'koksmat' })
-      const newSessionId = newSessionPath.split('/').pop() || ''
-      setSessionId(newSessionId)
-      router.push(pathname + '?' + createQueryString('koksmat-sessionid', newSessionId))
-      //router.push(`?koksmat-sessionid=${newSessionId}`)
-    } catch (err) {
-      console.error('Failed to create new session:', err)
-    }
-  }
-
-  const handleDeleteAndRecreate = async () => {
-    if (sessionId) {
-      try {
-        await deleteSession({ sessionId })
-        createNewSession()
-      } catch (err) {
-        console.error('Failed to delete and recreate session:', err)
-      }
-    }
-  }
+  }, [session.showTool])
 
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized)
   }
 
   // Only render in development environment
-  if (process.env.NODE_ENV !== 'development') {
+  if (!session.showTool) {
     return null
   }
 
@@ -99,7 +62,7 @@ export default function KoksmatSession({ className = '' }: KoksmatSessionProps) 
         actionLevel="error"
         componentName="KoksmatSession"
       />
-      <div className={`fixed bottom-4 right-4 ${className}`}>
+      <div style={{ zIndex: "100000000", bottom: "10px" }} className={`fixed bottom-4 right-4   ${className}`}>
         {isMinimized ? (
           <TooltipProvider>
             <Tooltip>
@@ -120,36 +83,15 @@ export default function KoksmatSession({ className = '' }: KoksmatSessionProps) 
           </TooltipProvider>
         ) : (
           <Card className="w-80">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2" onClick={toggleMinimize}>
               <CardTitle className="text-sm font-medium">Koksmat Session</CardTitle>
-              <Button
-                onClick={toggleMinimize}
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-              >
-                <Minimize2 className="h-4 w-4" />
-              </Button>
+
             </CardHeader>
             <CardContent>
-              <p className="text-sm mb-2">Current Session ID: {sessionId || 'None'}</p>
-              <div className="flex space-x-2">
-                <Button
-                  onClick={() => router.push(`?koksmat-sessionid=${sessionId}`)}
-                  size="sm"
-                  variant="outline"
-                  disabled={!sessionId}
-                >
-                  Reuse Session
-                </Button>
-                <Button
-                  onClick={handleDeleteAndRecreate}
-                  size="sm"
-                  variant="outline"
-                >
-                  Delete and Recreate
-                </Button>
-              </div>
+              <textarea className="w-full h-96" readOnly>
+                {JSON.stringify({ magicbox, session }, null, 2)}
+
+              </textarea>
             </CardContent>
           </Card>
         )}
