@@ -20,6 +20,7 @@ import { getTranslation } from '@/schemas/_shared';
 
 import { DefaultArgs, JsonValue } from '@prisma/client/runtime/library';
 import { PrismaTransaction } from '@/interfaces/prisma';
+import { Tool } from '@prisma/client';
 async function upsertToolTranslations(
 	tx: PrismaTransaction,
 	dbItem: {
@@ -611,5 +612,15 @@ export class ToolsApp {
 				options,
 			);
 		});
+	}
+
+	async syncSharePointItem(item: Tool) {
+		if (!item.koksmat_masterdataref || !item.koksmat_masterdata_id) {
+			this.log.error('syncSharePointItem', 'Invalid item', item);
+			return;
+		}
+		const site = new ToolSpokeSite(this, item.koksmat_masterdataref);
+		const sharePointItem = await site.getToolItem('V1', item.koksmat_masterdata_id);
+		await this.syncItem(site, sharePointItem, item.koksmat_masterdataref, { force: true });
 	}
 }

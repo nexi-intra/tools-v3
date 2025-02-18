@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ImageResponse } from 'next/og';
 import prisma from '@/prisma';
 import { redirect } from 'next/navigation';
+import { ToolsApp } from '@/internal/tools-app';
 //export const runtime = "edge";
 async function readItem(ref: string, id: string) {
 	return await prisma.tool.findFirst({
@@ -26,6 +27,11 @@ async function readBadgeStatus(ref: string, id: string, tag: string) {
 	if (item.koksmat_masterdata_etag === tag) {
 		return 'green';
 	}
+	// In this case we start a sync of the item
+
+	const app = new ToolsApp();
+
+	app.syncSharePointItem(item);
 
 	return 'yellow';
 }
