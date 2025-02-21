@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
 import { File, Trash2, Plus, ExternalLink } from 'lucide-react';
 
 // Define the structure for a file link
@@ -73,67 +73,52 @@ export function FileLinksGridComponent({ initialLinks, mode, columns, className 
     const isEditMode = mode === 'edit' || mode === 'new';
 
     return (
-      <Draggable key={link.id} draggableId={link.id} index={index} isDragDisabled={!isEditMode}>
-        {(provided) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            className="flex items-center p-2 border rounded mb-2"
-          >
-            <FileIcon filename={link.name} className="w-6 h-6 mr-2" />
+      <>
+        <FileIcon filename={link.name} className="w-6 h-6 mr-2" />
 
-            {isEditMode ? (
-              <>
-                <input
-                  type="text"
-                  value={link.name}
-                  onChange={(e) => handleChange(link.id, 'name', e.target.value)}
-                  className="flex-grow mr-2 p-1 border rounded"
-                  placeholder="File name"
-                />
-                <input
-                  type="text"
-                  value={link.url}
-                  onChange={(e) => handleChange(link.id, 'url', e.target.value)}
-                  className="flex-grow mr-2 p-1 border rounded"
-                  placeholder="URL"
-                />
-                <button onClick={() => removeLink(link.id)} className="text-red-500">
-                  <Trash2 size={18} />
-                </button>
-              </>
-            ) : (
-              <>
+        {isEditMode ? (
+          <>
+            <input
+              type="text"
+              value={link.name}
+              onChange={(e) => handleChange(link.id, 'name', e.target.value)}
+              className="flex-grow mr-2 p-1 border rounded"
+              placeholder="File name"
+            />
+            <input
+              type="text"
+              value={link.url}
+              onChange={(e) => handleChange(link.id, 'url', e.target.value)}
+              className="flex-grow mr-2 p-1 border rounded"
+              placeholder="URL"
+            />
+            <button onClick={() => removeLink(link.id)} className="text-red-500">
+              <Trash2 size={18} />
+            </button>
+          </>
+        ) : (
+          <>
 
-                <a href={link.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-blue-500 flex w-full">
-                  <div className="flex-grow">{link.name}</div>
-                  <ExternalLink size={18} />
-                </a>
-              </>
-            )}
-          </div>
+            <a href={link.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-blue-500 flex w-full">
+              <div className="flex-grow">{link.name}</div>
+              <ExternalLink size={18} />
+            </a>
+          </>
         )}
-      </Draggable>
+      </>
+
     );
   };
 
   return (
     <div className={`${className} p-4`}>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="fileLinks">
-          {(provided) => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              className={`grid gap-4 ${columns === 1 ? '' : `grid-cols-${columns}`}`}
-            >
-              {links.map((link, index) => renderFileLink(link, index))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <div
+
+        className={`grid gap-4 ${columns === 1 ? '' : `grid-cols-${columns}`}`}
+      >
+        {links.map((link, index) => renderFileLink(link, index))}
+
+      </div>
       {(mode === 'edit' || mode === 'new') && (
         <button onClick={addLink} className="mt-4 p-2 bg-blue-500 text-white rounded flex items-center">
           <Plus size={18} className="mr-2" /> Add File Link

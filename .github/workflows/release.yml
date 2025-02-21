@@ -1,4 +1,4 @@
-name: Web
+name: Release
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -9,11 +9,7 @@ on:
      #  schedule:
      #    - cron: '39 13 * * *'
      push:
-          branches: ['mainxx']
-          # Publish semver tags as releases.
           tags: ['v*.*.*']
-     pull_request:
-          branches: ['mainxx']
 
 env:
      REGISTRY: ghcr.io

@@ -25,7 +25,7 @@ async function readBadgeStatus(ref: string, id: string, tag: string) {
 		},
 	});
 	if (!item) {
-		app.syncSharePointItem(item);
+		//app.syncSharePointItem(item);
 		return 'gray';
 	}
 
