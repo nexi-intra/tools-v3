@@ -36,8 +36,8 @@ const translations: TranslationType = {
     noFavoriteToolsDescription: "Du har ikke valgt nogen favoritværktøjer, find værktøjer, du finder relevante, og klik på stjernen",
   },
   it: {
-    noFavoriteTools: "Nessuno strumento preferito",
-    noFavoriteToolsDescription: "Non hai selezionato alcuno strumento preferito, trova gli strumenti che ritieni rilevanti e clicca sulla stella",
+    noFavoriteTools: "Nessun applicativo preferito",
+    noFavoriteToolsDescription: "Non hai selezionato alcuno applicativo preferito, trova quello che ritieni rilevante e clicca sulla stella",
   },
 };
 
