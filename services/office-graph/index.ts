@@ -364,3 +364,35 @@ export class OfficeGraphClient {
 		return schema ? schema.parse(items) : items;
 	}
 }
+
+export async function getToken(tenant: string, app: string, appsecret: string): Promise<string> {
+	const url = `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`;
+	const body = `grant_type=client_credentials&client_id=${app}&client_secret=${appsecret}&scope=https%3A//graph.microsoft.com/.default`;
+
+	try {
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body,
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to fetch token: ${response.status} ${response.statusText}`);
+		}
+
+		const data = await response.json();
+		return data.access_token;
+	} catch (error) {
+		throw error;
+	}
+}
+
+export async function getSpAuthToken() {
+	return getToken(
+		process.env.SPAUTH_TENANTID as string,
+		process.env.SPAUTH_CLIENTID as string,
+		process.env.SPAUTH_CLIENTSECRET as string,
+	);
+}

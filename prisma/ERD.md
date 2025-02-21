@@ -88,6 +88,8 @@ erDiagram
   Json translations "nullable"
   Int region_id FK
   String sortorder "nullable"
+  Int channelId FK "nullable"
+  String homePageUrl "nullable"
 }
 "Language" {
   Int id PK
@@ -157,7 +159,6 @@ erDiagram
   Json metadata "nullable"
   String icon "nullable"
   Int categoryId FK
-  Int userProfileId FK "nullable"
 }
 "ToolTexts" {
   Int id PK
@@ -183,6 +184,7 @@ erDiagram
   Json translations "nullable"
   String status "nullable"
   Json metadata "nullable"
+  Status visibility
 }
 "UserGroup" {
   Int id PK
@@ -243,18 +245,141 @@ erDiagram
   Json data "nullable"
   Int userProfileId FK
 }
+"AppFeature" {
+  Int id PK
+  DateTime created_at
+  String created_by "nullable"
+  DateTime updated_at
+  String updated_by "nullable"
+  DateTime deleted_at "nullable"
+  String name UK
+  String description "nullable"
+  Json translations "nullable"
+  String status "nullable"
+  Int appMenuId FK "nullable"
+}
+"AppLink" {
+  Int id PK
+  DateTime created_at
+  String created_by "nullable"
+  DateTime updated_at
+  String updated_by "nullable"
+  DateTime deleted_at "nullable"
+  String name UK
+  String description "nullable"
+  Json translations "nullable"
+  String url
+  String status "nullable"
+  Int appFeatureId FK "nullable"
+}
+"AppNode" {
+  Int id PK
+  DateTime created_at
+  String created_by "nullable"
+  DateTime updated_at
+  String updated_by "nullable"
+  DateTime deleted_at "nullable"
+  String name UK
+  String displayName "nullable"
+  String description "nullable"
+  Json translations "nullable"
+  String status "nullable"
+  Decimal sortorder "nullable"
+  Int parentId FK "nullable"
+  Int appLinkId FK "nullable"
+}
+"BusinessUnit" {
+  Int id PK
+  DateTime created_at
+  String created_by "nullable"
+  DateTime updated_at
+  String updated_by "nullable"
+  DateTime deleted_at "nullable"
+  String name UK
+  String code UK "nullable"
+  String description "nullable"
+  Json translations "nullable"
+  String sortorder "nullable"
+  Boolean isGroupFunction
+  String homePageUrl "nullable"
+  String newsPageUrl "nullable"
+}
+"GuestDomain" {
+  Int id PK
+  DateTime created_at
+  String created_by "nullable"
+  DateTime updated_at
+  String updated_by "nullable"
+  DateTime deleted_at "nullable"
+  String name UK
+  String description "nullable"
+  Json translations "nullable"
+  String sortorder "nullable"
+}
+"ChannelCategory" {
+  Int id PK
+  DateTime created_at
+  String created_by "nullable"
+  DateTime updated_at
+  String updated_by "nullable"
+  DateTime deleted_at "nullable"
+  String name UK
+  String description "nullable"
+  Json translations "nullable"
+  String sortorder "nullable"
+}
+"Channel" {
+  Int id PK
+  DateTime created_at
+  String created_by "nullable"
+  DateTime updated_at
+  String updated_by "nullable"
+  DateTime deleted_at "nullable"
+  String name UK
+  String description "nullable"
+  Boolean mandatory
+  Json translations "nullable"
+  String sortorder "nullable"
+  Int regionId FK "nullable"
+  String externalGroup "nullable"
+  Int categoryId FK "nullable"
+}
 "_PurposeToTool" {
   String A FK
   String B FK
 }
+"_ToolToUserProfile" {
+  String A FK
+  String B FK
+}
+"_ToolGroupToUserProfile" {
+  String A FK
+  String B FK
+}
+"_ToolGroupToUserGroup" {
+  String A FK
+  String B FK
+}
 "Country" }o--|| "Region" : region
+"Country" }o--o| "Channel" : Channel
 "Tool" }o--|| "Category" : category
-"Tool" }o--o| "UserProfile" : UserProfile
 "ToolTexts" }o--|| "Tool" : tool
 "ToolTexts" }o--|| "Language" : language
 "Session" }o--|| "UserProfile" : user
+"AppFeature" }o--o| "AppNode" : AppMenu
+"AppLink" }o--o| "AppFeature" : AppFeature
+"AppNode" }o--o| "AppNode" : parent
+"AppNode" }o--o| "AppLink" : link
+"Channel" }o--o| "Region" : region
+"Channel" }o--o| "ChannelCategory" : category
 "_PurposeToTool" }o--|| "Purpose" : Purpose
 "_PurposeToTool" }o--|| "Tool" : Tool
+"_ToolToUserProfile" }o--|| "Tool" : Tool
+"_ToolToUserProfile" }o--|| "UserProfile" : UserProfile
+"_ToolGroupToUserProfile" }o--|| "ToolGroup" : ToolGroup
+"_ToolGroupToUserProfile" }o--|| "UserProfile" : UserProfile
+"_ToolGroupToUserGroup" }o--|| "ToolGroup" : ToolGroup
+"_ToolGroupToUserGroup" }o--|| "UserGroup" : UserGroup
 ```
 
 ### `SynchronizationLog`
@@ -351,6 +476,8 @@ erDiagram
   - `translations`: 
   - `region_id`: 
   - `sortorder`: 
+  - `channelId`: 
+  - `homePageUrl`: 
 
 ### `Language`
 
@@ -430,7 +557,6 @@ erDiagram
   - `metadata`: 
   - `icon`: 
   - `categoryId`: 
-  - `userProfileId`: 
 
 ### `ToolTexts`
 
@@ -460,6 +586,7 @@ erDiagram
   - `translations`: 
   - `status`: 
   - `metadata`: 
+  - `visibility`: 
 
 ### `UserGroup`
 
@@ -528,8 +655,142 @@ erDiagram
   - `data`: 
   - `userProfileId`: 
 
+### `AppFeature`
+
+**Properties**
+  - `id`: 
+  - `created_at`: 
+  - `created_by`: 
+  - `updated_at`: 
+  - `updated_by`: 
+  - `deleted_at`: 
+  - `name`: 
+  - `description`: 
+  - `translations`: 
+  - `status`: 
+  - `appMenuId`: 
+
+### `AppLink`
+
+**Properties**
+  - `id`: 
+  - `created_at`: 
+  - `created_by`: 
+  - `updated_at`: 
+  - `updated_by`: 
+  - `deleted_at`: 
+  - `name`: 
+  - `description`: 
+  - `translations`: 
+  - `url`: 
+  - `status`: 
+  - `appFeatureId`: 
+
+### `AppNode`
+
+**Properties**
+  - `id`: 
+  - `created_at`: 
+  - `created_by`: 
+  - `updated_at`: 
+  - `updated_by`: 
+  - `deleted_at`: 
+  - `name`: 
+  - `displayName`: 
+  - `description`: 
+  - `translations`: 
+  - `status`: 
+  - `sortorder`: 
+  - `parentId`: 
+  - `appLinkId`: 
+
+### `BusinessUnit`
+
+**Properties**
+  - `id`: 
+  - `created_at`: 
+  - `created_by`: 
+  - `updated_at`: 
+  - `updated_by`: 
+  - `deleted_at`: 
+  - `name`: 
+  - `code`: 
+  - `description`: 
+  - `translations`: 
+  - `sortorder`: 
+  - `isGroupFunction`: 
+  - `homePageUrl`: 
+  - `newsPageUrl`: 
+
+### `GuestDomain`
+
+**Properties**
+  - `id`: 
+  - `created_at`: 
+  - `created_by`: 
+  - `updated_at`: 
+  - `updated_by`: 
+  - `deleted_at`: 
+  - `name`: 
+  - `description`: 
+  - `translations`: 
+  - `sortorder`: 
+
+### `ChannelCategory`
+
+**Properties**
+  - `id`: 
+  - `created_at`: 
+  - `created_by`: 
+  - `updated_at`: 
+  - `updated_by`: 
+  - `deleted_at`: 
+  - `name`: 
+  - `description`: 
+  - `translations`: 
+  - `sortorder`: 
+
+### `Channel`
+
+**Properties**
+  - `id`: 
+  - `created_at`: 
+  - `created_by`: 
+  - `updated_at`: 
+  - `updated_by`: 
+  - `deleted_at`: 
+  - `name`: 
+  - `description`: 
+  - `mandatory`: 
+  - `translations`: 
+  - `sortorder`: 
+  - `regionId`: 
+  - `externalGroup`: 
+  - `categoryId`: 
+
 ### `_PurposeToTool`
 Pair relationship table between [Purpose](#Purpose) and [Tool](#Tool)
+
+**Properties**
+  - `A`: 
+  - `B`: 
+
+### `_ToolToUserProfile`
+Pair relationship table between [Tool](#Tool) and [UserProfile](#UserProfile)
+
+**Properties**
+  - `A`: 
+  - `B`: 
+
+### `_ToolGroupToUserProfile`
+Pair relationship table between [ToolGroup](#ToolGroup) and [UserProfile](#UserProfile)
+
+**Properties**
+  - `A`: 
+  - `B`: 
+
+### `_ToolGroupToUserGroup`
+Pair relationship table between [ToolGroup](#ToolGroup) and [UserGroup](#UserGroup)
 
 **Properties**
   - `A`: 

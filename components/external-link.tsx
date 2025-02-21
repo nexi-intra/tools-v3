@@ -33,6 +33,7 @@ interface ExternalLinkProps {
   children: React.ReactNode
   title: string
   description: string
+  onIsOpenChange: (isOpen: boolean) => void
 }
 
 export function ExternalLink({ href, children, title, description }: ExternalLinkProps) {
@@ -60,10 +61,10 @@ export function ExternalLink({ href, children, title, description }: ExternalLin
 
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Link href={href} onClick={handleLinkClick} className="inline-flex items-center">
+        <div onClick={handleLinkClick} className="inline-flex items-center w-full cursor-pointer">
           {children}
 
-        </Link>
+        </div>
       </DialogTrigger>
       <DialogContent className="w-80">
         <div className="grid gap-4">

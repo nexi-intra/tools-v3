@@ -513,7 +513,7 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
                 <SidebarTrigger className="-ml-1" />
 
                 <Separator orientation="vertical" className="mr-2 h-4" />
-                {/* {!isInIframe && <GlobalBreadcrumb />} */}
+                {!isInIframe && <GlobalBreadcrumb />}
                 {/* <Breadcrumb>
                     <BreadcrumbList>
                       <BreadcrumbItem className="hidden md:block">

@@ -14,6 +14,10 @@ async function readItem(ref: string, id: string) {
 	});
 }
 async function readBadgeStatus(ref: string, id: string, tag: string) {
+	// In this case we start a sync of the item
+
+	const app = new ToolsApp();
+
 	const item = await prisma.tool.findFirst({
 		where: {
 			koksmat_masterdataref: ref,
@@ -21,15 +25,13 @@ async function readBadgeStatus(ref: string, id: string, tag: string) {
 		},
 	});
 	if (!item) {
+		app.syncSharePointItem(item);
 		return 'gray';
 	}
 
 	if (item.koksmat_masterdata_etag === tag) {
 		return 'green';
 	}
-	// In this case we start a sync of the item
-
-	const app = new ToolsApp();
 
 	app.syncSharePointItem(item);
 

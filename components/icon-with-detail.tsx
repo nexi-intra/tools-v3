@@ -73,17 +73,20 @@ export default function IconWithDetail({ icon, name, description, title, link, i
 
   const router = useRouter()
   const [isRemoving, setisRemoving] = useState(false)
+  const [hoverVisible, setHoverVisible] = useState(false)
 
   useEffect(() => {
     setisRemoving(false)
+
   }, [id])
 
 
 
-
+  //TODO: Add a handler so that when a user clicks on the link, 
+  // the tool is opened in a new tab and this dialog is closed
   return (
     <div className="hover:bg-slate-100 p-2 pt-6 rounded-lg border w-44 h-44" >
-      <HoverCard>
+      <HoverCard >
         <HoverCardTrigger asChild>
           <Link href={link} target="_blank" rel="noopener noreferrer">
             <div className={isRemoving ? "blur" : ""}>
@@ -104,7 +107,13 @@ export default function IconWithDetail({ icon, name, description, title, link, i
 
           <p className="text-sm mb-4">{description}</p>
           <div className="flex justify-between">
-            <ExternalLink href={link} title={t.toolOpenInNewTabTitle} description={t.toolOpenInNewTabDescription}>
+            <ExternalLink
+              onIsOpenChange={(isOpen) => {
+                if (!isOpen) {
+                  setisRemoving(false)
+                }
+              }}
+              href={link} title={t.toolOpenInNewTabTitle} description={t.toolOpenInNewTabDescription}>
 
               <Button
 

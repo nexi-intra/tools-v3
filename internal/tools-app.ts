@@ -623,4 +623,10 @@ export class ToolsApp {
 		const sharePointItem = await site.getToolItem('V1', item.koksmat_masterdata_id);
 		await this.syncItem(site, sharePointItem, item.koksmat_masterdataref, { force: true });
 	}
+
+	async createSharePointItem(sharePointListUrl: string, id: string) {
+		const site = new ToolSpokeSite(this, sharePointListUrl);
+		const sharePointItem = await site.getToolItem('V1', id);
+		await this.syncItem(site, sharePointItem, sharePointListUrl);
+	}
 }

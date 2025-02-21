@@ -24,6 +24,13 @@
         "command": "pnpm run script test-app"
     },
     {
+        "name": "Debug script read-list",
+        "type": "node-terminal",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "command": "pnpm run script read-list"
+    },
+    {
         "name": "Debug script pnp",
         "type": "node-terminal",
         "request": "launch",
