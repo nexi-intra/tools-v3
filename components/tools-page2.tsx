@@ -72,9 +72,9 @@ const translations: Record<SupportedLanguage, Translation> = {
     yourProfile: "Il tuo profilo",
     purposes: "Scopi",
     categories: "Categorie",
-    searchTools: "Cerca strumenti...",
-    noToolFoundTitle: "Nessun strumento trovato",
-    noToolFoundGuide: "Trova uno strumento nell'elenco e fai clic sulla stella per contrassegnarlo come preferito",
+    searchTools: "Cerca applicativi",
+    noToolFoundTitle: "Nessun applicativo trovato",
+    noToolFoundGuide: "Trova un applicativo nell'elenco e fai clic sulla stella per contrassegnarlo come preferito",
     searchFor: "Cerca",
     notLoggedIn: "Non connesso",
   }
