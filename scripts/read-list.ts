@@ -35,10 +35,10 @@ async function main() {
 		//  console.log("List:", list.name, list.id);
 	}
 
-	// await syncRegions(sharePointClient);
-	// await syncCountries(sharePointClient);
-	// await syncCategories(sharePointClient);
-	// await syncUnits(sharePointClient);
+	await syncRegions(sharePointClient);
+	await syncCountries(sharePointClient);
+	await syncCategories(sharePointClient);
+	await syncUnits(sharePointClient);
 	await syncChannels(sharePointClient);
 	//console.log(" Users:", allUsers);
 }

@@ -92,6 +92,7 @@ export const ToolsSchema = z.object({
 	Icon: z.string().optional(),
 	Business_Purpose: SpMetadataFieldSchema.optional(),
 	Digital_Workplace: z.array(SpMetadataFieldSchema).optional(),
+	Countries: z.array(SpLookupFieldSchema).optional(),
 });
 
 export type ToolsSchemaType = z.infer<typeof ToolsSchema>;

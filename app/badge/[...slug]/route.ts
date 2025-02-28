@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ImageResponse } from 'next/og';
 import prisma from '@/prisma';
 import { redirect } from 'next/navigation';
-import { ToolsApp } from '@/internal/tools-app';
+import { ToolsApp } from '@/internal/app-tools';
 //export const runtime = "edge";
 async function readItem(ref: string, id: string) {
 	return await prisma.tool.findFirst({
@@ -25,8 +25,12 @@ async function readBadgeStatus(ref: string, id: string, tag: string) {
 		},
 	});
 	if (!item) {
-		//app.syncSharePointItem(item);
-		return 'gray';
+		try {
+			await app.createSharePointItem(ref, id);
+			return 'green';
+		} catch (error) {
+			return 'red';
+		}
 	}
 
 	if (item.koksmat_masterdata_etag === tag) {

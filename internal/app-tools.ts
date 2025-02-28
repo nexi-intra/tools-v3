@@ -20,7 +20,7 @@ import { getTranslation } from '@/schemas/_shared';
 
 import { DefaultArgs, JsonValue } from '@prisma/client/runtime/library';
 import { PrismaTransaction } from '@/interfaces/prisma';
-import { Tool } from '@prisma/client';
+import { Country, PrismaClient, Tool } from '@prisma/client';
 async function upsertToolTranslations(
 	tx: PrismaTransaction,
 	dbItem: {
@@ -320,7 +320,7 @@ export class ToolsApp {
 				},
 			});
 
-			this.log.highlight(`Database Tools ${name}  number of records ${db.length}`);
+			this.log.highlight(`Database Tools ${name} number of records ${db.length}`);
 			if (options.force) {
 				this.log.highlight('Force option enabled, all records will be updated');
 			}
@@ -433,6 +433,47 @@ export class ToolsApp {
 					 * @property {Object} purposes - The business purpose of the tool, connected or created if not existing.
 					 * @property {Object} category - The category of the tool, connected or created if not existing.
 					 */
+					const countryLookup: Map<string, Country> = new Map();
+					const countries = await prisma.country.findMany();
+					const countryReferences = [];
+					if (sharePointItem.id === '47') {
+						console.log(1);
+					}
+					if (sharePointItem.Countries) {
+						for (const country of sharePointItem.Countries) {
+							if (!countryLookup.has(country.LookupValue)) {
+								const countryRecord = countries.find(c => c.name === country.LookupValue);
+								if (countryRecord) {
+									countryLookup.set(country.LookupValue, countryRecord);
+								} else {
+									const newCountry = await tx.country.create({
+										data: {
+											name: country.LookupValue,
+											region: {
+												connectOrCreate: {
+													where: {
+														name: 'Unknown',
+													},
+													create: {
+														name: 'Unknown',
+													},
+												},
+											},
+										},
+									});
+									countryLookup.set(country.LookupValue, newCountry);
+								}
+								countryReferences.push({ id: countryRecord?.id! });
+							}
+						}
+					}
+					sharePointItem?.Countries
+						? sharePointItem?.Countries.map(async country => {
+								return await prisma.country.findFirst({
+									where: { name: country.LookupValue },
+								});
+						  })
+						: [];
 					const updatedTool = await tx.tool.update({
 						where: { id: dbItem.id },
 						data: {
@@ -444,6 +485,9 @@ export class ToolsApp {
 							icon: image!,
 							documents: ToolsApp.buildDocumentCollection(sharePointItem),
 							translations: ToolsApp.buildTranslations(sharePointItem),
+							countries: {
+								set: countryReferences,
+							},
 							purposes: {
 								connectOrCreate: {
 									where: {
@@ -595,6 +639,17 @@ export class ToolsApp {
 		});
 		return toolList;
 	}
+
+	/*
+	 * Asynchronously instantiates and runs the ToolsApp to synchronize data and user profiles.
+	 *
+	 * @remarks
+	 * 1. Performs synchronization operations with optional force flag.
+	 * 2. Syncs user profiles with the option to create only if needed.
+	 * 3. Logs completion once all operations are finished.
+	 *
+	 * @returns A promise that resolves when all operations complete.
+	 */
 	async syncronizeAll(options: { force: boolean } = { force: false }) {
 		const toolLists = await this.listsToSync();
 

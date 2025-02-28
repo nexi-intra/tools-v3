@@ -106,6 +106,7 @@ model Country {
   Channel      Channel?  @relation(fields: [channelId], references: [id])
   channelId    Int?
   homePageUrl  String?
+  tools        Tool[]
 }
 
 model Language {
@@ -196,6 +197,7 @@ model Tool {
   purposes                Purpose[]     @relation("ToolPurposes")
   categoryId              Int
   userProfiles            UserProfile[]
+  countries               Country[]
 
   ToolTexts ToolTexts[]
 }
