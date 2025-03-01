@@ -20,7 +20,9 @@ import { getTranslation } from '@/schemas/_shared';
 
 import { DefaultArgs, JsonValue } from '@prisma/client/runtime/library';
 import { PrismaTransaction } from '@/interfaces/prisma';
-import { Country, PrismaClient, Tool } from '@prisma/client';
+import { Country, PrismaClient, Tool, UserProfile, UserRole } from '@prisma/client';
+import { OfficeGraphClient } from '@/services/office-graph';
+import { getKoksmatTokenCookie } from '@/lib/auth';
 async function upsertToolTranslations(
 	tx: PrismaTransaction,
 	dbItem: {
@@ -140,12 +142,16 @@ async function upsertToolTranslations(
 	});
 }
 type SynclogTypes = 'update' | 'create' | 'delete';
+interface UserWithRoles extends UserProfile {
+	roles: UserRole[];
+}
 export class ToolsApp {
 	private toolsHubSharePoint: SharePointGraphClient;
 	private _tenantId: string;
 	private _clientId: string;
 	private _clientSecret: string;
-
+	private _user: UserWithRoles | null = null;
+	private _msGraph: OfficeGraphClient | null = null;
 	public get log(): LoggerInterface {
 		return logger;
 	}
@@ -178,9 +184,23 @@ export class ToolsApp {
 			clientSecret: this._clientSecret,
 		};
 	}
-
-	async toolLists() {
-		return await this.toolsHubSharePoint.getSharePointItems('Tool Collections', 100, CollectionListSchema);
+	async user() {
+		if (!this._user) {
+			const token = await getKoksmatTokenCookie();
+			const userProfile = await prisma.userProfile.findFirst({
+				where: {
+					id: token?.userId,
+				},
+				include: {
+					roles: true,
+				},
+			});
+			if (!userProfile) {
+				throw new Error('User not found');
+			}
+			this._user = userProfile;
+		}
+		return this._user;
 	}
 
 	async writeSyncLogInfo(category: SynclogTypes, details: object) {
@@ -683,5 +703,38 @@ export class ToolsApp {
 		const site = new ToolSpokeSite(this, sharePointListUrl);
 		const sharePointItem = await site.getToolItem('V1', id);
 		await this.syncItem(site, sharePointItem, sharePointListUrl);
+	}
+	async mayReadDomain(domain: string) {
+		const user = await this.user();
+		if (!user) {
+			throw new Error('User not found');
+		}
+		const domainRecord = prisma.guestDomain.findFirst({
+			where: {
+				name: domain,
+			},
+		});
+		if (!domainRecord) {
+			throw new Error('Domain not found');
+		}
+
+		if (user.email.endsWith(domain)) {
+			return true;
+		}
+		return false;
+	}
+
+	async isSuperAdmin(user: UserWithRoles) {
+		if (user.roles.some(role => role.name === 'SuperAdmin')) {
+			return true;
+		}
+		return false;
+	}
+
+	public get msGraph() {
+		if (!this._msGraph) {
+			this._msGraph = new OfficeGraphClient(this._tenantId, this._clientId, this._clientSecret, logger);
+		}
+		return this._msGraph;
 	}
 }
