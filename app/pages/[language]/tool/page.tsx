@@ -6,10 +6,10 @@ import prisma from '@/prisma';
 import { endsWith, filter } from 'lodash-es';
 
 import React from 'react'
-import { TableOfBoards } from './client';
+import { TableOfTools } from './client';
 import { getKoksmatTokenCookie } from '@/lib/auth';
 
-import { Board, GuestDomain } from '@prisma/client';
+import { Tool } from '@prisma/client';
 import { ToolsApp } from '@/internal/app-tools';
 
 type PageProps = {
@@ -34,21 +34,30 @@ export default async function Page({
 
   const isSuperAdmin = await app.isSuperAdmin(user)
 
-  let boards: { title: string, description: string }[] = []
+  let tools: { title: string, description: string }[] = []
   {
-    const filteredDomains = await prisma.board.findMany({
+    const filteredTools = await prisma.tool.findMany({
       where: {
-        created_by: user.name
+        created_by: user.name,
+        koksmat_masterdata_id: {
+          equals: null
+        }
+
+
+      },
+      orderBy: {
+        name: 'asc'
       }
     })
 
 
-    boards = filteredDomains.map((board: Board) => {
+    tools = filteredTools.map((tool: Tool) => {
 
       return {
-        id: board.id,
-        title: board.name,
-        description: ""
+        id: tool.id,
+        title: tool.name,
+        description: "",
+        refObject1: tool
       }
     })
   }
@@ -59,7 +68,7 @@ export default async function Page({
   return (
     <div>
 
-      <TableOfBoards boards={boards} />
+      <TableOfTools tools={tools} />
 
 
     </div>

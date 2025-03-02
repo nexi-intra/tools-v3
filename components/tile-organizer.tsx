@@ -27,6 +27,47 @@ import { TileList } from "@/components/tile-list"
 import { Tile } from "@/components/tile"
 import { PreviewMode } from "@/components/preview-mode"
 import { v4 as uuidv4 } from "uuid"
+import { z } from "zod"
+
+// -------------------------
+// Zod Schema Definitions
+// -------------------------
+const TileTypeSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  icon: z.string(),
+})
+
+const ColumnTypeSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+})
+
+const RowTypeSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+})
+
+const CellContentTypeSchema = z.object({
+  columnId: z.string(),
+  rowId: z.string(),
+  tiles: z.array(TileTypeSchema),
+})
+
+const StateSchema = z.object({
+  columns: z.array(ColumnTypeSchema).optional(),
+  rows: z.array(RowTypeSchema).optional(),
+  cellContents: z.array(CellContentTypeSchema).optional(),
+  //availableTiles: z.array(TileTypeSchema).optional(),
+})
+
+// -------------------------
+// Component Props
+// -------------------------
+export type TileOrganizerProps = {
+  initialData?: string // JSON string representing the state
+  onStateChange?: (state: string) => void
+}
 
 export type TileType = {
   id: string
@@ -50,30 +91,22 @@ export type CellContentType = {
   tiles: TileType[]
 }
 
-type HistoryState = {
+export type HistoryState = {
   columns: ColumnType[]
   rows: RowType[]
   cellContents: CellContentType[]
 }
 
-export default function TileOrganizer() {
-  // Initial columns (frequencies)
-  const [columns, setColumns] = useState<ColumnType[]>([
-    { id: "hourly", title: "Every Hour" },
-    { id: "daily", title: "Every Day" },
-    { id: "weekly", title: "Every Week" },
-    { id: "monthly", title: "Every Month" },
-    { id: "ondemand", title: "On Demand" },
-  ])
+export default function TileOrganizer({ initialData, onStateChange }: TileOrganizerProps) {
+  // -------------------------
+  // State variables
+  // -------------------------
+  // Start with empty arrays for columns, rows, and cellContents.
+  const [columns, setColumns] = useState<ColumnType[]>([])
+  const [rows, setRows] = useState<RowType[]>([])
+  const [cellContents, setCellContents] = useState<CellContentType[]>([])
 
-  // Initial rows (work areas)
-  const [rows, setRows] = useState<RowType[]>([
-    { id: "area1", title: "Work Area 1" },
-    { id: "area2", title: "Work Area 2" },
-    { id: "area3", title: "Work Area 3" },
-  ])
-
-  // Available tiles to drag from
+  // Available tiles are pre-populated
   const [availableTiles, setAvailableTiles] = useState<TileType[]>([
     { id: "tile1", title: "Reports", icon: "file-text" },
     { id: "tile2", title: "Analytics", icon: "bar-chart" },
@@ -85,16 +118,8 @@ export default function TileOrganizer() {
     { id: "tile8", title: "Notifications", icon: "bell" },
   ])
 
-
-  // Cell contents (tiles in each cell)
-  const [cellContents, setCellContents] = useState<CellContentType[]>([
-    { columnId: "daily", rowId: "area1", tiles: [{ id: "cell1-tile1", title: "Daily Report", icon: "file-text" }] },
-    {
-      columnId: "weekly",
-      rowId: "area2",
-      tiles: [{ id: "cell2-tile1", title: "Weekly Analytics", icon: "bar-chart" }],
-    },
-  ])
+  // Error state for initialData parsing
+  const [error, setError] = useState<string | null>(null)
 
   // Active drag state
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -103,8 +128,39 @@ export default function TileOrganizer() {
 
   const [history, setHistory] = useState<HistoryState[]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
-
   const [isPreviewMode, setIsPreviewMode] = useState(false)
+
+  // ---------------------------------
+  // Parse initialData with Zod
+  // ---------------------------------
+  useEffect(() => {
+    debugger
+    if (initialData) {
+      try {
+        const parsed = JSON.parse(initialData)
+        const validated = StateSchema.parse(parsed)
+        setColumns(validated.columns ?? [])
+        setRows(validated.rows ?? [])
+        setCellContents(validated.cellContents ?? [])
+        // if (validated.availableTiles) {
+        //   setAvailableTiles(validated.availableTiles)
+        // }
+        setError(null)
+      } catch (err: any) {
+        setError("Error parsing initial data: " + err.message)
+      }
+    }
+  }, [initialData])
+
+  // ---------------------------------
+  // Call onStateChange callback when state updates
+  // ---------------------------------
+  useEffect(() => {
+    if (onStateChange) {
+      const currentState = JSON.stringify({ columns, rows, cellContents })
+      onStateChange(currentState)
+    }
+  }, [columns, rows, cellContents, availableTiles, onStateChange])
 
   // Toggle preview mode
   const togglePreviewMode = () => {
@@ -184,11 +240,11 @@ export default function TileOrganizer() {
     const newTile: TileType = {
       id: `tile-${uuidv4()}`,
       title: "New Tile",
-      icon: "square", // You can change this to any default icon
+      icon: "square", // Default icon
     }
     setAvailableTiles((prevTiles) => {
       const newTiles = [...prevTiles, newTile]
-      addToHistory({ columns, rows, cellContents }) // We don't need to include availableTiles in the history
+      addToHistory({ columns, rows, cellContents }) // availableTiles is not included in history
       return newTiles
     })
   }
@@ -388,7 +444,7 @@ export default function TileOrganizer() {
     const newId = `row-${uuidv4()}`
     setRows((prevRows) => {
       const newRows = [...prevRows, { id: newId, title: `New Work Area` }]
-      addToHistory({ columns, rows, cellContents })
+      addToHistory({ columns, rows: newRows, cellContents })
       return newRows
     })
   }
@@ -440,6 +496,13 @@ export default function TileOrganizer() {
 
   return (
     <div className="space-y-4">
+      {/* Show error message if initialData failed to parse */}
+      {error && (
+        <div className="p-2 bg-red-100 border border-red-200 rounded">
+          {error}
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="bg-card rounded-lg border shadow-sm p-2 flex items-center space-x-2">
         <Button variant="outline" size="icon" onClick={addNewTile} disabled={isPreviewMode}>
@@ -450,12 +513,7 @@ export default function TileOrganizer() {
           <Undo2 className="h-4 w-4" />
           <span className="sr-only">Undo</span>
         </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={redo}
-          disabled={historyIndex >= history.length - 1 || isPreviewMode}
-        >
+        <Button variant="outline" size="icon" onClick={redo} disabled={historyIndex >= history.length - 1 || isPreviewMode}>
           <Redo2 className="h-4 w-4" />
           <span className="sr-only">Redo</span>
         </Button>
@@ -551,4 +609,3 @@ export default function TileOrganizer() {
     </div>
   )
 }
-

@@ -1,20 +1,29 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { GenericTable } from '@/components/table';
 import { ColumnDef } from '@tanstack/react-table';
 import { GenericItem } from '@/components/table/data/schema';
 import { DataTableColumnHeader } from '@/components/table/components/data-table-column-header';
 import { Button } from '@/components/ui/button';
 import { usePathname, useRouter } from 'next/navigation';
-export function TableOfBoards({ boards }: { boards: any }) {
+import { actionBoardSaveCopy } from '@/actions/board-actions';
+import { MagicboxContext } from '@/contexts/magicbox-context';
+import { useToast } from '@/hooks/use-toast';
+import { actionToolSaveCopy } from '@/actions/tool-actions';
+import Link from 'next/link';
+
+export function TableOfTools({ tools }: { tools: any }) {
+  const magicbox = useContext(MagicboxContext)
   const router = useRouter()
   const pathname = usePathname()
   const [items, setitems] = useState([])
+  const [error, seterror] = useState("")
+  const { toast } = useToast()
   useEffect(() => {
-    if (boards) {
-      setitems(boards)
+    if (tools) {
+      setitems(tools)
     }
-  }, [boards])
+  }, [tools])
 
   const col1: ColumnDef<GenericItem<any>> = {
     id: "string1",
@@ -24,14 +33,8 @@ export function TableOfBoards({ boards }: { boards: any }) {
     ),
     cell: ({ row }) => (
       <div>
-        <Button
-
-          onClick={() => {
-            alert("hej")
-          }}
-        >
-          Manage
-        </Button>
+        <Link href={pathname + "/" + row.original.id}>
+          <img className='h-8 w-8' src={row.original.refObject1.icon} /></Link>
       </div>
     ),
 
@@ -47,12 +50,12 @@ export function TableOfBoards({ boards }: { boards: any }) {
     cell: ({ row }) => (
       <div>
         <Button
-
+          variant={"link"}
           onClick={() => {
-            router.push(pathname + "/" + row.original.title)
+            router.push(pathname + "/" + row.original.id)
           }}
         >
-          View accounts
+          Edit
         </Button>
       </div>
     ),
@@ -62,23 +65,36 @@ export function TableOfBoards({ boards }: { boards: any }) {
   };
 
   return (
-    <GenericTable data={items} addtionalColumns={[col1, col2]}
+    <GenericTable data={items} addtionalColumns={[col1]}
       actions={{
         filterComponent: (params) => {
           if (params) {
             let x = 1;
           }
           return (
-            <div className="flex w-max space-x-4 hidden">
+            <div className="flex w-max space-x-4 ">
 
               <div className="grow">&nbsp;</div>
               <Button
                 variant={"secondary"}
-                onClick={() => {
+                onClick={async () => {
+                  seterror("")
+                  const saveResult = await actionToolSaveCopy("New " + magicbox.user?.name, "{}")
+                  if (!saveResult.saved || !saveResult.id) {
+                    seterror("Failed to save: " + saveResult?.error)
+                    return
+                  }
+                  toast({
+
+                    description: "Opening",
+
+                  })
+
+                  router.push(pathname + "/" + saveResult.id.toString())
 
                 }}
               >
-                Clear
+                New Tool
               </Button>
             </div>
           );

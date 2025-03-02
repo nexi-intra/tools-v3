@@ -180,6 +180,9 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
         },
       },
     },
+    orderBy: {
+      name: 'asc'
+    },
     include: {
       userProfiles: {
         where: { id: currentUserProfile?.id },

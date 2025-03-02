@@ -1,9 +1,11 @@
-import TileOrganizer from '@/components/tile-organizer'
+
 import { SupportedLanguage } from '@/contexts/language-context'
 import prisma from '@/prisma'
 import { Metadata } from 'next'
 import React, { Suspense } from 'react'
 import { z } from 'zod'
+import ClientPage from './client'
+import { ToolsApp } from '@/internal/app-tools'
 
 
 type PageProps = {
@@ -39,10 +41,11 @@ export async function generateMetadata({
   const _searchParams = await searchParams
   const language = _params.language
   const board_id = _params.board_id
+  const id = parseInt(board_id)
 
   const board = await prisma.board.findFirst({
     where: {
-      id: parseInt(board_id),
+      id
 
     },
 
@@ -70,20 +73,58 @@ export async function generateMetadata({
 
 
 
-export default async function Page({
+export default async function BoardIdPage({
   params,
   searchParams,
 }: PageProps) {
-  const _params = await params
-  const _searchParams = await searchParams
-  const language = _params.language as SupportedLanguage
-  const board_id = _params.board_id
-  const t = translations[language];
-  const id = parseInt(board_id)
-  return (
-    <Suspense fallback={<div>{t.loading}</div>}>
+  const app = new ToolsApp()
 
-      <TileOrganizer />
-    </Suspense>
-  )
+  try {
+    const _params = await params
+    const _searchParams = await searchParams
+    const language = _params.language as SupportedLanguage
+    const board_id = _params.board_id
+    const id = parseInt(board_id)
+    const t = translations[language];
+    const app = new ToolsApp()
+    const user = await app.user()
+    if (!user) {
+      return <div>Not logged in</div>
+    }
+
+    const board = await prisma.board.findFirst({
+      where: {
+        id,
+
+      },
+      include: {
+        managedBy: true
+      }
+
+    });
+    if (!board) {
+      return <div>Board not found</div>
+    }
+    if (board.created_by !== user.name) {
+      return <div><div className='text-3xl'>You are not allowed to edit this board</div>
+        <div>Created by: {board.created_by}</div>
+        <div>Managed by: {board.managedBy.map((managedBy) => managedBy.name).join(", ")}</div>
+      </div>
+    }
+    //TODO: Support multiple editors
+    // if (!board.managedBy.some((managedBy) => managedBy.id === user.id)) {
+    //   return <div>Not authorized</div>
+
+    return (
+      <Suspense fallback={<div>{t.loading}</div>}>
+
+        <ClientPage id={id} initialBoard={JSON.stringify(board.layout)} />
+      </Suspense>
+    )
+  } catch (error) {
+    app.log.error("BoardIdPage", error)
+
+    return <div className='w-full h-full items-center'> <div className='text-red-500 '>Error</div></div>
+  }
+
 }
