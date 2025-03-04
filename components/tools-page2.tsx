@@ -19,6 +19,10 @@ import { mapTool2ToolView } from "@/internal/maps";
 import { decodeJwt } from "@/lib/tokens";
 import Authenticate, { UserProfileAPI } from "./authenticate";
 import { FaCircle, FaSquare } from "react-icons/fa";
+import { SearchInput } from "./search-input";
+import { CountryFilter } from "./country-filter";
+import { GroupToolsToggle } from "./general-tools-toggle";
+import { SelectedCountries } from "./selected-countries";
 
 interface ToolsPageProps {
   className?: string;
@@ -235,7 +239,14 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
     return country.name
   })
   //const tools = databaseitems.sort((a, b) => a.name.localeCompare(b.name));
+  const sortedTools = tools.sort((a, b) => {
 
+    const toolA: ToolView = mapTool2ToolView(language, a, a.category.name, a.category.color ?? "#444444", a.category.id, "0");
+    const toolB: ToolView = mapTool2ToolView(language, b, b.category.name, b.category.color ?? "#444444", b.category.id, "0");
+
+
+    return toolA.name.localeCompare(toolB.name)
+  });
   const t = translations[language];
   return (
     <div className="h-full w-full">
@@ -244,7 +255,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
         <main className="w-full">
           <div className=" min-w-full ">
             <div className="relative">
-              <h3 className="font-semibold mb-2 sticky top-10 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
+              <h3 className="font-semibold mb-2 sticky top-0 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
                 {currentUserProfile?.displayName} - {t?.yourTools}
               </h3>
               <div className="relative">
@@ -279,7 +290,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
                 {t?.allTools}
               </h3>
 
-              <SearchTools value={props.query} placeholder={t.searchFor} properties={[
+              {/* <SearchTools value={props.query} placeholder={t.searchFor} properties={[
                 {
                   name: "country",
                   values: countries.map((country) => {
@@ -289,7 +300,16 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
 
                 }
 
-              ]} />
+              ]} /> */}
+              {/* Filters */}
+              <div className="flex flex-col md:flex-row gap-4 mb-6 p-3">
+                <SearchInput />
+                <CountryFilter countries={countries} />
+                <GroupToolsToggle />
+              </div>
+
+              {/* Selected countries display */}
+              <SelectedCountries />
             </div>
             <div className="relative">
               <div className="flex flex-wrap">
@@ -305,7 +325,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
 
                 </div>}
 
-                {tools.map((tool, key): React.JSX.Element => {
+                {sortedTools.map((tool, key): React.JSX.Element => {
                   const toolView: ToolView = mapTool2ToolView(language, tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
                   return <div key={key} className="p-3" >
                     <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} />

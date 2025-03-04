@@ -84,7 +84,7 @@ export default function GlobalBreadcrumb() {
       <Breadcrumb className="hidden md:flex">
         <BreadcrumbList>
           <Link href="/">
-            Which Tool When?</Link>
+            Tools</Link>
           {breadcrumbContext.items.length > 0 && (
             <BreadcrumbSeparator />
           )}

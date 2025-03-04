@@ -15,11 +15,11 @@ export async function generateMetadata() {
 			"https://" + host,
 		),
 		title: {
-			template: "%s | Magic Button",
-			default: "Magic Button",
+			template: "%s | Tools",
+			default: "Tools",
 		},
 		openGraph: {
-			title: "Magic Button",
+			title: "Magic Button Tools",
 			description: "Magic Button provide access to your tools, and works as a smart way of figuring out which tool to use when",
 			images: [
 				{
