@@ -24,6 +24,8 @@ import { ToolView } from '@/schemas/forms'
 type ModeType = 'view' | 'edit' | 'new'
 import { z } from "zod";
 import { ComponentDoc } from './component-documentation-hub'
+import { actionToolUpdate } from '@/actions/tool-actions'
+import { useToast } from '@/hooks/use-toast'
 
 
 
@@ -47,6 +49,7 @@ const translationSchema = z.object({
   openTool: z.string(),
   create: z.string(),
   save: z.string(),
+  saved: z.string(),
 });
 
 export type Translation = z.infer<typeof translationSchema>;
@@ -72,6 +75,7 @@ const translations: Record<SupportedLanguage, Translation> = {
     openTool: "Open Tool",
     create: "Create",
     save: "Save",
+    saved: "Saved",
   },
   da: {
     teams: "Versioner",
@@ -93,6 +97,7 @@ const translations: Record<SupportedLanguage, Translation> = {
     openTool: "Åbn værktøj",
     create: "Opret",
     save: "Gem",
+    saved: "Gemt",
   },
   it: {
     teams: "Versioni",
@@ -114,6 +119,7 @@ const translations: Record<SupportedLanguage, Translation> = {
     openTool: "Apri strumento",
     create: "Crea",
     save: "Salva",
+    saved: "Salvato",
   },
 };
 
@@ -136,6 +142,8 @@ interface ToolCardProps {
   allowedCountries: { name: string; code: string }[]
   isFavorite: boolean
   searchvalue?: string
+  canEdit?: boolean
+  id?: number
 }
 
 export default function ToolCard({
@@ -145,7 +153,9 @@ export default function ToolCard({
   className = '',
   allowedTags,
   isFavorite,
-  searchvalue
+  searchvalue,
+  canEdit,
+  id
 }: ToolCardProps) {
   const { language } = useLanguage();
   const t = translations[language];
@@ -165,6 +175,12 @@ export default function ToolCard({
   const magicbox = useContext(MagicboxContext)
   const [error, seterror] = useState("")
 
+  const { toast } = useToast()
+  const [currentMode, setcurrentMode] = useState<ModeType>("view")
+
+  useEffect(() => {
+    setcurrentMode(mode)
+  }, [mode])
 
   useEffect(() => {
     setName(initialTool.name)
@@ -178,7 +194,7 @@ export default function ToolCard({
   }, [initialTool])
 
   useEffect(() => {
-    if (mode === "new") {
+    if (currentMode === "new") {
       setName('')
       setDescription('')
       setIcon('')
@@ -188,24 +204,27 @@ export default function ToolCard({
       setPurposes([])
       setDocuments([])
     }
-  }, [mode])
+  }, [currentMode])
 
-  const handleSave = () => {
-    if (onSave) {
-      const updatedTool: ToolView = {
-        ...initialTool,
-        name,
-        description,
-        icon,
-        url,
-        tags,
-        countries,
-        purposes,
-        documents,
-        status: isFavorite ? 'active' : 'inactive'
-      }
-      onSave(updatedTool, mode)
+  const handleSave = async () => {
+    debugger
+    if (!id) {
+      seterror("No id")
+      return
     }
+
+    seterror("")
+    const updateResult = await actionToolUpdate(id, name, description, icon!, url)
+    if (updateResult.saved) {
+      toast({
+        description: t?.saved,
+      })
+      setcurrentMode("view")
+    } else {
+      seterror(updateResult.error ?? "Unknown error")
+    }
+
+
   }
 
   return (
@@ -214,7 +233,7 @@ export default function ToolCard({
         <div className="flex grow">
           <IconUploader
             size={48}
-            mode={mode}
+            mode={currentMode}
             onUpdate={(_, newIcon) => setIcon(newIcon)}
             initialIcon={icon}
             className="w-[48px] h-[48px]"
@@ -222,7 +241,7 @@ export default function ToolCard({
           <OneLineTextComponent
             initialValue={name}
             placeholder={t?.enterToolName}
-            mode={mode}
+            mode={currentMode}
             onChange={(_, value) => setName(value)}
             className='text-2xl font-bold ml-3'
           />
@@ -239,7 +258,7 @@ export default function ToolCard({
             }]}
             allowMulti={false}
             required={false}
-            mode={mode}
+            mode={currentMode}
             lazyLoad
             onChange={(selected) => {
               setcategoryId(selected[0].id)
@@ -272,17 +291,17 @@ export default function ToolCard({
         <MultiLineText
           initialValue={description}
           placeholder={t?.enterToolDescription}
-          mode={mode}
+          mode={currentMode}
           onChange={(_, value) => setDescription(value)}
           searchFor={searchvalue}
         />
 
-        {captionForArray(mode, t?.purposes, purposes)}
+        {captionForArray(currentMode, t?.purposes, purposes)}
         <Lookup
           className='p-2'
           initialSelectedItems={purposes?.map(purpose => ({ id: purpose.id, value: purpose.value, sortorder: purpose.order })) ?? []}
           items={purposes?.map(purpose => ({ id: purpose.id, value: purpose.value, sortorder: purpose.order })) ?? []}
-          mode={mode}
+          mode={currentMode}
           onChange={(selectedItems) => {
             const selectedPurposes = selectedItems.map(item => ({ id: item.id, value: item.value, order: item.sortorder }))
             setPurposes([...selectedPurposes])
@@ -304,7 +323,7 @@ export default function ToolCard({
           required={true}
         />
 
-        {captionForArray(mode, t?.documents, documents)}
+        {captionForArray(currentMode, t?.documents, documents)}
         <FileLinksGridComponent
           initialLinks={documents?.map((doc, index) => ({
             id: index.toString(),
@@ -312,37 +331,42 @@ export default function ToolCard({
             url: doc.url,
             type: 'pdf'
           })) || []}
-          mode={mode}
-          columns={mode === "view" ? 2 : 1}
+          mode={currentMode}
+          columns={currentMode === "view" ? 2 : 1}
           onUpdate={(_, links) => setDocuments(links.map(link => ({ name: link.name, url: link.url })))}
         />
-        {mode !== 'view' && (
+        {currentMode !== 'view' && (
           <OneLineTextComponent
             initialValue={url}
             placeholder={t?.enterToolUrl}
-            mode={mode}
+            mode={currentMode}
             onChange={(_, value) => setUrl(value)}
           />
         )}
-        {mode === 'view' && (
+        {currentMode === 'view' && (
           <div className="flex justify-center w-full mt-4">
             <Link href={url} target="_blank">
               <Button variant="default" onClick={e => e.stopPropagation()} disabled={!url}>
                 {t?.openTool}
               </Button>
             </Link>
+            {canEdit && (
+              <Button onClick={() => setcurrentMode(currentMode === 'view' ? 'edit' : 'view')}>{currentMode === 'view' ? "Edit" : "View"}</Button>
+            )}
           </div>
+
         )}
       </CardContent>
       <CardFooter className="flex justify-end">
-        {mode !== 'view' && (
+        {currentMode !== 'view' && (
           <Button onClick={(e) => {
             e.stopPropagation()
             handleSave()
           }}>
-            {mode === 'new' ? t?.create : t?.save}
+            {currentMode === 'new' ? t?.create : t?.save}
           </Button>
         )}
+        {error && <div className='text-red-500'>{error}</div>}
       </CardFooter>
     </Card>
   )

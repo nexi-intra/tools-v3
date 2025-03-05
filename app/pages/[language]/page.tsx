@@ -13,6 +13,8 @@ export default async function Page() {
 
       <Link href={`${pathname}/explorer`} > <Button>Explorer</Button> </ Link>
       <Link href={`${pathname}/profile`} > <Button>Profile</Button> </ Link>
+      <Link href={`${pathname}/board`} > <Button>Boards</Button> </ Link>
+      <Link href={`${pathname}/tool`} > <Button>Tools</Button> </ Link>
 
     </div>
   )

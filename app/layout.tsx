@@ -15,12 +15,12 @@ export async function generateMetadata() {
 			"https://" + host,
 		),
 		title: {
-			template: "%s | Nexi Tools",
-			default: "Nexi Tools",
+			template: "%s | Tools",
+			default: "Tools",
 		},
 		openGraph: {
-			title: "Nexi Tools",
-			description: "Nexi tools provide access to your tools",
+			title: "Magic Button Tools",
+			description: "Magic Button provide access to your tools, and works as a smart way of figuring out which tool to use when",
 			images: [
 				{
 					url: "/og",
@@ -32,12 +32,12 @@ export async function generateMetadata() {
 			],
 		},
 
-		applicationName: "Nexi Tools",
+		applicationName: "Magic Button",
 		referrer: "origin-when-cross-origin",
 		keywords: ["no code", "low code", "power apps", "power automate"],
 		creator: "Niels Gregers Johansen",
 		publisher: "Niels Gregers Johansen",
-		description: "Nexi tools provide access to your tools",
+		description: "Magic Button provide access to your tools, and works as a smart way of figuring out which tool to use when",
 	};
 	return metadata
 }

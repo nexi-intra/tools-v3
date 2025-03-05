@@ -3,13 +3,14 @@ import { SharePointGraphClient, splitUrl } from '@/services/office-graph/sharepo
 import { z } from 'zod';
 import {
 	SpLinkFieldSchema,
+	SpLookupFieldSchema,
 	SpMetadataFieldSchema,
 	SpPersonFieldSchema,
 	ToolFormatTypes,
 	ToolsSchema,
 	ToolsSchemaType,
 } from './models';
-import { ToolsApp } from './tools-app';
+import { ToolsApp } from './app-tools';
 
 export class ToolSpokeSite extends SharePointGraphClient {
 	private _toolListName: string;
@@ -69,7 +70,7 @@ export class ToolSpokeSite extends SharePointGraphClient {
 					Document6: SpLinkFieldSchema.optional(),
 					Link: SpLinkFieldSchema,
 					Business_x0020_Purpose: SpMetadataFieldSchema.optional(),
-					//          Digital_x0020_Workplace: SpMetadataFieldSchema.optional(),
+					Countries: z.array(SpLookupFieldSchema).optional(),
 					Icon: z.string().optional(),
 					createdBy: SpPersonFieldSchema,
 					lastModifiedBy: SpPersonFieldSchema,
@@ -104,10 +105,7 @@ export class ToolSpokeSite extends SharePointGraphClient {
 					Document5: item.Document5,
 					Document6: item.Document6,
 					Business_Purpose: item.Business_x0020_Purpose,
-					// Digital_Workplace: item.Digital_x0020_Workplace
-					//   ? [item.Digital_x0020_Workplace]
-					//   : [],
-
+					Countries: item.Countries,
 					UpdateBy: item.lastModifiedBy.user.email,
 					CreatedBy: item.createdBy.user.email,
 				};
@@ -153,6 +151,7 @@ export class ToolSpokeSite extends SharePointGraphClient {
 					Link: SpLinkFieldSchema,
 					Business_x0020_Purpose: SpMetadataFieldSchema.optional(),
 					//          Digital_x0020_Workplace: SpMetadataFieldSchema.optional(),
+					Countries: z.array(SpLookupFieldSchema), //.optional(),
 					Icon: z.string().optional(),
 					createdBy: SpPersonFieldSchema,
 					lastModifiedBy: SpPersonFieldSchema,
@@ -185,9 +184,7 @@ export class ToolSpokeSite extends SharePointGraphClient {
 						Document5: item.Document5,
 						Document6: item.Document6,
 						Business_Purpose: item.Business_x0020_Purpose,
-						// Digital_Workplace: item.Digital_x0020_Workplace
-						//   ? [item.Digital_x0020_Workplace]
-						//   : [],
+						Countries: item.Countries,
 
 						UpdateBy: item.lastModifiedBy.user.email,
 						CreatedBy: item.createdBy.user.email,

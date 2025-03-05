@@ -221,112 +221,121 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
           />
         </div>
       )}
-      <SidebarProvider>
-        {!hideSidebar && !isInIframe && magicbox.appMode !== "app" && (
-          <Sidebar collapsible="icon">
-            <SidebarHeader>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <SidebarMenuButton
-                        size="lg"
-                        className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+      {!magicbox.authtoken && !isInIframe && (
+        <div className="flex h-screen items-center justify-center w-screen bg-center bg-cover dark:bg-slate-300  " style={{ backgroundImage: "url('/background.png')" }}>
+          <div className=" gap-4  bg-white  dark:bg-black bg-opacity-90 rounded-xl shadow-lg p-20 min-w-[400px] min-h-[200px] items-center ">
+
+            <Authenticate apiScope={UserProfileAPI} />
+          </div>
+        </div>
+      )}
+      {(magicbox.authtoken || isInIframe) && (
+        <SidebarProvider>
+          {false && !hideSidebar && !isInIframe && magicbox.appMode !== "app" && (
+            <Sidebar collapsible="icon">
+              <SidebarHeader>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <SidebarMenuButton
+                          size="lg"
+                          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                        >
+                          <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                            <Image src="/tool-white.svg" width={64} height={64} alt="icon" className="w-6 h-6" />
+                          </div>
+                          <div className="grid flex-1 text-left text-sm leading-tight">
+                            <span className="truncate font-semibold">
+                              {APPDISPLAYNAME}
+                            </span>
+                            <span className="truncate text-xs">
+                              {BRANCH}
+                            </span>
+                          </div>
+                          <ChevronsUpDown className="ml-auto" />
+                        </SidebarMenuButton>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                        align="start"
+                        side="bottom"
+                        sideOffset={4}
                       >
-                        <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                          <Image src="/tool-white.svg" width={64} height={64} alt="icon" className="w-6 h-6" />
-                        </div>
-                        <div className="grid flex-1 text-left text-sm leading-tight">
-                          <span className="truncate font-semibold">
-                            {APPDISPLAYNAME}
-                          </span>
-                          <span className="truncate text-xs">
-                            {BRANCH}
-                          </span>
-                        </div>
-                        <ChevronsUpDown className="ml-auto" />
-                      </SidebarMenuButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                      align="start"
-                      side="bottom"
-                      sideOffset={4}
-                    >
-                      <DropdownMenuLabel className="text-xs text-muted-foreground">
-                        {t.teams}
-                      </DropdownMenuLabel>
-                      <DropdownMenuItem
+                        <DropdownMenuLabel className="text-xs text-muted-foreground">
+                          {t.teams}
+                        </DropdownMenuLabel>
+                        <DropdownMenuItem
 
 
-                        className="gap-2 p-2"
-                      >
+                          className="gap-2 p-2"
+                        >
 
-                        <div className="flex size-6 items-center justify-center rounded-sm border">
-                          <Image src="/appimages/ios/64.png" width={64} height={64} alt="icon" className="w-6 h-6" />
+                          <div className="flex size-6 items-center justify-center rounded-sm border">
+                            <Image src="/appimages/ios/64.png" width={64} height={64} alt="icon" className="w-6 h-6" />
 
-                        </div>
-                        <Link className="grow" href="https://tools.intra.nexigroup.com">
-                          Production
-                        </Link>
+                          </div>
+                          <Link className="grow" href="https://tools.intra.nexigroup.com">
+                            Production
+                          </Link>
 
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-
-
-                        className="gap-2 p-2"
-                      >
-
-                        <div className="flex size-6 items-center justify-center rounded-sm border">
-                          <Image src="/appimages/ios/64.png" width={64} height={64} alt="icon" className="w-6 h-6" />
-                        </div>
-                        <Link className="grow" href="https://nexi-intra-nexi-toolsv2-canary.intra.nexigroup.com">
-                          Canary
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
 
 
-                        className="gap-2 p-2"
-                      >
+                          className="gap-2 p-2"
+                        >
 
-                        <div className="flex size-6 items-center justify-center rounded-sm border">
-                          <Image src="/appimages/ios/64.png" width={64} height={64} alt="icon" className="w-6 h-6" />
-                        </div>
-                        <Link className="grow" href="https://nexi-intra-nexi-toolsv2-alpha.intra.nexigroup.com">
-                          Alpha
-                        </Link>
-
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-
-
-                        className="gap-2 p-2"
-                      >
-
-                        <div className="flex size-6 items-center justify-center rounded-sm border">
-                          <Image src="/appimages/ios/64.png" width={64} height={64} alt="icon" className="w-6 h-6" />
-                        </div>
-                        <Link className="grow" href="https://nexi-intra-nexi-toolsv2-beta.intra.nexigroup.com">
-                          Beta
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
+                          <div className="flex size-6 items-center justify-center rounded-sm border">
+                            <Image src="/appimages/ios/64.png" width={64} height={64} alt="icon" className="w-6 h-6" />
+                          </div>
+                          <Link className="grow" href="https://nexi-intra-nexi-toolsv2-canary.intra.nexigroup.com">
+                            Canary
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
 
 
-                        className="gap-2 p-2"
-                      >
+                          className="gap-2 p-2"
+                        >
 
-                        <div className="flex size-6 items-center justify-center rounded-sm border">
-                          <Image src="/appimages/ios/64.png" width={64} height={64} alt="icon" className="w-6 h-6" />
-                        </div>
-                        <Link className="grow" href="https://nexi-intra-nexi-toolsv2-master.intra.nexigroup.com">
-                          Master
-                        </Link>
+                          <div className="flex size-6 items-center justify-center rounded-sm border">
+                            <Image src="/appimages/ios/64.png" width={64} height={64} alt="icon" className="w-6 h-6" />
+                          </div>
+                          <Link className="grow" href="https://nexi-intra-nexi-toolsv2-alpha.intra.nexigroup.com">
+                            Alpha
+                          </Link>
 
-                      </DropdownMenuItem>
-                      {/* <DropdownMenuSeparator />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+
+
+                          className="gap-2 p-2"
+                        >
+
+                          <div className="flex size-6 items-center justify-center rounded-sm border">
+                            <Image src="/appimages/ios/64.png" width={64} height={64} alt="icon" className="w-6 h-6" />
+                          </div>
+                          <Link className="grow" href="https://nexi-intra-nexi-toolsv2-beta.intra.nexigroup.com">
+                            Beta
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+
+
+                          className="gap-2 p-2"
+                        >
+
+                          <div className="flex size-6 items-center justify-center rounded-sm border">
+                            <Image src="/appimages/ios/64.png" width={64} height={64} alt="icon" className="w-6 h-6" />
+                          </div>
+                          <Link className="grow" href="https://nexi-intra-nexi-toolsv2-master.intra.nexigroup.com">
+                            Master
+                          </Link>
+
+                        </DropdownMenuItem>
+                        {/* <DropdownMenuSeparator />
                           <DropdownMenuItem className="gap-2 p-2">
                             <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                               <Plus className="size-4" />
@@ -335,64 +344,64 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
                               {t.addTeam}
                             </div>
                           </DropdownMenuItem> */}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarHeader>
-            <SidebarContent>
-              <SidebarGroup>
-                <SidebarGroupLabel>{t.platform}</SidebarGroupLabel>
-                <SidebarMenu>
-                  {sidebarData.navMain.map((item: any) => (
-                    <Collapsible
-                      key={item.title.en}
-                      asChild
-                      defaultOpen={item.isActive}
-                      className="group/collapsible"
-                    >
-                      <SidebarMenuItem>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuButton tooltip={item.title[language]}>
-                            <Icon iconName={item.icon} className="size-5" />
-                            <span>{item.title[language]}</span>
-                            {item.label && <span className="bg-yellow-400">{item.label}</span>}
-                            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                          </SidebarMenuButton>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <SidebarMenuSub>
-                            {item.items?.map((subItem: any) => (
-                              <SidebarMenuSubItem key={subItem.title.en}>
-                                <SidebarMenuSubButton asChild>
-                                  <Link href={subItem.url}>
-
-                                    <span>{subItem.title[language]} </span>
-                                    {subItem.label && <span className="bg-yellow-400">{subItem.label}</span>}
-
-                                  </Link>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </SidebarMenuItem>
-                    </Collapsible>
-                  ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </SidebarMenuItem>
                 </SidebarMenu>
-              </SidebarGroup>
-              <SidebarGroup className="hidden group-data-[collapsible=icon]:hidden ">
-                <SidebarGroupLabel>{t.projects}</SidebarGroupLabel>
-                <SidebarMenu>
-                  {sidebarData.projects.map((item: any) => (
-                    <SidebarMenuItem key={item.title.en}>
-                      <SidebarMenuButton asChild>
-                        <Link href={item.url}>
-                          <Icon iconName={item.icon} className="size-5" />
-                          <span>{item?.title[language]}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                      {/* <DropdownMenu>
+              </SidebarHeader>
+              <SidebarContent>
+                <SidebarGroup>
+                  <SidebarGroupLabel>{t.platform}</SidebarGroupLabel>
+                  <SidebarMenu>
+                    {sidebarData.navMain.map((item: any) => (
+                      <Collapsible
+                        key={item.title.en}
+                        asChild
+                        defaultOpen={item.isActive}
+                        className="group/collapsible"
+                      >
+                        <SidebarMenuItem>
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton tooltip={item.title[language]}>
+                              <Icon iconName={item.icon} className="size-5" />
+                              <span>{item.title[language]}</span>
+                              {item.label && <span className="bg-yellow-400">{item.label}</span>}
+                              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <SidebarMenuSub>
+                              {item.items?.map((subItem: any) => (
+                                <SidebarMenuSubItem key={subItem.title.en}>
+                                  <SidebarMenuSubButton asChild>
+                                    <Link href={subItem.url}>
+
+                                      <span>{subItem.title[language]} </span>
+                                      {subItem.label && <span className="bg-yellow-400">{subItem.label}</span>}
+
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </SidebarMenuItem>
+                      </Collapsible>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroup>
+                <SidebarGroup className="hidden group-data-[collapsible=icon]:hidden ">
+                  <SidebarGroupLabel>{t.projects}</SidebarGroupLabel>
+                  <SidebarMenu>
+                    {sidebarData.projects.map((item: any) => (
+                      <SidebarMenuItem key={item.title.en}>
+                        <SidebarMenuButton asChild>
+                          <Link href={item.url}>
+                            <Icon iconName={item.icon} className="size-5" />
+                            <span>{item?.title[language]}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                        {/* <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <SidebarMenuAction showOnHover>
                             <Icon iconName={item.moreIcon} className="size-5" />
@@ -412,60 +421,31 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
                           ))}
                         </DropdownMenuContent>
                       </DropdownMenu> */}
-                    </SidebarMenuItem>
-                  ))}
-                  <SidebarMenuItem>
-                    <SidebarMenuButton className="text-sidebar-foreground/70">
-                      {sidebarData.moreProjectsIcon}
-                      <span>{t.more}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroup>
-            </SidebarContent>
-            <SidebarFooter>
-              <SidebarMenu>
-                <SidebarMenuItem className="text-sidebar-foreground/70">
-                  <Authenticate apiScope={UserProfileAPI} />
-
-                </SidebarMenuItem>
-                <SidebarMenuItem className={!magicbox.authtoken ? "hidden" : ""}>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <SidebarMenuButton
-                        size="lg"
-                        className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                      >
-                        <Avatar className="h-8 w-8 rounded-lg">
-                          <AvatarImage
-                            src={magicbox.user?.image}
-                            alt={magicbox.user?.name}
-                          />
-                          <AvatarFallback className="rounded-lg">
-                            {magicbox.user?.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="grid flex-1 text-left text-sm leading-tight">
-                          <span className="truncate font-semibold">
-                            {!magicbox.authtoken && <div className="text-red-500">!</div>}
-                            {magicbox.user?.name}
-                          </span>
-                          <span className="truncate text-xs">
-                            {magicbox.user?.email}
-                          </span>
-                        </div>
-                        <ChevronsUpDown className="ml-auto size-4" />
+                      </SidebarMenuItem>
+                    ))}
+                    <SidebarMenuItem>
+                      <SidebarMenuButton className="text-sidebar-foreground/70">
+                        {sidebarData.moreProjectsIcon}
+                        <span>{t.more}</span>
                       </SidebarMenuButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                      side="bottom"
-                      align="end"
-                      sideOffset={4}
-                    >
-                      <DropdownMenuLabel className="p-0 font-normal">
-                        <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroup>
+              </SidebarContent>
+              <SidebarFooter>
+                <SidebarMenu>
+                  <SidebarMenuItem className="text-sidebar-foreground/70">
+                    <Authenticate apiScope={UserProfileAPI} />
+
+                  </SidebarMenuItem>
+                  <SidebarMenuItem className={!magicbox.authtoken ? "hidden" : ""}>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <SidebarMenuButton
+                          size="lg"
+                          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                        >
                           <Avatar className="h-8 w-8 rounded-lg">
                             <AvatarImage
                               src={magicbox.user?.image}
@@ -477,44 +457,73 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
                           </Avatar>
                           <div className="grid flex-1 text-left text-sm leading-tight">
                             <span className="truncate font-semibold">
+                              {!magicbox.authtoken && <div className="text-red-500">!</div>}
                               {magicbox.user?.name}
                             </span>
                             <span className="truncate text-xs">
                               {magicbox.user?.email}
                             </span>
                           </div>
-                        </div>
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuGroup>
-                        <DropdownMenuLabel>
-                          {magicbox.user?.roles.join(', ')}
+                          <ChevronsUpDown className="ml-auto size-4" />
+                        </SidebarMenuButton>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                        side="bottom"
+                        align="end"
+                        sideOffset={4}
+                      >
+                        <DropdownMenuLabel className="p-0 font-normal">
+                          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                            <Avatar className="h-8 w-8 rounded-lg">
+                              <AvatarImage
+                                src={magicbox.user?.image}
+                                alt={magicbox.user?.name}
+                              />
+                              <AvatarFallback className="rounded-lg">
+                                {magicbox.user?.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="grid flex-1 text-left text-sm leading-tight">
+                              <span className="truncate font-semibold">
+                                {magicbox.user?.name}
+                              </span>
+                              <span className="truncate text-xs">
+                                {magicbox.user?.email}
+                              </span>
+                            </div>
+                          </div>
                         </DropdownMenuLabel>
-                        {sidebarData.userMenuItems.map((item: any) => (
-                          <DropdownMenuItem key={item.label.en}>
-                            <Icon iconName={item.icon} className="size-5" />
-                            {item.label[language]}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarFooter>
-            <SidebarRail />
-          </Sidebar>
-        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuLabel>
+                            {magicbox.user?.roles.join(', ')}
+                          </DropdownMenuLabel>
+                          {sidebarData.userMenuItems.map((item: any) => (
+                            <DropdownMenuItem key={item.label.en}>
+                              <Icon iconName={item.icon} className="size-5" />
+                              {item.label[language]}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarFooter>
+              <SidebarRail />
+            </Sidebar>
+          )}
 
-        <SidebarInset>
-          {!isInIframe && magicbox.appMode !== "app" && (
-            <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-              <div className="flex items-center gap-2 px-4">
-                <SidebarTrigger className="-ml-1" />
+          <SidebarInset>
+            {!isInIframe && magicbox.appMode !== "app" && (
+              <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+                <div className="flex items-center gap-2 px-4">
+                  {/* <SidebarTrigger className="-ml-1" />
 
-                <Separator orientation="vertical" className="mr-2 h-4" />
-                {!isInIframe && <GlobalBreadcrumb />}
-                {/* <Breadcrumb>
+                  <Separator orientation="vertical" className="mr-2 h-4" /> */}
+                  {!isInIframe && <GlobalBreadcrumb />}
+                  {/* <Breadcrumb>
                     <BreadcrumbList>
                       <BreadcrumbItem className="hidden md:block">
                         <BreadcrumbLink href="#">
@@ -528,16 +537,17 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
                     </BreadcrumbList>
                   </Breadcrumb> */}
 
-              </div>
-            </header>)}
+                </div>
+              </header>)}
 
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-            <div className="min-h-[100vh] flex-1 rounded-xl md:min-h-min w-full">
-              {children}
+            <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+              <div className="min-h-[100vh] flex-1 rounded-xl md:min-h-min w-full">
+                {children}
+              </div>
             </div>
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
+          </SidebarInset>
+        </SidebarProvider>
+      )}
       {/* <pre>
         {JSON.stringify(sidebarData.navMain, null, 2)}
 

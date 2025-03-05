@@ -130,7 +130,7 @@ export default function Authenticate(props: {
   }
   if (!magicbox.user && magicbox.authtoken === "") {
     return (
-      <div className="flex h-screen">
+      <div className="flex">
         <div className="grow"></div>
         <div className="flex flex-col">
           <div className="grow"></div>

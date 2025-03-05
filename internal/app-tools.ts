@@ -20,7 +20,9 @@ import { getTranslation } from '@/schemas/_shared';
 
 import { DefaultArgs, JsonValue } from '@prisma/client/runtime/library';
 import { PrismaTransaction } from '@/interfaces/prisma';
-import { Tool } from '@prisma/client';
+import { Country, PrismaClient, Tool, UserProfile, UserRole } from '@prisma/client';
+import { OfficeGraphClient } from '@/services/office-graph';
+import { getKoksmatTokenCookie } from '@/lib/auth';
 async function upsertToolTranslations(
 	tx: PrismaTransaction,
 	dbItem: {
@@ -140,12 +142,16 @@ async function upsertToolTranslations(
 	});
 }
 type SynclogTypes = 'update' | 'create' | 'delete';
+interface UserWithRoles extends UserProfile {
+	roles: UserRole[];
+}
 export class ToolsApp {
 	private toolsHubSharePoint: SharePointGraphClient;
 	private _tenantId: string;
 	private _clientId: string;
 	private _clientSecret: string;
-
+	private _user: UserWithRoles | null = null;
+	private _msGraph: OfficeGraphClient | null = null;
 	public get log(): LoggerInterface {
 		return logger;
 	}
@@ -178,9 +184,23 @@ export class ToolsApp {
 			clientSecret: this._clientSecret,
 		};
 	}
-
-	async toolLists() {
-		return await this.toolsHubSharePoint.getSharePointItems('Tool Collections', 100, CollectionListSchema);
+	async user() {
+		if (!this._user) {
+			const token = await getKoksmatTokenCookie();
+			const userProfile = await prisma.userProfile.findFirst({
+				where: {
+					id: token?.userId,
+				},
+				include: {
+					roles: true,
+				},
+			});
+			if (!userProfile) {
+				throw new Error('User not found');
+			}
+			this._user = userProfile;
+		}
+		return this._user;
 	}
 
 	async writeSyncLogInfo(category: SynclogTypes, details: object) {
@@ -320,7 +340,7 @@ export class ToolsApp {
 				},
 			});
 
-			this.log.highlight(`Database Tools ${name}  number of records ${db.length}`);
+			this.log.highlight(`Database Tools ${name} number of records ${db.length}`);
 			if (options.force) {
 				this.log.highlight('Force option enabled, all records will be updated');
 			}
@@ -433,6 +453,47 @@ export class ToolsApp {
 					 * @property {Object} purposes - The business purpose of the tool, connected or created if not existing.
 					 * @property {Object} category - The category of the tool, connected or created if not existing.
 					 */
+					const countryLookup: Map<string, Country> = new Map();
+					const countries = await prisma.country.findMany();
+					const countryReferences = [];
+					if (sharePointItem.id === '47') {
+						console.log(1);
+					}
+					if (sharePointItem.Countries) {
+						for (const country of sharePointItem.Countries) {
+							if (!countryLookup.has(country.LookupValue)) {
+								const countryRecord = countries.find(c => c.name === country.LookupValue);
+								if (countryRecord) {
+									countryLookup.set(country.LookupValue, countryRecord);
+								} else {
+									const newCountry = await tx.country.create({
+										data: {
+											name: country.LookupValue,
+											region: {
+												connectOrCreate: {
+													where: {
+														name: 'Unknown',
+													},
+													create: {
+														name: 'Unknown',
+													},
+												},
+											},
+										},
+									});
+									countryLookup.set(country.LookupValue, newCountry);
+								}
+								countryReferences.push({ id: countryRecord?.id! });
+							}
+						}
+					}
+					sharePointItem?.Countries
+						? sharePointItem?.Countries.map(async country => {
+								return await prisma.country.findFirst({
+									where: { name: country.LookupValue },
+								});
+						  })
+						: [];
 					const updatedTool = await tx.tool.update({
 						where: { id: dbItem.id },
 						data: {
@@ -444,6 +505,9 @@ export class ToolsApp {
 							icon: image!,
 							documents: ToolsApp.buildDocumentCollection(sharePointItem),
 							translations: ToolsApp.buildTranslations(sharePointItem),
+							countries: {
+								set: countryReferences,
+							},
 							purposes: {
 								connectOrCreate: {
 									where: {
@@ -595,6 +659,17 @@ export class ToolsApp {
 		});
 		return toolList;
 	}
+
+	/*
+	 * Asynchronously instantiates and runs the ToolsApp to synchronize data and user profiles.
+	 *
+	 * @remarks
+	 * 1. Performs synchronization operations with optional force flag.
+	 * 2. Syncs user profiles with the option to create only if needed.
+	 * 3. Logs completion once all operations are finished.
+	 *
+	 * @returns A promise that resolves when all operations complete.
+	 */
 	async syncronizeAll(options: { force: boolean } = { force: false }) {
 		const toolLists = await this.listsToSync();
 
@@ -628,5 +703,38 @@ export class ToolsApp {
 		const site = new ToolSpokeSite(this, sharePointListUrl);
 		const sharePointItem = await site.getToolItem('V1', id);
 		await this.syncItem(site, sharePointItem, sharePointListUrl);
+	}
+	async mayReadDomain(domain: string) {
+		const user = await this.user();
+		if (!user) {
+			throw new Error('User not found');
+		}
+		const domainRecord = prisma.guestDomain.findFirst({
+			where: {
+				name: domain,
+			},
+		});
+		if (!domainRecord) {
+			throw new Error('Domain not found');
+		}
+
+		if (user.email.endsWith(domain)) {
+			return true;
+		}
+		return false;
+	}
+
+	async isSuperAdmin(user: UserWithRoles) {
+		if (user.roles.some(role => role.name === 'SuperAdmin')) {
+			return true;
+		}
+		return false;
+	}
+
+	public get msGraph() {
+		if (!this._msGraph) {
+			this._msGraph = new OfficeGraphClient(this._tenantId, this._clientId, this._clientSecret, logger);
+		}
+		return this._msGraph;
 	}
 }

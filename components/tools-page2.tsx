@@ -18,6 +18,11 @@ import { getKoksmatTokenCookie } from "@/lib/auth";
 import { mapTool2ToolView } from "@/internal/maps";
 import { decodeJwt } from "@/lib/tokens";
 import Authenticate, { UserProfileAPI } from "./authenticate";
+import { FaCircle, FaSquare } from "react-icons/fa";
+import { SearchInput } from "./search-input";
+import { CountryFilter } from "./country-filter";
+import { GroupToolsToggle } from "./general-tools-toggle";
+import { SelectedCountries } from "./selected-countries";
 
 interface ToolsPageProps {
   className?: string;
@@ -35,8 +40,11 @@ const translationSchema = z.object({
   searchTools: z.string(),
   noToolFoundTitle: z.string(),
   noToolFoundGuide: z.string(),
+  noSearchResults: z.string(),
   searchFor: z.string(),
   notLoggedIn: z.string(),
+  textToLookfor: z.string(),
+  countriesToMatch: z.string(),
 });
 
 type Translation = z.infer<typeof translationSchema>;
@@ -53,6 +61,9 @@ const translations: Record<SupportedLanguage, Translation> = {
     noToolFoundGuide: "Find a tool in the list and click the star to mark it as a Favorite",
     searchFor: "Search for",
     notLoggedIn: "Not logged in",
+    noSearchResults: "The query you entered did not return any results",
+    textToLookfor: "Text to look for",
+    countriesToMatch: "Countries to match",
   },
   da: {
     yourTools: "Dine værktøjer",
@@ -65,6 +76,9 @@ const translations: Record<SupportedLanguage, Translation> = {
     noToolFoundGuide: "Find et værktøj på listen og klik på stjernen for at markere det som en favorit",
     searchFor: "Søg efter",
     notLoggedIn: "Ikke logget ind",
+    noSearchResults: "Ingen søgeresultater",
+    textToLookfor: "Tekst at søge efter",
+    countriesToMatch: "Lande at matche",
   },
   it: {
     yourTools: "I tuoi applicativi",
@@ -77,6 +91,9 @@ const translations: Record<SupportedLanguage, Translation> = {
     noToolFoundGuide: "Trova un applicativo nell'elenco e fai clic sulla stella per contrassegnarlo come preferito",
     searchFor: "Cerca",
     notLoggedIn: "Non connesso",
+    noSearchResults: "Nessun risultato di ricerca",
+    textToLookfor: "Testo da cercare",
+    countriesToMatch: "Paesi da abbinare",
   }
 };
 
@@ -126,7 +143,22 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
       id
     },
   });
-  const tools = await prisma.tool.findMany({
+
+  let words = ""
+  let countryNames: string[] = []
+  for (const word of searchWords) {
+    if (word.startsWith("country:")) {
+      countryNames.push(word.substring(8))
+    }
+    else {
+      if (!word.includes(":")) {
+        words = words + " " + word
+      }
+    }
+  }
+
+
+  let tools = await prisma.tool.findMany({
     where: {
 
       ToolTexts: {
@@ -138,7 +170,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
           OR: [
             {
               name: {
-                contains: props.query ?? "",
+                contains: words ?? "",
                 mode: "insensitive", // Optional: makes the search case-insensitive.
               },
             },
@@ -152,6 +184,9 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
         },
       },
     },
+    orderBy: {
+      name: 'asc'
+    },
     include: {
       userProfiles: {
         where: { id: currentUserProfile?.id },
@@ -159,8 +194,24 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
         take: 1,
       },
       category: true,
+      countries: true,
     }
   });
+
+  if (countryNames.length > 0) {
+    tools = tools.filter((tool) => {
+      let found = false
+
+      for (const countryName of countryNames) {
+        if (tool.countries.find((country) => country.name === countryName)) {
+          found = true
+          break
+        }
+      }
+      return found
+    }
+    )
+  }
   const yourTools = await prisma.tool.findMany({
     where: {
       userProfiles: {
@@ -180,27 +231,39 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
       },
       purposes: true,
       category: true,
+      countries: true,
     }
   });
 
-
+  const countries = (await prisma.country.findMany({})).sort((a, b) => a.name.localeCompare(b.name)).map((country) => {
+    return country.name
+  })
   //const tools = databaseitems.sort((a, b) => a.name.localeCompare(b.name));
+  const sortedTools = tools.sort((a, b) => {
 
+    const toolA: ToolView = mapTool2ToolView(language, a, a.category.name, a.category.color ?? "#444444", a.category.id, "0");
+    const toolB: ToolView = mapTool2ToolView(language, b, b.category.name, b.category.color ?? "#444444", b.category.id, "0");
+
+
+    return toolA.name.localeCompare(toolB.name)
+  });
   const t = translations[language];
   return (
     <div className="h-full w-full">
+
       <div className="lg:flex">
         <main className="w-full">
           <div className=" min-w-full ">
             <div className="relative">
-              <h3 className="font-semibold mb-2 sticky top-10 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
+              <h3 className="font-semibold mb-2 sticky top-0 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
                 {currentUserProfile?.displayName} - {t?.yourTools}
               </h3>
               <div className="relative">
                 <div className="flex flex-wrap">
                   {yourTools.length === 0 && <div className="p-3" >
                     <div className="text-center text-2xl p-10">{t.noToolFoundTitle}</div>
-                    <div>{t.noToolFoundGuide}</div>
+
+
                   </div>}
 
 
@@ -227,21 +290,42 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
                 {t?.allTools}
               </h3>
 
-              <SearchTools value={props.query} placeholder={t.searchFor} properties={[
-                //   {
-                //   name: "country",
-                //   values: [
-                //     { value: "square", icon: <FaCircle color="red" />, color: "green" },
-                //     { value: "star", icon: <FaSquare />, color: "purple" },
-                //   ]
-                // }
+              {/* <SearchTools value={props.query} placeholder={t.searchFor} properties={[
+                {
+                  name: "country",
+                  values: countries.map((country) => {
+                    return { value: country, color: "#2bd4d9" }
+                  })
 
-              ]} />
+
+                }
+
+              ]} /> */}
+              {/* Filters */}
+              <div className="flex flex-col md:flex-row gap-4 mb-6 p-3">
+                <SearchInput />
+                <CountryFilter countries={countries} />
+                <GroupToolsToggle />
+              </div>
+
+              {/* Selected countries display */}
+              <SelectedCountries />
             </div>
             <div className="relative">
               <div className="flex flex-wrap">
+                {(tools.length === 0 && searchWords.length > 0) && <div className="p-3" >
+                  <div className="text-center text-2xl p-10">{t.noToolFoundTitle}</div>
+                  <div className="text-center text-xl p-10">{t.noSearchResults}
 
-                {tools.map((tool, key): React.JSX.Element => {
+                    {words && <div>{t.textToLookfor} <span className="font-bold">{words}</span></div>}
+                    {countryNames.length > 0 && <div>{t.countriesToMatch} <span className="font-bold">{countryNames.join(" and ")}</span></div>}
+                  </div>
+
+
+
+                </div>}
+
+                {sortedTools.map((tool, key): React.JSX.Element => {
                   const toolView: ToolView = mapTool2ToolView(language, tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
                   return <div key={key} className="p-3" >
                     <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} />
