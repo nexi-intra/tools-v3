@@ -36,7 +36,7 @@ export default async function Page({
   const token = _searchParams.token as string
   const query = _searchParams.q as string
   const excludeGroupTools = _searchParams.grouptools === 'false'
-  const countries = Array.isArray(_searchParams.countries) ? _searchParams.countries : (!_searchParams.countries ? [] : [_searchParams.countries])
+  const countries = Array.isArray(_searchParams.countries) ? _searchParams.countries : (!_searchParams.countries ? [] : _searchParams.countries.split(","))
 
 
   return (
