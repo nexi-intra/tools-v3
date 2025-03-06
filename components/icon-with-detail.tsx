@@ -91,7 +91,7 @@ export default function IconWithDetail({ icon, name, description, title, link, i
           <Link href={link} target="_blank" rel="noopener noreferrer">
             <div className={isRemoving ? "blur" : ""}>
               <div className="h-20  rounded flex items-center justify-center w-full ">
-                <img className="max-w-16" src={icon} />
+                <img className="max-w-16" src={icon || '/placeholder.svg'} />
 
               </div>
             </div>
@@ -146,7 +146,7 @@ export default function IconWithDetail({ icon, name, description, title, link, i
       </HoverCard>
       <div className={isRemoving ? "blur" : ""}>
 
-        <div className="items-center justify-center text-center m-2  max-w-32 truncate">
+        <div className="items-center justify-center text-center m-2  max-w-32 text-sm xtruncate">
           {title}
 
         </div></div>
