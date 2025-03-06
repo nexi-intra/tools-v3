@@ -2,7 +2,7 @@
 	"name": "Nexi Group Tools",
 	"short_name": "NexiTools",
 	"description": "Which tool to use when?",
-	"start_url": "/",
+	"start_url": "/pages/en/explorer",
 	"display": "standalone",
 	"background_color": "#ffffff",
 	"theme_color": "#000000",

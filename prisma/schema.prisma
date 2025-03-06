@@ -285,7 +285,7 @@ model UserProfile {
   displayName             String?   @db.VarChar
   description             String?   @db.VarChar
   translations            Json?
-  email                   String    @db.VarChar
+  email                   String    @unique(map: "unique_email") @db.VarChar
   status                  String?   @db.VarChar
   company                 String?   @db.VarChar
   country                 String?   @db.VarChar
@@ -301,6 +301,7 @@ model UserProfile {
   roles     UserRole[]
   Board     Board?      @relation(fields: [boardId], references: [id])
   boardId   Int?
+  lastLogin DateTime?   @db.Timestamptz(6)
 }
 
 model UserRole {

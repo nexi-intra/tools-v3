@@ -221,7 +221,7 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
           />
         </div>
       )}
-      {!magicbox.authtoken && !isInIframe && (
+      {!magicbox.initializing && !magicbox.userProfile && !magicbox.authtoken && !isInIframe && (
         <div className="flex h-screen items-center justify-center w-screen bg-center bg-cover dark:bg-slate-300  " style={{ backgroundImage: "url('/background.png')" }}>
           <div className=" gap-4  bg-white  dark:bg-black bg-opacity-90 rounded-xl shadow-lg p-20 min-w-[400px] min-h-[200px] items-center ">
 
@@ -229,7 +229,7 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
           </div>
         </div>
       )}
-      {(magicbox.authtoken || isInIframe) && (
+      {(magicbox.authtoken || magicbox.userProfile || isInIframe) && (
         <SidebarProvider>
           {false && !hideSidebar && !isInIframe && magicbox.appMode !== "app" && (
             <Sidebar collapsible="icon">
