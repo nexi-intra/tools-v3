@@ -290,7 +290,7 @@ export async function ToolsPage2(props: ToolsPageProps) {
                     {yourTools.map((tool, key): React.JSX.Element => {
                       // const p = tool.purposes.map((purpose) => purpose.name).join(", ");
                       // tool.name = tool.name + " " + p
-                      const toolView: ToolView = mapTool2ToolView(language, tool, tool.category.name + (tool.category.isGroupTool ? " GROUP" : ""), tool.category.color ?? "#444444", tool.category.id, "0");
+                      const toolView: ToolView = mapTool2ToolView(language, tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
                       return <div key={key} className="p-3" >
                         {/* <ToolCardMiniComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} /> */}
                         {/* <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} /> */}
