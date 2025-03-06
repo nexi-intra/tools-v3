@@ -25,7 +25,7 @@ async function main() {
 	// }
 
 	// app.syncSharePointItem(item);
-	app.syncronizeAll({ force: true });
+	await app.syncronizeAll({ force: true });
 
 	// User profiles are synchronized with the createOnly flag set to true.
 	//await app.syncUserProfiles({ createOnly: true, force: false });

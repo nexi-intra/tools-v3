@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/sortable"
 import { restrictToWindowEdges } from "@dnd-kit/modifiers"
 import { Button } from "@/components/ui/button"
-import { Plus, Undo2, Redo2, LayoutGrid, Eye, EyeOff } from "lucide-react"
+import { Plus, Undo2, Redo2, LayoutGrid, Eye, EyeOff, Edit } from "lucide-react"
 import { SortableColumn } from "@/components/sortable-column"
 import { SortableRow } from "@/components/sortable-row"
 import { TileGrid } from "@/components/tile-grid"
@@ -28,6 +28,19 @@ import { Tile } from "@/components/tile"
 import { PreviewMode } from "@/components/preview-mode"
 import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
+import { FaToolbox } from "react-icons/fa"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+import ToolsPage2 from "./tools-page2"
+import { useRouter, useSearchParams } from "next/navigation"
 
 // -------------------------
 // Zod Schema Definitions
@@ -128,13 +141,17 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
 
   const [history, setHistory] = useState<HistoryState[]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  const [isPreviewMode, setIsPreviewMode] = useState(true)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const showTools = searchParams.get("showtools") === "true"
+
 
   // ---------------------------------
   // Parse initialData with Zod
   // ---------------------------------
   useEffect(() => {
-    debugger
+
     if (initialData) {
       try {
         const parsed = JSON.parse(initialData)
@@ -166,6 +183,19 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
   const togglePreviewMode = () => {
     setIsPreviewMode(!isPreviewMode)
   }
+  // Toggle include general tools state
+  const toggleShowTools = () => {
+    const params = new URLSearchParams(searchParams.toString())
+
+    if (!showTools) {
+      params.set("showtools", "true")
+    } else {
+      params.set("showtools", "false")
+    }
+
+    router.push(`?${params.toString()}`, { scroll: false })
+  }
+
 
   // Function to add a new state to the history
   const addToHistory = useCallback(
@@ -518,9 +548,16 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
           <span className="sr-only">Redo</span>
         </Button>
         <Button variant="outline" size="icon" onClick={togglePreviewMode}>
-          {isPreviewMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          {isPreviewMode ? <Edit className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           <span className="sr-only">{isPreviewMode ? "Exit Preview" : "Enter Preview"}</span>
         </Button>
+
+
+        <Button variant="outline" size="icon" onClick={toggleShowTools}>
+          <FaToolbox className="h-4 w-4" />
+          <span className="sr-only">Tools</span>
+        </Button>
+
       </div>
 
       {/* Content */}

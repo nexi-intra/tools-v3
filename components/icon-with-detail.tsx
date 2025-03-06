@@ -91,7 +91,7 @@ export default function IconWithDetail({ icon, name, description, title, link, i
           <Link href={link} target="_blank" rel="noopener noreferrer">
             <div className={isRemoving ? "blur" : ""}>
               <div className="h-20  rounded flex items-center justify-center w-full ">
-                <img src={icon} />
+                <img className="max-w-16" src={icon} />
 
               </div>
             </div>

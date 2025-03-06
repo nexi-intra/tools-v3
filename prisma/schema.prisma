@@ -61,22 +61,24 @@ model AuditLog {
 }
 
 model Board {
-  id           Int           @id @default(autoincrement())
-  created_at   DateTime      @default(now()) @db.Timestamptz(6)
-  created_by   String?       @db.VarChar
-  updated_at   DateTime      @default(now()) @db.Timestamptz(6)
-  updated_by   String?       @db.VarChar
-  deleted_at   DateTime?     @db.Timestamptz(6)
-  name         String        @db.VarChar
-  description  String?       @db.VarChar
-  translations Json?
-  status       String?       @db.VarChar
-  layout       Json?
-  metadata     Json?
-  parentId     Int?
-  parent       Board?        @relation("BoardForks", fields: [parentId], references: [id])
-  forks        Board[]       @relation("BoardForks")
-  managedBy    UserProfile[]
+  id            Int           @id @default(autoincrement())
+  created_at    DateTime      @default(now()) @db.Timestamptz(6)
+  created_by    String?       @db.VarChar
+  updated_at    DateTime      @default(now()) @db.Timestamptz(6)
+  updated_by    String?       @db.VarChar
+  deleted_at    DateTime?     @db.Timestamptz(6)
+  name          String        @db.VarChar
+  description   String?       @db.VarChar
+  translations  Json?
+  status        String?       @db.VarChar
+  layout        Json?
+  metadata      Json?
+  parentId      Int?
+  parent        Board?        @relation("BoardForks", fields: [parentId], references: [id])
+  forks         Board[]       @relation("BoardForks")
+  managedBy     UserProfile[]
+  groupOwnerId  String?       @db.VarChar
+  groupViewerId String?       @db.VarChar
 }
 
 model Category {
@@ -91,6 +93,7 @@ model Category {
   translations Json?
   sortorder    String?   @db.VarChar
   color        String?   @db.VarChar
+  isGroupTool  Boolean?  @default(false) @db.Boolean
   tool         Tool[]
 }
 
@@ -206,6 +209,8 @@ model Tool {
   parentId                Int?
   parent                  Tool?         @relation("ToolForks", fields: [parentId], references: [id])
   forks                   Tool[]        @relation("ToolForks")
+  groupOwnerId            String?       @db.VarChar
+  groupViewerId           String?       @db.VarChar
 }
 
 model ToolTexts {
@@ -443,4 +448,17 @@ model Channel {
   externalGroup String?          @db.VarChar
   category      ChannelCategory? @relation(fields: [categoryId], references: [id])
   categoryId    Int?
+}
+
+model Blob {
+  id         Int       @id @default(autoincrement())
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  created_by String?   @db.VarChar
+  updated_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by String?   @db.VarChar
+  deleted_at DateTime? @db.Timestamptz(6)
+  name       String    @db.VarChar
+  hash       String    @unique(map: "unique_blob_hash") @db.VarChar
+  slug       String    @unique(map: "unique_blob_slug") @db.VarChar
+  data       Bytes
 }

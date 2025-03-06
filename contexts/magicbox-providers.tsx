@@ -21,6 +21,7 @@ type Props = {
 };
 
 export const MagicboxProvider = ({ children }: Props) => {
+
   const [roles, setroles] = useState<string[]>([])
   const [session, setsession] = useState<Session>();
   const [version, setversion] = useState(0);
