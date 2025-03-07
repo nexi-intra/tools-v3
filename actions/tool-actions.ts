@@ -136,3 +136,15 @@ export async function actionToolUpdate(
 		id: toolRecord.id,
 	};
 }
+
+export async function actionToolFind() {
+	return prisma.tool.findMany();
+}
+
+export async function actionToolFindById(id: number) {
+	return prisma.tool.findFirst({
+		where: {
+			id: id,
+		},
+	});
+}

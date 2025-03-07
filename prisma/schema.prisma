@@ -211,6 +211,7 @@ model Tool {
   forks                   Tool[]        @relation("ToolForks")
   groupOwnerId            String?       @db.VarChar
   groupViewerId           String?       @db.VarChar
+  Blob                    Blob[]
 }
 
 model ToolTexts {
@@ -452,14 +453,17 @@ model Channel {
 }
 
 model Blob {
-  id         Int       @id @default(autoincrement())
-  created_at DateTime  @default(now()) @db.Timestamptz(6)
-  created_by String?   @db.VarChar
-  updated_at DateTime  @default(now()) @db.Timestamptz(6)
-  updated_by String?   @db.VarChar
-  deleted_at DateTime? @db.Timestamptz(6)
-  name       String    @db.VarChar
-  hash       String    @unique(map: "unique_blob_hash") @db.VarChar
-  slug       String    @unique(map: "unique_blob_slug") @db.VarChar
-  data       Bytes
+  id             Int       @id @default(autoincrement())
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  created_by     String?   @db.VarChar
+  updated_at     DateTime  @default(now()) @db.Timestamptz(6)
+  updated_by     String?   @db.VarChar
+  deleted_at     DateTime? @db.Timestamptz(6)
+  name           String    @db.VarChar
+  hash           String    @unique(map: "unique_blob_hash") @db.VarChar
+  content_type   String    @db.VarChar
+  base64         String    @db.Text
+  data           Bytes
+  source_tool    Tool?     @relation(fields: [source_tool_id], references: [id])
+  source_tool_id Int?
 }
