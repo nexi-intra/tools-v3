@@ -34,11 +34,17 @@ export default async function Page({
   const _searchParams = await searchParams
   const language = _params.language
   const token = _searchParams.token as string
+  const query = _searchParams.q as string
+  const excludeGroupTools = _searchParams.grouptools === 'false'
+  const countries = Array.isArray(_searchParams.countries) ? _searchParams.countries : (!_searchParams.countries ? [] : _searchParams.countries.split(","))
+
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
 
-      <ToolsPage2 query={_searchParams.q as string} language={language as SupportedLanguage} token={token} />
+      <ToolsPage2
+        excludeGroupTools={excludeGroupTools}
+        query={query} countries={countries} language={language as SupportedLanguage} token={token} />
     </Suspense>
   )
 }

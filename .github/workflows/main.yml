@@ -1,0 +1,176 @@
+name: Build Web
+
+# This GitHub Actions workflow is triggered by a push event to the repository.
+# It defines a set of jobs to be executed when code is pushed to the repository.
+on:
+     push:
+          branches:
+               - 'main'
+
+env:
+     REGISTRY: ghcr.io
+     IMAGE_NAME: ${{ github.repository }}-web
+     # Dummy values for not breaking prisma generate
+     TOOL_DATABASE_URL: postgres://dummy.no.where:5432/tools_v2?sslmode=require&schema=tools
+
+jobs:
+     build-and-deploy:
+          runs-on: ubuntu-latest
+          permissions:
+               contents: read
+               packages: write
+               id-token: write
+
+          steps:
+               - name: Checkout repository
+                 uses: actions/checkout@v2
+               - name: Get current branch name
+                 id: get_branch
+                 run: echo "branch_name=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+
+               - name: Set up Docker Buildx
+                 uses: docker/setup-buildx-action@v1
+
+               - name: Log in to GitHub Container Registry
+                 uses: docker/login-action@v2
+                 with:
+                      registry: ${{ env.REGISTRY }}
+                      username: ${{ github.actor }}
+                      password: ${{ secrets.GITHUB_TOKEN }}
+
+               - name: Build and push Docker image
+                 uses: docker/build-push-action@v3
+                 with:
+                      context: .
+                      file: ./Dockerfile.web
+                      push: true
+                      tags: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+                      cache-from: type=gha
+                      cache-to: type=gha,mode=max
+
+     deploy:
+          needs: build-and-deploy
+          runs-on: ubuntu-latest
+          permissions:
+               contents: read
+               packages: write
+               id-token: write
+
+          steps:
+               - name: Generate Kubernetes manifest
+                 shell: pwsh
+                 run: |
+                      $app_name = "${{ github.repository }}-${{ github.ref_name }}".Replace("/", "-")
+                      $app_name | Out-File -FilePath appname.txt
+                      $dnsname = "${{ vars.MAIN_DNS_NAME }}"
+                      $dnsname | Out-File -FilePath dnsname.txt
+                      @"
+                        apiVersion: apps/v1
+                        kind: Deployment
+                        metadata:
+                          name: $app_name
+                          labels:
+                            app: $app_name
+                        spec:
+                          replicas: 1
+                          selector:
+                            matchLabels:
+                              app: $app_name
+                          template:
+                            metadata:
+                              labels:
+                                app: $app_name
+                            spec:
+                              containers:
+                                - name: $app_name
+                                  image: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+                                  imagePullPolicy: Always
+                                  ports:
+                                    - containerPort: 4444
+                                  env:
+                                    - name: NATS
+                                      value: nats://nats:4222
+                                    - name: TOOL_DATABASE_URL
+                                      value: ${{ secrets.TOOL_DATABASE_URL }}
+                                    - name: APP_CLIENT_ID
+                                      value: ${{ vars.APP_CLIENT_ID }}
+                                    - name: APP_CLIENT_SECRET
+                                      value: ${{ secrets.APP_CLIENT_SECRET }}
+                                    - name: APP_TENANT_ID
+                                      value: ${{ vars.APP_TENANT_ID }}
+                                    - name: TOOL_SITE
+                                      value: ${{ vars.TOOL_SITE }}
+                                    - name: PNPSITE
+                                      value: ${{ vars.PNPSITE }}
+                                    - name: PNPAPPID
+                                      value: ${{ vars.PNPAPPID }}
+                                    - name: PNPTENANTID
+                                      value: ${{ vars.PNPTENANTID }}
+                                    - name: PNPCERTIFICATE
+                                      value: ${{ secrets.PNPCERTIFICATE }}
+                                    - name: JWT_SECRET_KEY
+                                      value: ${{ secrets.JWT_SECRET_KEY }}
+                                    - name: PNPTENANT
+                                      value: ${{ vars.PNPTENANT }}
+
+                                    
+                                    
+                      "@ | Out-File -FilePath deployment.yml
+                      @"
+                        apiVersion: v1
+                        kind: Service
+                        metadata:
+                          name: $app_name
+                          labels:
+                            app: $app_name
+                            service: $app_name
+                        spec:
+                          ports:
+                            - name: http
+                              port: 5301
+                              targetPort: 4444
+                          selector:
+                            app: $app_name
+                      "@ | Out-File -FilePath service.yml
+                      @"
+                        apiVersion: networking.k8s.io/v1
+                        kind: Ingress
+                        metadata:
+                          name: $app_name
+                        spec:
+                          rules:
+                            - host: $dnsname
+                              http:
+                                paths:
+                                  - path: /
+                                    pathType: Prefix
+                                    backend:
+                                      service:
+                                        name: $app_name
+                                        port:
+                                          number: 5301
+                      "@ | Out-File -FilePath ingress.yml
+
+               - name: Log in to Azure CLI
+                 uses: azure/login@v1
+                 with:
+                      creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+               - name: Set AKS context
+                 run: |
+                      az aks get-credentials --resource-group ${{ vars.AZURE_RG }} --name ${{ vars.AZURE_AKS }}
+
+               - name: Deploy to AKS
+                 run: |
+                      cat deployment.yml
+                      kubectl apply -f deployment.yml -n ${{ vars.K8_NAMESPACE }}
+                      cat service.yml
+                      kubectl apply -f service.yml -n ${{ vars.K8_NAMESPACE }}
+                      cat ingress.yml
+                      kubectl apply -f ingress.yml -n ${{ vars.K8_NAMESPACE }}
+
+               - name: Restart Deployment
+                 shell: pwsh
+                 run: |
+                      $app_name = Get-Content -Path appname.txt
+                      kubectl rollout restart deployment/$app_name -n ${{ vars.K8_NAMESPACE }}

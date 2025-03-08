@@ -11,9 +11,10 @@ import {
   appModeTypes,
 } from "./magicbox-context";
 import { IPublicClientApplication, PopupRequest } from "@azure/msal-browser";
-import { actionSignIn } from "@/actions/session-actions";
+import { actionSignIn, sessionGetUser } from "@/actions/session-actions";
 import { set } from "zod";
-
+import prisma from "@/prisma";
+import { UserProfile } from '@prisma/client';
 
 
 type Props = {
@@ -21,6 +22,7 @@ type Props = {
 };
 
 export const MagicboxProvider = ({ children }: Props) => {
+
   const [roles, setroles] = useState<string[]>([])
   const [session, setsession] = useState<Session>();
   const [version, setversion] = useState(0);
@@ -33,12 +35,18 @@ export const MagicboxProvider = ({ children }: Props) => {
   const servicecalllog = useMemo<ServiceCallLogEntry[]>(() => {
     return [];
   }, []);
+  const [userProfile, setuserProfile] = useState<UserProfile | null>(null);
 
   const [appMode, setappMode] = useState<appModeTypes>("normal")
 
   const [showtracer, setshowtracer] = useState(false);
+  const [initializing, setinitializing] = useState(true)
   const magicbox: MagicboxContextType = {
-
+    userProfile,
+    initializing,
+    setInitializing: function (initializing: boolean): void {
+      setinitializing(initializing);
+    },
     roles,
     session,
     version,
@@ -133,7 +141,23 @@ export const MagicboxProvider = ({ children }: Props) => {
     }
   }, []);
 
+  useEffect(() => {
 
+
+    const load = async () => {
+
+      const user = await sessionGetUser()
+      setinitializing(false)
+      setuserProfile(user)
+    }
+    load();
+  }
+    , [authtoken]);
+
+  useEffect(() => {
+    if (!userProfile) return;
+
+  }, [userProfile])
   useEffect(() => {
     const load = async () => {
       if (!authtoken) return;

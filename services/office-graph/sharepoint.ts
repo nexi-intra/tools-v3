@@ -15,7 +15,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import * as forge from 'node-forge';
-import { ToolsApp } from '@/internal/tools-app';
+import { ToolsApp } from '@/internal/app-tools';
 import { ToolSpokeSite } from '@/internal/toolspokesite';
 import { IAttachmentInfo } from '@pnp/sp/attachments';
 import { IItem } from '@pnp/sp/items/types';

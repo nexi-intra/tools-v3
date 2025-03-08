@@ -1,4 +1,4 @@
-import { ToolsApp } from '@/internal/tools-app';
+import { ToolsApp } from '@/internal/app-tools';
 import { ToolSpokeSite } from '@/internal/toolspokesite';
 import { spfi } from '@pnp/sp';
 import { IAttachmentInfo } from '@pnp/sp/attachments';
@@ -12,7 +12,7 @@ async function main() {
 	const app = new ToolsApp();
 
 	await app.syncronizeAll({ force: true });
-
+	//await app.syncUserProfiles({ createOnly: true, force: false });
 	console.log('done');
 }
 main();

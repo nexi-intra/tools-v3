@@ -28,9 +28,9 @@ export async function validateSessionToken(token: string): Promise<{ userId: num
 		return null;
 	}
 }
-const tokenName = 'koksmatToken';
+export const KOKSMAT_TOKEN_NAME = 'koksmatToken';
 export async function setKoksmatTokenCookie(token: string) {
-	(await cookies()).set(tokenName, token, {
+	(await cookies()).set(KOKSMAT_TOKEN_NAME, token, {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === 'production',
 		sameSite: 'strict',
@@ -40,7 +40,7 @@ export async function setKoksmatTokenCookie(token: string) {
 }
 
 export async function getKoksmatTokenCookie(): Promise<{ userId: number; sessionId: number } | null> {
-	const token = (await cookies()).get(tokenName);
+	const token = (await cookies()).get(KOKSMAT_TOKEN_NAME);
 	if (!token) {
 		return null;
 	}

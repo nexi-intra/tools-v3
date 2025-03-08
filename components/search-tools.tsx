@@ -33,7 +33,7 @@ export default function SearchTools({ value, placeholder, properties }: SearchTo
 
   return (
     <div className="flex">
-      <Search />
+      <Search className='m-2' />
       <TokenInput
         placeholder={placeholder}
         properties={properties}

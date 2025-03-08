@@ -1,8 +1,8 @@
 {
 	"name": "Nexi Group Tools",
 	"short_name": "NexiTools",
-	"description": "Your all-in-one platform for efficient tool management",
-	"start_url": "/",
+	"description": "Which tool to use when?",
+	"start_url": "/pages/en/explorer",
 	"display": "standalone",
 	"background_color": "#ffffff",
 	"theme_color": "#000000",

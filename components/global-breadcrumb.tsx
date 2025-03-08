@@ -83,6 +83,11 @@ export default function GlobalBreadcrumb() {
     >
       <Breadcrumb className="hidden md:flex">
         <BreadcrumbList>
+          <Link href="/">
+            Tools</Link>
+          {breadcrumbContext.items.length > 0 && (
+            <BreadcrumbSeparator />
+          )}
           {breadcrumbContext.items.map((item, i) => {
             root += "/" + item.name;
             return (

@@ -1,5 +1,5 @@
 export const APPNAME = 'tools';
-export const APPDISPLAYNAME = 'Nexi Tools';
+export const APPDISPLAYNAME = 'Magic Button';
 export const CLARITY = 'luhqg4xhfv';
 export const APPINSIGHTS = 'be3445e2-ecfa-4361-bcde-d66d43d36d83';
 export const MSAL = {

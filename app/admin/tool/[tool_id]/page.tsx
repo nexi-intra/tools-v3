@@ -33,8 +33,8 @@ export default async function Page({
     },
     include: {
       category: true,
-      ToolTexts: true
-
+      ToolTexts: true,
+      countries: true,
     }
   });
 
