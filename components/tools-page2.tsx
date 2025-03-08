@@ -266,6 +266,15 @@ export async function ToolsPage2(props: ToolsPageProps) {
 
     return toolA.name.localeCompare(toolB.name)
   });
+
+  const sortedFavoriteTools = yourTools.sort((a, b) => {
+
+    const toolA: ToolView = mapTool2ToolView(language, a, a.category.name, a.category.color ?? "#444444", a.category.id, "0");
+    const toolB: ToolView = mapTool2ToolView(language, b, b.category.name, b.category.color ?? "#444444", b.category.id, "0");
+
+
+    return toolA.name.localeCompare(toolB.name)
+  })
   const t = translations[language];
   return (
     <div className="h-full w-full">
@@ -287,7 +296,7 @@ export async function ToolsPage2(props: ToolsPageProps) {
                     </div>}
 
 
-                    {yourTools.map((tool, key): React.JSX.Element => {
+                    {sortedFavoriteTools.map((tool, key): React.JSX.Element => {
                       // const p = tool.purposes.map((purpose) => purpose.name).join(", ");
                       // tool.name = tool.name + " " + p
                       const toolView: ToolView = mapTool2ToolView(language, tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");

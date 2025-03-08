@@ -303,6 +303,8 @@ model UserProfile {
   Board     Board?      @relation(fields: [boardId], references: [id])
   boardId   Int?
   lastLogin DateTime?   @db.Timestamptz(6)
+  language  String?     @db.VarChar
+  homePage  String?
 }
 
 model UserRole {

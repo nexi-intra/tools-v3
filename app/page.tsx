@@ -1,14 +1,12 @@
-"use client";
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { actionUserHomePageGet } from '@/actions/user-actions';
+import RedirectConfig from '@/redirect-config';
 import React from 'react'
-
 
 export default async function Page() {
 
-
+  const { homePage, language } = await actionUserHomePageGet()
   return (
-    <Link href={`/pages`} > <Button>Pages</Button> </ Link>
+    <RedirectConfig defaultLanguage={language!} homePageUrl={homePage!} />
+
   )
 }
