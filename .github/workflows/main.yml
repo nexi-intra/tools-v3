@@ -5,7 +5,7 @@ name: Build Web
 on:
      push:
           branches:
-               - '**'
+               - 'main'
 
 env:
      REGISTRY: ghcr.io
@@ -62,7 +62,7 @@ jobs:
                  run: |
                       $app_name = "${{ github.repository }}-${{ github.ref_name }}".Replace("/", "-")
                       $app_name | Out-File -FilePath appname.txt
-                      $dnsname = "${{ vars.DOMAIN }}"
+                      $dnsname = "${{ vars.MAIN_DNS_NAME }}"
                       $dnsname | Out-File -FilePath dnsname.txt
                       @"
                         apiVersion: apps/v1

@@ -8,7 +8,7 @@ async function main() {
 	const base64Items = await prisma.tool.findMany({
 		where: {
 			icon: {
-				contains: 'data:image',
+				contains: 'data:',
 			},
 		},
 	});
@@ -46,7 +46,7 @@ async function main() {
 					id: item.id,
 				},
 				data: {
-					//					icon: `/blob/${blob.id}`,
+					icon: `/blob/${blob.id}`,
 				},
 			});
 		}
