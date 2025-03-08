@@ -1,13 +1,8 @@
-name: Release
+name: Build Web
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
+# This GitHub Actions workflow is triggered by a push event to the repository.
+# It defines a set of jobs to be executed when code is pushed to the repository.
 on:
-     #  schedule:
-     #    - cron: '39 13 * * *'
      push:
           tags: ['v*.*.*']
 
@@ -64,9 +59,9 @@ jobs:
                - name: Generate Kubernetes manifest
                  shell: pwsh
                  run: |
-                      $app_name = "${{ vars.APP_NAME }}"
+                      $app_name = "${{ github.repository }}-${{ github.ref_name }}".Replace("/", "-")
                       $app_name | Out-File -FilePath appname.txt
-                      $dnsname = "${{ vars.DNS_NAME }}"
+                      $dnsname = "${{ vars.MAIN_DNS_NAME }}"
                       $dnsname | Out-File -FilePath dnsname.txt
                       @"
                         apiVersion: apps/v1
