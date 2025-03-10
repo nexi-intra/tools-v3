@@ -11,6 +11,7 @@ import { set, z } from "zod"
 import { SupportedLanguage, useLanguage } from "./contexts/language-context"
 import { actionUserHomePageSave } from "./actions/user-actions"
 import { useRouter } from "next/navigation"
+import { FaRunning } from "react-icons/fa"
 const translationSchema = z.object({
   redirectingToHomePage: z.string(),
   youWillBeRedirected: z.string(),
@@ -21,6 +22,7 @@ const translationSchema = z.object({
   english: z.string(),
   danish: z.string(),
   italian: z.string(),
+  open: z.string(),
 
 });
 
@@ -37,7 +39,7 @@ const translations: Record<SupportedLanguage, Translation> = {
     english: "English",
     danish: "Danish",
     italian: "Italian",
-
+    open: "Open",
   },
   da: {
     redirectingToHomePage: "Omdirigerer til hjemmesiden",
@@ -49,6 +51,7 @@ const translations: Record<SupportedLanguage, Translation> = {
     english: "Engelsk",
     danish: "Dansk",
     italian: "Italiensk",
+    open: "Åben",
   },
   it: {
     redirectingToHomePage: "Reindirizzamento alla pagina iniziale",
@@ -60,6 +63,7 @@ const translations: Record<SupportedLanguage, Translation> = {
     english: "Inglese",
     danish: "Danese",
     italian: "Italiano",
+    open: "Apri",
   }
 };
 interface RedirectConfigProps {
@@ -77,7 +81,7 @@ export default function RedirectConfig({
   const [selectedLanguage, setSelectedLanguage] = useState(defaultLanguage)
   const [isConfiguring, setIsConfiguring] = useState(!homePageUrl)
   const [progress, setProgress] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(3)
+  const [timeLeft, setTimeLeft] = useState(5)
   const [error, seterror] = useState("")
   const [homePage, sethomePage] = useState("")
   const { language } = useLanguage();
@@ -103,7 +107,7 @@ export default function RedirectConfig({
       timer = setInterval(() => {
         setTimeLeft((prev) => {
           const newTime = prev - 1
-          setProgress(((3 - newTime) / 3) * 100)
+          setProgress(((5 - newTime) / 5) * 100)
 
           if (newTime <= 0) {
             clearInterval(timer)
@@ -132,7 +136,7 @@ export default function RedirectConfig({
 
       setIsConfiguring(false)
       sethomePage(result.homePage)
-      setTimeLeft(3)
+      setTimeLeft(2)
       setProgress(0)
     } catch (error) {
       seterror(error instanceof Error ? error.message : String(error))
@@ -153,12 +157,19 @@ export default function RedirectConfig({
 
           <Progress value={progress} className="h-2" />
 
-          <div className="flex justify-center">
-            <Button variant="outline" onClick={() => setIsConfiguring(true)} className="flex items-center gap-2">
-              <Edit2 className="h-4 w-4" />
+          <div className="flex items-center gap-2">
+            <Button variant="link" onClick={() => setIsConfiguring(true)} className="flex items-center gap-2">
+
               {t.changeHomePage}
             </Button>
+            <div className="grow" />
+            <Button variant="default" onClick={() => {
+              router.push(homePage)
+            }} className="flex items-center gap-2">
 
+
+              {t.open}
+            </Button>
           </div>
           <div>
             {error && <p className="text-red-500 text-sm">{error}</p>}

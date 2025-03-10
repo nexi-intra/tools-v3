@@ -12,32 +12,29 @@ async function main() {
 			},
 		},
 	});
-
+	console.log(base64Items.length);
 	for (const item of base64Items) {
 		if (item.icon) {
 			const image = convertDataUrlToBuffer(item.icon);
 
 			const hash = calculateDataUrlHash(item.icon);
-			let existingBlob = await prisma.blob.findUnique({
+
+			console.log(item.name);
+			let blob = await prisma.blob.upsert({
 				where: {
 					hash,
 				},
-				select: {
-					id: true,
-				},
-			});
-			if (existingBlob) {
-				continue;
-			}
-			console.log(item.name);
-			let blob = await prisma.blob.create({
-				data: {
-					name: item.name,
-					base64: item.icon,
-					content_type: 'image/png',
+				create: {
 					data: image,
+					content_type: 'image/png',
 					hash,
 					source_tool_id: item.id,
+					base64: item.icon,
+					name: item.name,
+				},
+				update: {
+					data: image,
+					content_type: 'image/png',
 				},
 			});
 
@@ -47,11 +44,12 @@ async function main() {
 				},
 				data: {
 					icon: `/blob/${blob.id}`,
+					uploaded_icon: item.icon,
 				},
 			});
 		}
 	}
-	console.log(base64Items.length);
+
 	console.log('done');
 }
 

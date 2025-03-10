@@ -58,9 +58,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const widthTag = blob.BlobResized.length === 1 ? "-w" + width : "";
+    // Remove common problematic invisible characters (like zero width spaces)
+    const cleanName = blob.source_tool?.name
+      .replaceAll(" ", "_")
+      .replace(/\u200B/g, "") // remove zero width space(s)
+      .toLowerCase();
 
-    const filename = blob.source_tool?.name.replaceAll(" ", "_").toLowerCase() + widthTag + ".png" || 'picture.png';
+    const widthTag = blob.BlobResized.length === 1 ? "-w" + width : "";
+    const filename = (cleanName || 'picture') + widthTag + ".png";
+
     // Prepare the response with the binary image data.
     // Since Prisma returns a Buffer for the Bytes field, we can use it directly.
 

@@ -13,6 +13,9 @@ export function convertDataUrlToBuffer(dataUrl: string): Buffer {
 	return Buffer.from(matches[2], 'base64');
 }
 
+export function convertBufferToDataUrl(buffer: Buffer): string {
+	return `data:image/png;base64,${buffer.toString('base64')}`;
+}
 import crypto from 'crypto';
 
 /**

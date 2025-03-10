@@ -11,6 +11,7 @@ import { MagicboxContext } from '@/contexts/magicbox-context';
 import { useToast } from '@/hooks/use-toast';
 import { actionToolSaveCopy } from '@/actions/tool-actions';
 import Link from 'next/link';
+import { imgWidth } from '@/lib/image';
 
 export function TableOfTools({ tools }: { tools: any }) {
   const magicbox = useContext(MagicboxContext)
@@ -34,7 +35,7 @@ export function TableOfTools({ tools }: { tools: any }) {
     cell: ({ row }) => (
       <div>
         <Link href={pathname + "/" + row.original.id}>
-          <img className='h-8 w-8' src={row.original.refObject1.icon} /></Link>
+          <img className='h-8 w-8' src={imgWidth(row.original.refObject1.icon, 32)} /></Link>
       </div>
     ),
 

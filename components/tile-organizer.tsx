@@ -42,6 +42,7 @@ import {
 import ToolsPage2 from "./tools-page2"
 import { useRouter, useSearchParams } from "next/navigation"
 import { actionToolFind } from "@/actions/tool-actions"
+import { imgWidth } from "@/lib/image"
 
 // -------------------------
 // Zod Schema Definitions
@@ -172,7 +173,7 @@ export default function TileOrganizer({ initialData, onStateChange, editMode, ed
         {
           id: tool.id.toString(),
           title: tool.name,
-          //image: tool.icon!,
+          image: imgWidth(tool.icon!, 32),
           icon: "",
           toolId: tool.id
         }

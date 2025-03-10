@@ -203,6 +203,7 @@ model Tool {
   documents               Json?
   metadata                Json?
   icon                    String?       @db.VarChar
+  uploaded_icon           String?       @db.VarChar
   category                Category      @relation(fields: [categoryId], references: [id])
   // Many-to-many relation with Purpose
   purposes                Purpose[]     @relation("ToolPurposes")

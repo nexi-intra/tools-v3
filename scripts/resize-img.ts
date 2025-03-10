@@ -32,16 +32,21 @@ async function main() {
 		console.log(blobsToResize.length, 'items to resize to', width);
 		for (const item of blobsToResize) {
 			if (item.base64) {
-				const image = convertDataUrlToBuffer(item.base64);
-				const resized = await resizeImage(image, width);
 				console.log(item.name);
-				await prisma.blobResized.create({
-					data: {
-						width,
-						blobId: item.id,
-						data: resized,
-					},
-				});
+				try {
+					const image = convertDataUrlToBuffer(item.base64);
+					const resized = await resizeImage(image, width);
+
+					await prisma.blobResized.create({
+						data: {
+							width,
+							blobId: item.id,
+							data: resized,
+						},
+					});
+				} catch (error) {
+					console.error('Error resizing image:', error);
+				}
 			}
 		}
 

@@ -25,11 +25,11 @@ import { BreadcrumbItemProps, useBreadcrumbContext } from "@/contexts/breadcrumb
 function GlobalBreadcrumbItem(props: {
   item: BreadcrumbItemProps;
   hasChilds: boolean;
-  key: any;
+  index: any;
   path: string;
 }) {
   const [mouseover, setmouseover] = useState(false);
-  const { item, hasChilds, key, path } = props;
+  const { item, hasChilds, index, path } = props;
   const breadcrumbContext = useBreadcrumbContext();
   const dropdown = breadcrumbContext.getDropdownHandler(path);
   const icon = mouseover ? (
@@ -44,7 +44,7 @@ function GlobalBreadcrumbItem(props: {
 
   return (
     <BreadcrumbItem
-      key={key}
+      key={index}
       onMouseEnter={() => setmouseover(true)}
       onMouseLeave={() => setmouseover(false)}
     >
@@ -94,6 +94,7 @@ export default function GlobalBreadcrumb() {
               <GlobalBreadcrumbItem
                 path={root}
                 key={i}
+                index={i}
                 item={item}
                 hasChilds={i !== breadcrumbContext.items.length - 1}
               />
