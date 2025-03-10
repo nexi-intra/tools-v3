@@ -9,9 +9,9 @@ generator client {
 //   title    = "Tool Application"
 // }
 
-generator zod {
-  provider = "zod-prisma-types"
-}
+// generator zod {
+//   provider = "zod-prisma-types"
+// }
 
 datasource db {
   provider = "postgresql"
