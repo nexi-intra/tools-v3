@@ -9,6 +9,9 @@ import { NextResponse, NextRequest } from 'next/server';
  */
 export async function GET(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
+  const searchParams = request.nextUrl.searchParams
+  const width = searchParams.get("width")
+
   const slug = pathName.split('/').filter(Boolean);
 
   const [blob, blob_id] = slug;
@@ -29,16 +32,25 @@ export async function GET(request: NextRequest) {
     const blob = await prisma.blob.findUnique({
       where: {
         id,
+        // BlobResized: {
+        //   some: {
+        //     width: width ? parseInt(width) : 0
+        //   }
+        // }
       },
       select: {
         data: true,
         content_type: true,
         source_tool: true,
         source_tool_id: true,
-      },
-
-
-    });
+        BlobResized: {
+          where: {
+            width: width ? parseInt(width) : 0
+          },
+        }
+      }
+    }
+    );
     if (!blob) {
       return NextResponse.json(
         { error: 'Blob not found.' },
@@ -46,16 +58,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const widthTag = blob.BlobResized.length === 1 ? "-w" + width : "";
 
-    const filename = blob.source_tool?.name.replaceAll(" ", "_").toLowerCase() + ".png" || 'picture.png';
+    const filename = blob.source_tool?.name.replaceAll(" ", "_").toLowerCase() + widthTag + ".png" || 'picture.png';
     // Prepare the response with the binary image data.
     // Since Prisma returns a Buffer for the Bytes field, we can use it directly.
-    const response = new NextResponse(blob.data);
+
+
+
+    const response = new NextResponse(blob.BlobResized.length === 1 ? blob.BlobResized[0].data : blob.data);
     response.headers.set('Content-Type', blob.content_type);
 
     // Set the Cache-Control header to cache for one year (31536000 seconds) and mark as immutable.
     response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
-
     response.headers.set('Content-Disposition', `inline; filename="${filename}"`);
 
     return response;
