@@ -7,6 +7,7 @@ import { Tool } from "@prisma/client"
 import { useEffect, useState } from "react"
 import { actionToolFindById } from "@/actions/tool-actions"
 import { set } from "zod"
+import { imgWidth } from "@/lib/image"
 
 interface TileProps {
   tile: TileType
@@ -40,7 +41,7 @@ export function Tile({ tile, isDragging = false }: TileProps) {
       )}
     >
       {!loading && dbItem?.icon && (
-        <img src={dbItem.icon} alt={dbItem.name} className="w-6 h-6 mb-1" />
+        <img src={imgWidth(dbItem.icon, 32)} alt={dbItem.name} className="w-6 h-6 mb-1" />
       )}
       {!loading && !tile.toolId && (
         <IconComponent className="h-6 w-6 mb-1 text-primary" />

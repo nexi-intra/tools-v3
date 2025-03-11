@@ -8,8 +8,12 @@ import { https } from "@/contexts/httphelper";
 import { useRouter } from "next/navigation";
 import { set, z } from "zod";
 import { SupportedLanguage, useLanguage } from "@/contexts/language-context";
+import { AnimatedBackground } from "./animated-background";
+import { Card } from "./ui/card";
+import Image from "next/image";
 const translationSchema = z.object({
   login: z.string(),
+  magicbuttons: z.string(),
 
 });
 
@@ -17,13 +21,16 @@ type Translation = z.infer<typeof translationSchema>;
 
 const translations: Record<SupportedLanguage, Translation> = {
   en: {
-    login: "Login"
+    login: "Login",
+    magicbuttons: "Magic Buttons"
   },
   da: {
-    login: "Log ind"
+    login: "Log ind",
+    magicbuttons: "Magic Buttons"
   },
   it: {
-    login: "Accesso"
+    login: "Accesso",
+    magicbuttons: "Pulsanti Magici"
   }
 
 };
@@ -130,17 +137,30 @@ export default function Authenticate(props: {
   }
   if (!magicbox.user && magicbox.authtoken === "") {
     return (
-      <div className="flex">
-        <div className="grow"></div>
-        <div className="flex flex-col">
-          <div className="grow"></div>
-          <div>
-            {" "}
+      <div className="relative z-50">
+
+        <Card className="z-50 w-full max-w-md p-8 shadow-xl bg-white dark:bg-black">
+          <div className="flex items-center mb-8">
+            <div className="flex h-12 w-12 items-center justify-center rounded-md bg-[#2727a3] p-1 mr-3">
+              <Image
+                src="/intranet.png"
+                alt="Nexi Logo"
+                width={48}
+                height={48}
+                className="h-full w-full object-contain"
+              />
+            </div>
+            <h1 className="text-2xl font-bold">{t.magicbuttons}</h1>
+          </div>
+
+          <div className="flex flex-col items-center justify-center space-y-6 py-4">
+
             <Button
               variant="outline"
               className="bg-black text-white dark:bg-white dark:text-black"
 
               onClick={async () => {
+                debugger
                 const signedIn = await magicbox.signIn(["User.Read"], "");
                 if (!signedIn) {
                   setsigninError(true);
@@ -160,13 +180,26 @@ export default function Authenticate(props: {
               {t.login}
             </Button>
 
-            {signinError && <div>Last sign in failed - {latestError}</div>}
           </div>
-          <div className="grow"></div>
-        </div>
-        <div className="grow"></div>
+        </Card>
       </div>
-    );
+
+    )
+    // return (
+    //   <div className="flex">
+    //     <div className="grow"></div>
+    //     <div className="flex flex-col">
+    //       <div className="grow"></div>
+    //       <div>
+    //         {" "}
+
+    //         {signinError && <div>Last sign in failed - {latestError}</div>}
+    //       </div>
+    //       <div className="grow"></div>
+    //     </div>
+    //     <div className="grow"></div>
+    //   </div>
+    // );
   }
   return null;
 }

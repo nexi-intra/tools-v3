@@ -304,7 +304,7 @@ export async function ToolsPage2(props: ToolsPageProps) {
                         {/* <ToolCardMiniComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} /> */}
                         {/* <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} /> */}
                         <IconWithDetail id={tool.id}
-
+                          width={64}
                           isFavorite={tool.userProfiles.length > 0}
                           icon={toolView.icon!} title={toolView.name} description={toolView.description} name={toolView.name} link={toolView.url} />
                       </div>
