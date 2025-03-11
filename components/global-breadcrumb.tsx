@@ -1,5 +1,5 @@
 "use client";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   Breadcrumb,
@@ -21,6 +21,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { BreadcrumbItemProps, useBreadcrumbContext } from "@/contexts/breadcrumb-context";
+import { MagicboxContext } from "@/contexts/magicbox-context";
 
 function GlobalBreadcrumbItem(props: {
   item: BreadcrumbItemProps;
@@ -67,6 +68,7 @@ function GlobalBreadcrumbItem(props: {
 }
 
 export default function GlobalBreadcrumb() {
+  const magicbox = useContext(MagicboxContext);
   const pathname = usePathname();
   const breadcrumbContext = useBreadcrumbContext();
   const [showEdit, setshowEdit] = useState(false);
@@ -75,6 +77,7 @@ export default function GlobalBreadcrumb() {
     breadcrumbContext.setPath(pathname);
   }, [pathname]);
   let root = "";
+  if (!magicbox.hasAppRole("dev")) return null
   return (
     <div
       className="flex"

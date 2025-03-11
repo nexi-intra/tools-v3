@@ -3,6 +3,7 @@ import { SupportedLanguage } from '@/contexts/language-context'
 import React, { Suspense } from 'react'
 
 import PageProps from 'next';
+import { ToolsApp } from '@/internal/app-tools';
 
 
 
@@ -38,6 +39,11 @@ export default async function Page({
   const excludeGroupTools = _searchParams.grouptools === 'false'
   const countries = Array.isArray(_searchParams.countries) ? _searchParams.countries : (!_searchParams.countries ? [] : _searchParams.countries.split(","))
 
+  const app = new ToolsApp()
+  const user = await app.user()
+  if (!user) {
+    return <div>Not logged in</div>
+  }
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

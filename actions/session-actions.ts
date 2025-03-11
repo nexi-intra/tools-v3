@@ -85,9 +85,12 @@ export async function sessionGetUser() {
 	const newToken = await createKoksmatToken(decoded.userId, 1);
 	await setKoksmatTokenCookie(newToken);
 
-	const user: UserProfile | null = await prisma.userProfile.findFirst({
+	const user = await prisma.userProfile.findFirst({
 		where: {
 			id: decoded.userId,
+		},
+		include: {
+			roles: true,
 		},
 	});
 	return user;

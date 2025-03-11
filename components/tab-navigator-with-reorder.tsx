@@ -171,96 +171,96 @@ export default function TabNavigatorWithReorder() {
 
     setDraggedTab(null);
   };
+  return null;
+  // return (
+  //   <DndContext
+  //     sensors={sensors}
+  //     collisionDetection={closestCenter}
+  //     onDragStart={handleDragStart}
+  //     onDragEnd={handleDragEnd}
+  //   >
+  //     <div className="w-full mx-auto">
+  //       <div className="relative">
+  //         <ScrollArea className="w-full">
+  //           <div
+  //             ref={tabsRef}
+  //             className="inline-flex h-10 items-center justify-start rounded-md  p-1 text-muted-foreground"
+  //           >
+  //             <SortableContext
+  //               items={tabData}
+  //               strategy={horizontalListSortingStrategy}
+  //             >
+  //               {tabData.map((tab) => (
+  //                 <DraggableTab
+  //                   key={tab.id}
+  //                   tab={tab}
+  //                   isActive={activeTab === tab.id}
+  //                   isCurrentPage={pathname === tab.title}
+  //                   onClick={() => {
+  //                     setActiveTab(tab.id);
+  //                     router.push(tab.href);
+  //                   }}
+  //                   onRemove={(key) => {
+  //                     setTabData(tabData.filter((tab) => tab.id !== key));
 
-  return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="w-full mx-auto">
-        <div className="relative">
-          <ScrollArea className="w-full">
-            <div
-              ref={tabsRef}
-              className="inline-flex h-10 items-center justify-start rounded-md  p-1 text-muted-foreground"
-            >
-              <SortableContext
-                items={tabData}
-                strategy={horizontalListSortingStrategy}
-              >
-                {tabData.map((tab) => (
-                  <DraggableTab
-                    key={tab.id}
-                    tab={tab}
-                    isActive={activeTab === tab.id}
-                    isCurrentPage={pathname === tab.title}
-                    onClick={() => {
-                      setActiveTab(tab.id);
-                      router.push(tab.href);
-                    }}
-                    onRemove={(key) => {
-                      setTabData(tabData.filter((tab) => tab.id !== key));
+  //                     setversion(version + 1);
+  //                   }}
+  //                 />
+  //               ))}
+  //             </SortableContext>
+  //             {!isCurrentPageInTab && (
+  //               <span
 
-                      setversion(version + 1);
-                    }}
-                  />
-                ))}
-              </SortableContext>
-              {!isCurrentPageInTab && (
-                <span
+  //                 onClick={() => {
+  //                   tabData.push({
+  //                     id: tabData.length.toString(),
+  //                     title: pathname,
+  //                     href: pathname,
+  //                   });
+  //                   setTabData(tabData);
+  //                   setisCurrentPageInTab(true);
 
-                  onClick={() => {
-                    tabData.push({
-                      id: tabData.length.toString(),
-                      title: pathname,
-                      href: pathname,
-                    });
-                    setTabData(tabData);
-                    setisCurrentPageInTab(true);
-
-                    setversion(version + 1);
-                  }}
-                >
-                  <Pin className="h-5 w-5" />
-                </span>
-              )}
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-          {/* <Button
-            variant="outline"
-            size="icon"
-            className="absolute left-0 top-0 bottom-0 bg-background"
-            onClick={() =>
-              tabsRef.current?.scrollBy({ left: -100, behavior: "smooth" })
-            }
-          >
-            <ChevronLeft className="h-4 w-4" />
-            <span className="sr-only">Scroll left</span>
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="absolute right-0 top-0 bottom-0 bg-background"
-            onClick={() =>
-              tabsRef.current?.scrollBy({ left: 100, behavior: "smooth" })
-            }
-          >
-            <ChevronRight className="h-4 w-4" />
-            <span className="sr-only">Scroll right</span>
-          </Button> */}
-        </div>
-      </div>
-      <DragOverlay>
-        {draggedTab ? (
-          <Button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all">
-            <GripVertical className="mr-2 h-4 w-4" />
-            {draggedTab.title}
-          </Button>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
-  );
+  //                   setversion(version + 1);
+  //                 }}
+  //               >
+  //                 <Pin className="h-5 w-5" />
+  //               </span>
+  //             )}
+  //           </div>
+  //           <ScrollBar orientation="horizontal" />
+  //         </ScrollArea>
+  //         {/* <Button
+  //           variant="outline"
+  //           size="icon"
+  //           className="absolute left-0 top-0 bottom-0 bg-background"
+  //           onClick={() =>
+  //             tabsRef.current?.scrollBy({ left: -100, behavior: "smooth" })
+  //           }
+  //         >
+  //           <ChevronLeft className="h-4 w-4" />
+  //           <span className="sr-only">Scroll left</span>
+  //         </Button>
+  //         <Button
+  //           variant="outline"
+  //           size="icon"
+  //           className="absolute right-0 top-0 bottom-0 bg-background"
+  //           onClick={() =>
+  //             tabsRef.current?.scrollBy({ left: 100, behavior: "smooth" })
+  //           }
+  //         >
+  //           <ChevronRight className="h-4 w-4" />
+  //           <span className="sr-only">Scroll right</span>
+  //         </Button> */}
+  //       </div>
+  //     </div>
+  //     <DragOverlay>
+  //       {draggedTab ? (
+  //         <Button className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all">
+  //           <GripVertical className="mr-2 h-4 w-4" />
+  //           {draggedTab.title}
+  //         </Button>
+  //       ) : null}
+  //     </DragOverlay>
+  //   </DndContext>
+  //);
 }
