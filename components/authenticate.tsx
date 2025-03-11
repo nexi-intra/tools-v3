@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { set, z } from "zod";
 import { SupportedLanguage, useLanguage } from "@/contexts/language-context";
 import { AnimatedBackground } from "./animated-background";
-import { Card } from "./ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import Image from "next/image";
 const translationSchema = z.object({
   login: z.string(),
@@ -22,15 +22,16 @@ type Translation = z.infer<typeof translationSchema>;
 const translations: Record<SupportedLanguage, Translation> = {
   en: {
     login: "Login",
-    magicbuttons: "Magic Buttons"
+    magicbuttons: "Intranet"
   },
   da: {
     login: "Log ind",
-    magicbuttons: "Magic Buttons"
+    magicbuttons: "Intranet"
   },
   it: {
     login: "Accesso",
-    magicbuttons: "Pulsanti Magici"
+    magicbuttons: "Intranet"
+
   }
 
 };
@@ -137,30 +138,39 @@ export default function Authenticate(props: {
   }
   if (!magicbox.user && magicbox.authtoken === "") {
     return (
-      <div className="relative z-50">
+      <div className="relative z-50 min-w-[300px]">
 
-        <Card className="z-50 w-full max-w-md p-8 shadow-xl bg-white dark:bg-black">
-          <div className="flex items-center mb-8">
-            <div className="flex h-12 w-12 items-center justify-center rounded-md bg-[#2727a3] p-1 mr-3">
-              <Image
-                src="/intranet.png"
+
+        <Card className="z-50 w-full p-8 shadow-xl bg-white dark:bg-black">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center justify-center mb-2 space-x-4">
+
+              <img
+                src="/nexiblue.svg"
                 alt="Nexi Logo"
-                width={48}
-                height={48}
-                className="h-full w-full object-contain"
-              />
-            </div>
-            <h1 className="text-2xl font-bold">{t.magicbuttons}</h1>
-          </div>
 
-          <div className="flex flex-col items-center justify-center space-y-6 py-4">
+                height={32}
+                className="h-7"
+              />
+
+              <CardTitle className="text-[34px] font-bold text-[#2d32aa]"> intranet</CardTitle>
+            </div>
+
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center space-y-6 py-4">
+
+
+
+            </div>
+          </CardContent>
+          <CardFooter>
 
             <Button
-              variant="outline"
-              className="bg-black text-white dark:bg-white dark:text-black"
+              className="w-full bg-[#1a237e] hover:bg-[#303f9f]"
 
               onClick={async () => {
-                debugger
+
                 const signedIn = await magicbox.signIn(["User.Read"], "");
                 if (!signedIn) {
                   setsigninError(true);
@@ -179,27 +189,13 @@ export default function Authenticate(props: {
             >
               {t.login}
             </Button>
+          </CardFooter>
 
-          </div>
         </Card>
       </div>
 
     )
-    // return (
-    //   <div className="flex">
-    //     <div className="grow"></div>
-    //     <div className="flex flex-col">
-    //       <div className="grow"></div>
-    //       <div>
-    //         {" "}
 
-    //         {signinError && <div>Last sign in failed - {latestError}</div>}
-    //       </div>
-    //       <div className="grow"></div>
-    //     </div>
-    //     <div className="grow"></div>
-    //   </div>
-    // );
   }
   return null;
 }

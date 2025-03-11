@@ -9,12 +9,13 @@ import {
   AuthSource,
   ServiceCallLogEntry,
   appModeTypes,
+  appRoleTypes,
 } from "./magicbox-context";
 import { IPublicClientApplication, PopupRequest } from "@azure/msal-browser";
 import { actionSignIn, sessionGetUser } from "@/actions/session-actions";
 import { set } from "zod";
 import prisma from "@/prisma";
-import { UserProfile } from '@prisma/client';
+import { UserProfile, UserRole } from '@prisma/client';
 
 
 type Props = {
@@ -36,6 +37,7 @@ export const MagicboxProvider = ({ children }: Props) => {
     return [];
   }, []);
   const [userProfile, setuserProfile] = useState<UserProfile | null>(null);
+  const [appRoles, setappRoles] = useState<UserRole[]>([])
 
   const [appMode, setappMode] = useState<appModeTypes>("normal")
 
@@ -46,6 +48,9 @@ export const MagicboxProvider = ({ children }: Props) => {
     initializing,
     setInitializing: function (initializing: boolean): void {
       setinitializing(initializing);
+    },
+    hasAppRole: function (role: appRoleTypes): boolean {
+      return appRoles.some((r) => r.name === role)
     },
     roles,
     session,
@@ -147,6 +152,7 @@ export const MagicboxProvider = ({ children }: Props) => {
     const load = async () => {
 
       const user = await sessionGetUser()
+      setappRoles(user?.roles ?? [])
       setinitializing(false)
       setuserProfile(user)
     }

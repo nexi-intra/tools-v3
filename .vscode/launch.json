@@ -15,5 +15,13 @@
         "request": "launch",
         "cwd": "${workspaceFolder}",
         "command": "pnpm dlx tsx scripts/base64-to-blob.ts"
-    },  ]
+    },
+    {
+        "name": "Debug workers/webpageview-service.ts",
+        "type": "node-terminal",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "command": "pnpm dlx tsx workers/webpageview-service.ts"
+    },
+]
 }
