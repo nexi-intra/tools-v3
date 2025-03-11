@@ -60,7 +60,7 @@ jobs:
                - name: Generate Kubernetes manifest
                  shell: pwsh
                  run: |
-                      $app_name = "${{ github.repository }}".Replace("/", "-")
+                      $app_name = "${{ github.repository }}-${{ github.ref_name }}".Replace("/", "-").Replace(".", "-")
                       $app_name | Out-File -FilePath appname.txt
                       $dnsname = "${{ vars.DOMAIN }}"
                       $dnsname | Out-File -FilePath dnsname.txt
