@@ -1,4 +1,4 @@
-name: Build Web
+name: Release
 
 # This GitHub Actions workflow is triggered by a push event to the repository.
 # It defines a set of jobs to be executed when code is pushed to the repository.
@@ -59,7 +59,7 @@ jobs:
                - name: Generate Kubernetes manifest
                  shell: pwsh
                  run: |
-                      $app_name = "${{ github.repository }}-${{ github.ref_name }}".Replace("/", "-")
+                      $app_name = "${{ github.repository }}".Replace("/", "-").Replace(".", "-")
                       $app_name | Out-File -FilePath appname.txt
                       $dnsname = "${{ vars.MAIN_DNS_NAME }}"
                       $dnsname | Out-File -FilePath dnsname.txt
