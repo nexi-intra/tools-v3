@@ -256,6 +256,9 @@ devDependencies:
   '@types/sequelize':
     specifier: ^4.28.20
     version: 4.28.20
+  '@types/swagger-ui-react':
+    specifier: ^5.18.0
+    version: 5.18.0
   eslint:
     specifier: ^9
     version: 9.20.0
@@ -3176,6 +3179,12 @@ packages:
       '@types/continuation-local-storage': 3.2.7
       '@types/lodash': 4.17.15
       '@types/validator': 13.12.2
+    dev: true
+
+  /@types/swagger-ui-react@5.18.0:
+    resolution: {integrity: sha512-c2M9adVG7t28t1pq19K9Jt20VLQf0P/fwJwnfcmsVVsdkwCWhRmbKDu+tIs0/NGwJ/7GY8lBx+iKZxuDI5gDbw==}
+    dependencies:
+      '@types/react': 19.0.8
     dev: true
 
   /@types/trusted-types@2.0.7:

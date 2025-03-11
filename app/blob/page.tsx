@@ -1,11 +1,26 @@
 import React from 'react'
 import prisma from '@/prisma';
 import { convertBufferToDataUrl } from '@/lib/blob';
+type PageProps = {
 
-export default async function Page() {
+  params: Promise<{}>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function Page({
+
+  searchParams,
+}: PageProps) {
+  const _searchParams = await searchParams
+  const width = _searchParams.width
+  if (!width) {
+    return <div>Missing
+      width</div>
+  }
+
   const images = await prisma.blobResized.findMany({
     where: {
-      width: 64,
+      width: parseInt(width as string),
 
     },
     include: {
@@ -20,7 +35,7 @@ export default async function Page() {
         <div key={image.id} className='flex'>
           <div className='text-2xl'>{image.blob.id}</div>
           <img className="border m-3" src={convertBufferToDataUrl(Buffer.from(image.data))} alt={image.blob.name} />
-          <img className="border m-3" src={"/blob/" + image.blob.id + "?width=64"} /> {image.blob.name}
+          <img className="border m-3" src={"/blob/" + image.blob.id + "?width=" + width} /> {image.blob.name}
         </div>
 
 
