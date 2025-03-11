@@ -3,7 +3,7 @@ import { IPublicClientApplication } from "@azure/msal-browser";
 
 import { createContext } from "react";
 import { Result } from "./httphelper";
-
+import { UserProfile } from '@prisma/client';
 export interface Session {
   user: User;
   expires: string;
@@ -29,6 +29,7 @@ export type ServiceCallLogEntry = {
 };
 export type AuthSource = "MSAL" | "SharePoint" | "";
 export type MagicboxContextType = {
+  userProfile: UserProfile | null;
   session?: Session;
   version: number;
   user?: User;
@@ -56,7 +57,8 @@ export type MagicboxContextType = {
   setShowTracer: (showTracer: boolean) => void;
   setAppMode: (mode: appModeTypes) => void;
   appMode: appModeTypes;
-
+  initializing: boolean;
+  setInitializing: (initializing: boolean) => void;
 
 
 };
@@ -112,5 +114,10 @@ export const MagicboxContext = createContext<MagicboxContextType>({
     throw new Error("Function not implemented.");
   },
   appMode: "normal",
-  roles: []
+  roles: [],
+  initializing: false,
+  setInitializing: function (initializing: boolean): void {
+    throw new Error("Function not implemented.");
+  },
+  userProfile: null
 });

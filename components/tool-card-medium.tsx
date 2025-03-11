@@ -18,6 +18,7 @@ import { FavoriteComponent } from './favorite'
 import { z } from "zod";
 import { MagicboxContext } from '@/contexts/magicbox-context'
 import HighlightedText from './highlightedtext'
+import { imgWidth } from '@/lib/image'
 
 
 
@@ -176,7 +177,7 @@ export function ToolCardMediumComponent({ tool, allowedTags, isFavorite, showAct
         <div className="flex flex-col items-center mb-0">
           <div className="w-16 h-16 mb-0">
             <img
-              src={tool.icon || '/placeholder.svg'}
+              src={tool.icon ? imgWidth(tool.icon, 64) : '/placeholder.svg'}
               alt={tool.name}
               width={64}
               height={64}

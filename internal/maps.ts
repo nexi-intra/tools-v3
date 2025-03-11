@@ -14,13 +14,13 @@ export function mapTool2ToolView(
 ): ToolView {
 	const parsedTranslations = translationJSONDatabaseFieldSchema.safeParse(tool.translations);
 	if (!parsedTranslations.success) {
-		console.error(parsedTranslations.error);
+		//console.error(parsedTranslations.error);
 	}
 	const translatedName = getTranslation(parsedTranslations.data, 'name', language, tool.name);
 	const translatedDescription = getTranslation(parsedTranslations.data, 'description', language, tool.description!);
 	const parsedDocuments = documentsJSONDatabaseFieldSchema.safeParse(tool.documents);
 	if (!parsedDocuments.success) {
-		console.error(parsedDocuments.error);
+		//console.error(parsedDocuments.error);
 	}
 
 	const toolView: ToolView = {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useMemo } from "react"
 import {
   DndContext,
   DragOverlay,
@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/sortable"
 import { restrictToWindowEdges } from "@dnd-kit/modifiers"
 import { Button } from "@/components/ui/button"
-import { Plus, Undo2, Redo2, LayoutGrid, Eye, EyeOff } from "lucide-react"
+import { Plus, Undo2, Redo2, LayoutGrid, Eye, EyeOff, Edit } from "lucide-react"
 import { SortableColumn } from "@/components/sortable-column"
 import { SortableRow } from "@/components/sortable-row"
 import { TileGrid } from "@/components/tile-grid"
@@ -28,6 +28,21 @@ import { Tile } from "@/components/tile"
 import { PreviewMode } from "@/components/preview-mode"
 import { v4 as uuidv4 } from "uuid"
 import { z } from "zod"
+import { FaSave, FaToolbox } from "react-icons/fa"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+import ToolsPage2 from "./tools-page2"
+import { useRouter, useSearchParams } from "next/navigation"
+import { actionToolFind } from "@/actions/tool-actions"
+import { imgWidth } from "@/lib/image"
 
 // -------------------------
 // Zod Schema Definitions
@@ -36,6 +51,9 @@ const TileTypeSchema = z.object({
   id: z.string(),
   title: z.string(),
   icon: z.string(),
+  image: z.string().optional().nullable(),
+  toolId: z.number().optional() //.nullable(),
+
 })
 
 const ColumnTypeSchema = z.object({
@@ -67,12 +85,16 @@ const StateSchema = z.object({
 export type TileOrganizerProps = {
   initialData?: string // JSON string representing the state
   onStateChange?: (state: string) => void
+  editMode?: boolean
+  editModeChanged?: (newEditMode: boolean) => void
 }
 
 export type TileType = {
   id: string
   title: string
   icon: string
+  image?: string | null
+  toolId?: number | null
 }
 
 export type ColumnType = {
@@ -97,11 +119,20 @@ export type HistoryState = {
   cellContents: CellContentType[]
 }
 
-export default function TileOrganizer({ initialData, onStateChange }: TileOrganizerProps) {
+export default function TileOrganizer({ initialData, onStateChange, editMode, editModeChanged }: TileOrganizerProps) {
   // -------------------------
   // State variables
   // -------------------------
   // Start with empty arrays for columns, rows, and cellContents.
+
+  // Initialize state with the initial number (e.g., 0)
+  const [number, setNumber] = useState(0);
+
+  // Function to update the state to the next number
+  const nextId = () => {
+
+    return uuidv4()
+  };
   const [columns, setColumns] = useState<ColumnType[]>([])
   const [rows, setRows] = useState<RowType[]>([])
   const [cellContents, setCellContents] = useState<CellContentType[]>([])
@@ -128,13 +159,40 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
 
   const [history, setHistory] = useState<HistoryState[]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  const [isPreviewMode, setIsPreviewMode] = useState(!editMode)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const showTools = searchParams.get("showtools") === "true"
+
+  useEffect(() => {
+
+    const load = async () => {
+      const data = await actionToolFind()
+      const tiles = data.map((tool) => {
+        const tile: TileType =
+        {
+          id: tool.id.toString(),
+          title: tool.name,
+          image: imgWidth(tool.icon!, 32),
+          icon: "",
+          toolId: tool.id
+        }
+        return tile
+      })
+      setAvailableTiles(tiles)
+    }
+    load()
+  }, [])
+
+
+  useEffect(() => {
+  }, [showTools])
 
   // ---------------------------------
   // Parse initialData with Zod
   // ---------------------------------
   useEffect(() => {
-    debugger
+
     if (initialData) {
       try {
         const parsed = JSON.parse(initialData)
@@ -165,7 +223,24 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
   // Toggle preview mode
   const togglePreviewMode = () => {
     setIsPreviewMode(!isPreviewMode)
+    // if currently in previewMode, then new mode !
+    if (editModeChanged) {
+      editModeChanged(isPreviewMode)
+    }
   }
+  // Toggle include general tools state
+  const toggleShowTools = () => {
+    const params = new URLSearchParams(searchParams.toString())
+
+    if (!showTools) {
+      params.set("showtools", "true")
+    } else {
+      params.set("showtools", "false")
+    }
+
+    router.push(`?${params.toString()}`, { scroll: false })
+  }
+
 
   // Function to add a new state to the history
   const addToHistory = useCallback(
@@ -238,7 +313,7 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
   // Function to add a new tile
   const addNewTile = () => {
     const newTile: TileType = {
-      id: `tile-${uuidv4()}`,
+      id: `tile-${nextId()}`,
       title: "New Tile",
       icon: "square", // Default icon
     }
@@ -328,7 +403,7 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
       // Moving from available tiles to a cell
       if (activeData.source === "available" && overData?.type === "cell") {
         const { columnId, rowId } = overData
-        const newTile = { ...availableTiles.find((t) => t.id === active.id)!, id: uuidv4() }
+        const newTile = { ...availableTiles.find((t) => t.id === active.id)!, id: nextId() }
 
         setCellContents((prev) => {
           const existingCellIndex = prev.findIndex((c) => c.columnId === columnId && c.rowId === rowId)
@@ -431,7 +506,7 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
 
   // Add a new column
   const addColumn = () => {
-    const newId = `column-${uuidv4()}`
+    const newId = `column-${nextId()}`
     setColumns((prevColumns) => {
       const newColumns = [...prevColumns, { id: newId, title: `New Column` }]
       addToHistory({ columns: newColumns, rows, cellContents })
@@ -441,7 +516,7 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
 
   // Add a new row
   const addRow = () => {
-    const newId = `row-${uuidv4()}`
+    const newId = `row-${nextId()}`
     setRows((prevRows) => {
       const newRows = [...prevRows, { id: newId, title: `New Work Area` }]
       addToHistory({ columns, rows: newRows, cellContents })
@@ -505,22 +580,37 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
 
       {/* Toolbar */}
       <div className="bg-card rounded-lg border shadow-sm p-2 flex items-center space-x-2">
-        <Button variant="outline" size="icon" onClick={addNewTile} disabled={isPreviewMode}>
+        {/* <Button variant="outline" size="icon" onClick={addNewTile} disabled={isPreviewMode}>
           <LayoutGrid className="h-4 w-4" />
           <span className="sr-only">Add new tile</span>
-        </Button>
-        <Button variant="outline" size="icon" onClick={undo} disabled={historyIndex <= 0 || isPreviewMode}>
-          <Undo2 className="h-4 w-4" />
-          <span className="sr-only">Undo</span>
-        </Button>
-        <Button variant="outline" size="icon" onClick={redo} disabled={historyIndex >= history.length - 1 || isPreviewMode}>
-          <Redo2 className="h-4 w-4" />
-          <span className="sr-only">Redo</span>
-        </Button>
+        </Button> */}
         <Button variant="outline" size="icon" onClick={togglePreviewMode}>
-          {isPreviewMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          {isPreviewMode ? <Edit className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           <span className="sr-only">{isPreviewMode ? "Exit Preview" : "Enter Preview"}</span>
         </Button>
+        {!isPreviewMode && (
+          <>
+            <Button variant="outline" size="icon" onClick={undo} disabled={historyIndex <= 0 || isPreviewMode}>
+              <Undo2 className="h-4 w-4" />
+              <span className="sr-only">Undo</span>
+            </Button>
+            <Button variant="outline" size="icon" onClick={redo} disabled={historyIndex >= history.length - 1 || isPreviewMode}>
+              <Redo2 className="h-4 w-4" />
+              <span className="sr-only">Redo</span>
+            </Button>
+            <Button variant="outline" size="icon" onClick={toggleShowTools}>
+              <FaSave className="h-4 w-4" />
+              <span className="sr-only">Save</span>
+            </Button>
+
+
+            <Button variant="outline" size="icon" onClick={toggleShowTools}>
+              <FaToolbox className="h-4 w-4" />
+              <span className="sr-only">Tools</span>
+            </Button></>
+        )}
+
+
       </div>
 
       {/* Content */}
@@ -583,7 +673,7 @@ export default function TileOrganizer({ initialData, onStateChange }: TileOrgani
 
             {/* Available tiles sidebar */}
             <div className="w-full lg:w-1/4">
-              <div className="bg-card rounded-lg border shadow-sm p-4">
+              <div className="bg-card rounded-lg border shadow-sm p-4 ">
                 <h2 className="text-lg font-semibold mb-4">Available Tiles</h2>
                 <TileList tiles={availableTiles} />
               </div>

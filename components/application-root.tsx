@@ -69,6 +69,7 @@ import { SupportedLanguage, useLanguage } from "@/contexts/language-context"
 import { useIsInIframe } from "@/hooks/use-isiniframe"
 import { MagicboxContext } from "@/contexts/magicbox-context"
 import Authenticate, { UserProfileAPI } from "./authenticate"
+import { AnimatedBackground } from "./animated-background"
 
 
 function appName() {
@@ -156,11 +157,11 @@ const TopNavigation: React.FC<{
     </Button>
 
 
-    <ShareComponent subscriberCount={0} onShare={function (args_0: string, ...args: unknown[]): void {
+    {/* <ShareComponent subscriberCount={0} onShare={function (args_0: string, ...args: unknown[]): void {
       //throw new Error('Function not implemented.')
     }} onCreatePost={function (...args: unknown[]): void {
       //throw new Error('Function not implemented.')
-    }} />
+    }} /> */}
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost">
@@ -221,15 +222,16 @@ export const ApplicationRoot: React.FC<ApplicationRootProps> = ({
           />
         </div>
       )}
-      {!magicbox.authtoken && !isInIframe && (
-        <div className="flex h-screen items-center justify-center w-screen bg-center bg-cover dark:bg-slate-300  " style={{ backgroundImage: "url('/background.png')" }}>
-          <div className=" gap-4  bg-white  dark:bg-black bg-opacity-90 rounded-xl shadow-lg p-20 min-w-[400px] min-h-[200px] items-center ">
+      {!magicbox.initializing && !magicbox.userProfile && !magicbox.authtoken && !isInIframe && (
+        <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#1a1a80]">
+          <AnimatedBackground />
 
-            <Authenticate apiScope={UserProfileAPI} />
-          </div>
+
+          <Authenticate apiScope={UserProfileAPI} />
+
         </div>
       )}
-      {(magicbox.authtoken || isInIframe) && (
+      {(magicbox.authtoken || magicbox.userProfile || isInIframe) && (
         <SidebarProvider>
           {false && !hideSidebar && !isInIframe && magicbox.appMode !== "app" && (
             <Sidebar collapsible="icon">

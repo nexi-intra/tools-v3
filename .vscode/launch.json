@@ -8,47 +8,12 @@
           "request": "launch",
           "cwd": "${workspaceFolder}",
           "command": "npm run dev"
-      }  ,
-      {
-        "name": "Debug script test-tool-site",
-        "type": "node-terminal",
-        "request": "launch",
-        "cwd": "${workspaceFolder}",
-        "command": "pnpm run script test-tool-site"
-    },
+      } ,
     {
-        "name": "Debug script test-app",
+        "name": "Debug scripts/base64-to-blob",
         "type": "node-terminal",
         "request": "launch",
         "cwd": "${workspaceFolder}",
-        "command": "pnpm run script test-app"
-    },
-    {
-        "name": "Debug script read-list",
-        "type": "node-terminal",
-        "request": "launch",
-        "cwd": "${workspaceFolder}",
-        "command": "pnpm run script read-list"
-    },
-    {
-        "name": "Debug script pnp",
-        "type": "node-terminal",
-        "request": "launch",
-        "cwd": "${workspaceFolder}",
-        "command": "pnpm run script pnp"
-    },
-    {
-        "name": "Debug script searchtokens",
-        "type": "node-terminal",
-        "request": "launch",
-        "cwd": "${workspaceFolder}",
-        "command": "pnpm run script searchtokens"
-    },
-    {
-        "name": "Debug script read-users",
-        "type": "node-terminal",
-        "request": "launch",
-        "cwd": "${workspaceFolder}",
-        "command": "pnpm run script read-users"
+        "command": "pnpm dlx tsx scripts/base64-to-blob.ts"
     },  ]
 }

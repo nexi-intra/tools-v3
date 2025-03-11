@@ -12,54 +12,64 @@ export default function ClientPage({ id, initialBoard }: { id: number, initialBo
   const [boardJSON, setboardJSON] = useState("")
   const [error, seterror] = useState("")
   const { toast } = useToast()
+  const [editMode, seteditMode] = useState(false)
   return (
     <div><TileOrganizer
       initialData={initialBoard}
-      onStateChange={(json) => { setboardJSON(json) }} />
-      <Button onClick={async () => {
-        if (!boardJSON) {
-          seterror("No board")
-          return
-        }
-        seterror("")
-        const saveResult = await actionBoardSave(id, "Updated", boardJSON)
-        if (!saveResult.saved || !saveResult.id) {
-          seterror("Failed to save: " + saveResult?.error)
-          return
-        }
-        toast({
+      onStateChange={(json) => { setboardJSON(json) }}
+      editModeChanged={(editMode) => { seteditMode(editMode) }}
 
-          description: "Saved",
+    />
+      {editMode}
+      {editMode && (
+        <div>
+          <Button onClick={async () => {
+            if (!boardJSON) {
+              seterror("No board")
+              return
+            }
+            seterror("")
+            const saveResult = await actionBoardSave(id, "Updated", boardJSON)
+            if (!saveResult.saved || !saveResult.id) {
+              seterror("Failed to save: " + saveResult?.error)
+              return
+            }
+            toast({
 
-        })
+              description: "Saved",
 
-
-
-      }}>Save</Button>
-
-      <Button onClick={async () => {
-        if (!boardJSON) {
-          seterror("No board")
-          return
-        }
-        seterror("")
-        const saveResult = await actionBoardSaveCopy("New", boardJSON)
-        if (!saveResult.saved || !saveResult.id) {
-          seterror("Failed to save: " + saveResult?.error)
-          return
-        }
-        toast({
-
-          description: "Opening copy  ",
-
-        })
-
-        router.push(saveResult.id.toString())
+            })
 
 
-      }}>Save a copy</Button>
 
-      {error && <div className='text-red-500'>{error}</div>}
+          }}>Save</Button>
+
+          <Button onClick={async () => {
+            if (!boardJSON) {
+              seterror("No board")
+              return
+            }
+            seterror("")
+            const saveResult = await actionBoardSaveCopy("New", boardJSON)
+            if (!saveResult.saved || !saveResult.id) {
+              seterror("Failed to save: " + saveResult?.error)
+              return
+            }
+            toast({
+
+              description: "Opening copy  ",
+
+            })
+
+            router.push(saveResult.id.toString())
+
+
+          }}>Save a copy</Button>
+
+          {error && <div className='text-red-500'>{error}</div>}
+
+        </div>)}
+
 
     </div>
   )

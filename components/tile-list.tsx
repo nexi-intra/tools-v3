@@ -11,7 +11,7 @@ interface TileListProps {
 
 export function TileList({ tiles }: TileListProps) {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-3 overflow-scroll h-full max-h-[400px] border-2">
       {tiles.map((tile) => (
         <DraggableTile key={tile.id} tile={tile} />
       ))}

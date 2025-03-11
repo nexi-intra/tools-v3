@@ -14,6 +14,7 @@ import { toast } from "sonner"
 import { SupportedLanguage, useLanguage } from "@/contexts/language-context"
 import { ExternalLink } from "./external-link";
 import { useSession } from "@/contexts/koksmat-provider";
+import { imgWidth } from "@/lib/image";
 interface IconWithDetailProps {
   icon: string
   name: string
@@ -21,7 +22,8 @@ interface IconWithDetailProps {
   description: string
   title: string,
   id: number,
-  isFavorite: boolean
+  isFavorite: boolean,
+  width?: number
 
 }
 const translationSchema = z.object({
@@ -65,7 +67,7 @@ const translations: Record<SupportedLanguage, Translation> = {
 
 
 
-export default function IconWithDetail({ icon, name, description, title, link, id, isFavorite }: IconWithDetailProps) {
+export default function IconWithDetail({ icon, name, description, title, link, id, isFavorite, width }: IconWithDetailProps) {
   const { language } = useLanguage();
   const t = translations[language];
   const session = useSession()
@@ -91,7 +93,7 @@ export default function IconWithDetail({ icon, name, description, title, link, i
           <Link href={link} target="_blank" rel="noopener noreferrer">
             <div className={isRemoving ? "blur" : ""}>
               <div className="h-20  rounded flex items-center justify-center w-full ">
-                <img src={icon} />
+                <img alt={name} className="max-w-16" src={icon ? imgWidth(icon, width!) : '/placeholder.svg'} />
 
               </div>
             </div>
@@ -146,7 +148,7 @@ export default function IconWithDetail({ icon, name, description, title, link, i
       </HoverCard>
       <div className={isRemoving ? "blur" : ""}>
 
-        <div className="items-center justify-center text-center m-2  max-w-32 truncate">
+        <div className="items-center justify-center text-center m-2  text-sm xtruncate">
           {title}
 
         </div></div>

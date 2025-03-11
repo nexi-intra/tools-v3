@@ -4,25 +4,45 @@ import { cookies } from 'next/headers';
 import { decodeJwt } from '@/lib/tokens';
 import prisma from '@/prisma';
 
-import { createKoksmatToken, setKoksmatTokenCookie } from '@/lib/auth';
+import { createKoksmatToken, KOKSMAT_TOKEN_NAME, setKoksmatTokenCookie } from '@/lib/auth';
 import { SupportedLanguage } from '@/contexts/language-context';
+import { UserProfile } from '@prisma/client';
 
 export async function actionSignIn(accessToken: string): Promise<string> {
 	const token = decodeJwt(accessToken);
-	const upn = token.upn;
+	const upn = token.upn ?? token.unique_name;
+
 	let result = '';
 	try {
-		const user = await prisma.userProfile.findFirst({
+		// const user = await prisma.userProfile.findFirst({
+		// 	where: {
+		// 		email: upn,
+		// 	},
+		// 	include: {
+		// 		Session: true,
+		// 	},
+		// });
+		// if (!user) {
+		// 	throw new Error('User not found');
+		// }
+
+		const user = await prisma.userProfile.upsert({
 			where: {
-				name: upn,
+				email: upn,
 			},
-			include: {
-				Session: true,
+			update: {
+				lastLogin: new Date(),
+				updated_by: 'system',
+			},
+			create: {
+				email: upn,
+				name: upn,
+				displayName: token.name,
+				created_by: 'system',
+				updated_by: 'system',
+				lastLogin: new Date(),
 			},
 		});
-		if (!user) {
-			throw new Error('User not found');
-		}
 
 		const userId = user.id;
 		const newToken = await createKoksmatToken(userId, 1);
@@ -53,4 +73,22 @@ export async function sessionGetLanguage() {
 		return 'en';
 	}
 	return language.value as SupportedLanguage;
+}
+
+export async function sessionGetUser() {
+	const token = (await cookies()).get(KOKSMAT_TOKEN_NAME);
+	if (!token) {
+		return null;
+	}
+	const decoded = decodeJwt(token.value);
+
+	const newToken = await createKoksmatToken(decoded.userId, 1);
+	await setKoksmatTokenCookie(newToken);
+
+	const user: UserProfile | null = await prisma.userProfile.findFirst({
+		where: {
+			id: decoded.userId,
+		},
+	});
+	return user;
 }

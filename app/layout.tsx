@@ -19,8 +19,8 @@ export async function generateMetadata() {
 			default: "Tools",
 		},
 		openGraph: {
-			title: "Magic Button Tools",
-			description: "Magic Button provide access to your tools, and works as a smart way of figuring out which tool to use when",
+			title: "Nexi Group Tools",
+			description: "Nexi Group Tools provide access to your tools, and works as a smart way of figuring out which tool to use when",
 			images: [
 				{
 					url: "/og",
@@ -32,12 +32,12 @@ export async function generateMetadata() {
 			],
 		},
 
-		applicationName: "Magic Button",
+		applicationName: "Tools",
 		referrer: "origin-when-cross-origin",
 		keywords: ["no code", "low code", "power apps", "power automate"],
 		creator: "Niels Gregers Johansen",
 		publisher: "Niels Gregers Johansen",
-		description: "Magic Button provide access to your tools, and works as a smart way of figuring out which tool to use when",
+		description: "Nexi Group Tools provide access to your tools, and works as a smart way of figuring out which tool to use when",
 	};
 	return metadata
 }

@@ -9,6 +9,10 @@ generator client {
 //   title    = "Tool Application"
 // }
 
+// generator zod {
+//   provider = "zod-prisma-types"
+// }
+
 datasource db {
   provider = "postgresql"
   url      = env("TOOL_DATABASE_URL")
@@ -61,22 +65,24 @@ model AuditLog {
 }
 
 model Board {
-  id           Int           @id @default(autoincrement())
-  created_at   DateTime      @default(now()) @db.Timestamptz(6)
-  created_by   String?       @db.VarChar
-  updated_at   DateTime      @default(now()) @db.Timestamptz(6)
-  updated_by   String?       @db.VarChar
-  deleted_at   DateTime?     @db.Timestamptz(6)
-  name         String        @db.VarChar
-  description  String?       @db.VarChar
-  translations Json?
-  status       String?       @db.VarChar
-  layout       Json?
-  metadata     Json?
-  parentId     Int?
-  parent       Board?        @relation("BoardForks", fields: [parentId], references: [id])
-  forks        Board[]       @relation("BoardForks")
-  managedBy    UserProfile[]
+  id            Int           @id @default(autoincrement())
+  created_at    DateTime      @default(now()) @db.Timestamptz(6)
+  created_by    String?       @db.VarChar
+  updated_at    DateTime      @default(now()) @db.Timestamptz(6)
+  updated_by    String?       @db.VarChar
+  deleted_at    DateTime?     @db.Timestamptz(6)
+  name          String        @db.VarChar
+  description   String?       @db.VarChar
+  translations  Json?
+  status        String?       @db.VarChar
+  layout        Json?
+  metadata      Json?
+  parentId      Int?
+  parent        Board?        @relation("BoardForks", fields: [parentId], references: [id])
+  forks         Board[]       @relation("BoardForks")
+  managedBy     UserProfile[]
+  groupOwnerId  String?       @db.VarChar
+  groupViewerId String?       @db.VarChar
 }
 
 model Category {
@@ -91,6 +97,7 @@ model Category {
   translations Json?
   sortorder    String?   @db.VarChar
   color        String?   @db.VarChar
+  isGroupTool  Boolean?  @default(false) @db.Boolean
   tool         Tool[]
 }
 
@@ -196,6 +203,7 @@ model Tool {
   documents               Json?
   metadata                Json?
   icon                    String?       @db.VarChar
+  uploaded_icon           String?       @db.VarChar
   category                Category      @relation(fields: [categoryId], references: [id])
   // Many-to-many relation with Purpose
   purposes                Purpose[]     @relation("ToolPurposes")
@@ -206,6 +214,9 @@ model Tool {
   parentId                Int?
   parent                  Tool?         @relation("ToolForks", fields: [parentId], references: [id])
   forks                   Tool[]        @relation("ToolForks")
+  groupOwnerId            String?       @db.VarChar
+  groupViewerId           String?       @db.VarChar
+  Blob                    Blob[]
 }
 
 model ToolTexts {
@@ -280,7 +291,7 @@ model UserProfile {
   displayName             String?   @db.VarChar
   description             String?   @db.VarChar
   translations            Json?
-  email                   String    @db.VarChar
+  email                   String    @unique(map: "unique_email") @db.VarChar
   status                  String?   @db.VarChar
   company                 String?   @db.VarChar
   country                 String?   @db.VarChar
@@ -296,6 +307,9 @@ model UserProfile {
   roles     UserRole[]
   Board     Board?      @relation(fields: [boardId], references: [id])
   boardId   Int?
+  lastLogin DateTime?   @db.Timestamptz(6)
+  language  String?     @db.VarChar
+  homePage  String?
 }
 
 model UserRole {
@@ -443,4 +457,29 @@ model Channel {
   externalGroup String?          @db.VarChar
   category      ChannelCategory? @relation(fields: [categoryId], references: [id])
   categoryId    Int?
+}
+
+model Blob {
+  id             Int           @id @default(autoincrement())
+  created_at     DateTime      @default(now()) @db.Timestamptz(6)
+  created_by     String?       @db.VarChar
+  updated_at     DateTime      @default(now()) @db.Timestamptz(6)
+  updated_by     String?       @db.VarChar
+  deleted_at     DateTime?     @db.Timestamptz(6)
+  name           String        @db.VarChar
+  hash           String        @unique(map: "unique_blob_hash") @db.VarChar
+  content_type   String        @db.VarChar
+  base64         String        @db.Text
+  data           Bytes
+  source_tool    Tool?         @relation(fields: [source_tool_id], references: [id])
+  source_tool_id Int?
+  BlobResized    BlobResized[]
+}
+
+model BlobResized {
+  id     Int   @id @default(autoincrement())
+  width  Int   @db.Integer
+  data   Bytes
+  blob   Blob  @relation(fields: [blobId], references: [id])
+  blobId Int
 }

@@ -24,12 +24,7 @@ import { CountryFilter } from "./country-filter";
 import { GroupToolsToggle } from "./general-tools-toggle";
 import { SelectedCountries } from "./selected-countries";
 
-interface ToolsPageProps {
-  className?: string;
-  searchParams: {
-    q?: string;
-  };
-}
+
 
 const translationSchema = z.object({
   yourTools: z.string(),
@@ -97,9 +92,17 @@ const translations: Record<SupportedLanguage, Translation> = {
   }
 };
 
+type ToolPageModes = "default" | "picker";
+interface ToolsPageProps {
+  countries?: string[],
+  excludeGroupTools?: boolean,
+  query: string, language: SupportedLanguage, token?: string, options?: {
+    hideMyTools?: boolean
+    mode?: ToolPageModes
+  }
+}
 
-
-export async function ToolsPage2(props: { query: string, language: SupportedLanguage, token?: string }) {
+export async function ToolsPage2(props: ToolsPageProps) {
 
   const searchWords = extractSearchTokens(props.query);
 
@@ -108,6 +111,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
   const searchText = "your search text";
   const languageCode = "en"; // For example, "en" for English
   const language = props.language;
+  const options = props.options ?? { hideMyTools: false, mode: "default" };
   const session = await getKoksmatTokenCookie();
   const token = props.token;
   let id: number = -1
@@ -145,7 +149,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
   });
 
   let words = ""
-  let countryNames: string[] = []
+  let countryNames: string[] = props.countries ?? []
   for (const word of searchWords) {
     if (word.startsWith("country:")) {
       countryNames.push(word.substring(8))
@@ -198,10 +202,23 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
     }
   });
 
+  if (props.excludeGroupTools) {
+    tools = tools.filter((tool) => {
+
+      if (tool.category.isGroupTool) {
+
+        return false
+      }
+      return true
+
+    })
+  }
   if (countryNames.length > 0) {
     tools = tools.filter((tool) => {
       let found = false
-
+      if (!props.excludeGroupTools && tool.category.isGroupTool) {
+        return true
+      }
       for (const countryName of countryNames) {
         if (tool.countries.find((country) => country.name === countryName)) {
           found = true
@@ -212,6 +229,8 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
     }
     )
   }
+
+
   const yourTools = await prisma.tool.findMany({
     where: {
       userProfiles: {
@@ -247,6 +266,15 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
 
     return toolA.name.localeCompare(toolB.name)
   });
+
+  const sortedFavoriteTools = yourTools.sort((a, b) => {
+
+    const toolA: ToolView = mapTool2ToolView(language, a, a.category.name, a.category.color ?? "#444444", a.category.id, "0");
+    const toolB: ToolView = mapTool2ToolView(language, b, b.category.name, b.category.color ?? "#444444", b.category.id, "0");
+
+
+    return toolA.name.localeCompare(toolB.name)
+  })
   const t = translations[language];
   return (
     <div className="h-full w-full">
@@ -254,37 +282,39 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
       <div className="lg:flex">
         <main className="w-full">
           <div className=" min-w-full ">
-            <div className="relative">
-              <h3 className="font-semibold mb-2 sticky top-0 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
-                {currentUserProfile?.displayName} - {t?.yourTools}
-              </h3>
+            {!options.hideMyTools && (
               <div className="relative">
-                <div className="flex flex-wrap">
-                  {yourTools.length === 0 && <div className="p-3" >
-                    <div className="text-center text-2xl p-10">{t.noToolFoundTitle}</div>
+                <h3 className="font-semibold mb-2 sticky top-0 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
+                  {currentUserProfile?.displayName} - {t?.yourTools}
+                </h3>
+                <div className="relative">
+                  <div className="flex flex-wrap">
+                    {yourTools.length === 0 && <div className="p-3" >
+                      <div className="text-center text-2xl p-10">{t.noToolFoundTitle}</div>
 
 
-                  </div>}
+                    </div>}
 
 
-                  {yourTools.map((tool, key): React.JSX.Element => {
-                    // const p = tool.purposes.map((purpose) => purpose.name).join(", ");
-                    // tool.name = tool.name + " " + p
-                    const toolView: ToolView = mapTool2ToolView(language, tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
-                    return <div key={key} className="p-3" >
-                      {/* <ToolCardMiniComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} /> */}
-                      {/* <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} /> */}
-                      <IconWithDetail id={tool.id}
+                    {sortedFavoriteTools.map((tool, key): React.JSX.Element => {
+                      // const p = tool.purposes.map((purpose) => purpose.name).join(", ");
+                      // tool.name = tool.name + " " + p
+                      const toolView: ToolView = mapTool2ToolView(language, tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
+                      return <div key={key} className="p-3" >
+                        {/* <ToolCardMiniComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} /> */}
+                        {/* <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} /> */}
+                        <IconWithDetail id={tool.id}
+                          width={64}
+                          isFavorite={tool.userProfiles.length > 0}
+                          icon={toolView.icon!} title={toolView.name} description={toolView.description} name={toolView.name} link={toolView.url} />
+                      </div>
+                    })}
 
-                        isFavorite={tool.userProfiles.length > 0}
-                        icon={toolView.icon!} title={toolView.name} description={toolView.description} name={toolView.name} link={toolView.url} />
-                    </div>
-                  })}
-
+                  </div>
                 </div>
-              </div>
 
-            </div>
+              </div>
+            )}
             <div className="sticky top-0 z-10 bg-white dark:bg-gray-800">
               <h3 className="font-semibold mb-2 sticky top-15 bg-white dark:bg-gray-800 text-3xl z-10 p-4">
                 {t?.allTools}
@@ -327,7 +357,7 @@ export async function ToolsPage2(props: { query: string, language: SupportedLang
 
                 {sortedTools.map((tool, key): React.JSX.Element => {
                   const toolView: ToolView = mapTool2ToolView(language, tool, tool.category.name, tool.category.color ?? "#444444", tool.category.id, "0");
-                  return <div key={key} className="p-3" >
+                  return <div key={tool.id} className="p-3" >
                     <ToolCardMediumComponent allowedTags={[]} isFavorite={tool.userProfiles.length > 0} tool={toolView} searchvalue={props.query} />
 
                   </div>
