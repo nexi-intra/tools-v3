@@ -4,7 +4,12 @@ import { cookies } from 'next/headers';
 import { decodeJwt } from '@/lib/tokens';
 import prisma from '@/prisma';
 
-import { createKoksmatToken, KOKSMAT_TOKEN_NAME, setKoksmatTokenCookie } from '@/lib/auth';
+import {
+	createKoksmatIdTokenForPanel,
+	createKoksmatToken,
+	KOKSMAT_TOKEN_NAME,
+	setKoksmatTokenCookie,
+} from '@/lib/auth';
 import { SupportedLanguage } from '@/contexts/language-context';
 import { UserProfile } from '@prisma/client';
 
@@ -94,4 +99,14 @@ export async function sessionGetUser() {
 		},
 	});
 	return user;
+}
+
+export async function sessionGetIdToken(apiEndPoint: string) {
+	const user = await sessionGetUser();
+	if (!user) {
+		return null;
+	}
+
+	const idToken = await createKoksmatIdTokenForPanel(user, user.roles, apiEndPoint);
+	return idToken;
 }

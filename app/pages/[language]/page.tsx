@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react'
 
-
 export default async function Page() {
 
   const pathname = usePathname()
@@ -15,6 +14,7 @@ export default async function Page() {
       <Link href={`${pathname}/profile`} > <Button>Profile</Button> </ Link>
       <Link href={`${pathname}/board`} > <Button>Boards</Button> </ Link>
       <Link href={`${pathname}/tool`} > <Button>Tools</Button> </ Link>
+      <Link href={`${pathname}/keys`} > <Button>Keys</Button> </ Link>
 
     </div>
   )
