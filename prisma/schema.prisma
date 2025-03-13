@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["typedSql"]
+  previewFeatures = ["typedSql", "multiSchema"]
 }
 
 // generator markdown {
@@ -16,6 +16,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("TOOL_DATABASE_URL")
+  schemas  = ["services", "tools"]
 }
 
 model SynchronizationLog {
@@ -31,6 +32,8 @@ model SynchronizationLog {
   details     Json?
   hasError    Boolean   @db.Boolean
   error       String?   @db.VarChar
+
+  @@schema("tools")
 }
 
 model AccessPoint {
@@ -44,6 +47,8 @@ model AccessPoint {
   description  String?   @db.VarChar
   translations Json?
   sortorder    String?   @db.VarChar
+
+  @@schema("tools")
 }
 
 model AuditLog {
@@ -62,6 +67,8 @@ model AuditLog {
   entityid     String    @db.VarChar
   actor        String    @db.VarChar
   metadata     Json?
+
+  @@schema("tools")
 }
 
 model Board {
@@ -83,6 +90,8 @@ model Board {
   managedBy     UserProfile[]
   groupOwnerId  String?       @db.VarChar
   groupViewerId String?       @db.VarChar
+
+  @@schema("tools")
 }
 
 model Category {
@@ -99,6 +108,8 @@ model Category {
   color        String?   @db.VarChar
   isGroupTool  Boolean?  @default(false) @db.Boolean
   tool         Tool[]
+
+  @@schema("tools")
 }
 
 model Country {
@@ -118,6 +129,8 @@ model Country {
   channelId    Int?
   homePageUrl  String?
   tools        Tool[]
+
+  @@schema("tools")
 }
 
 model Language {
@@ -133,6 +146,8 @@ model Language {
   code         String      @db.VarChar
   sortorder    String?     @db.VarChar
   ToolTexts    ToolTexts[]
+
+  @@schema("tools")
 }
 
 model Purpose {
@@ -149,6 +164,8 @@ model Purpose {
 
   // Many-to-many relation with Tool
   tools Tool[] @relation("ToolPurposes")
+
+  @@schema("tools")
 }
 
 model Region {
@@ -164,6 +181,8 @@ model Region {
   sortOrder    String?   @db.VarChar
   Country      Country[]
   Channel      Channel[]
+
+  @@schema("tools")
 }
 
 model Setting {
@@ -177,6 +196,8 @@ model Setting {
   description  String?   @db.VarChar
   translations Json?
   data         Json?
+
+  @@schema("tools")
 }
 
 /// Tool
@@ -217,6 +238,8 @@ model Tool {
   groupOwnerId            String?       @db.VarChar
   groupViewerId           String?       @db.VarChar
   Blob                    Blob[]
+
+  @@schema("tools")
 }
 
 model ToolTexts {
@@ -237,12 +260,15 @@ model ToolTexts {
 
   // Add a composite unique constraint with an explicit name:
   @@unique([toolId, languageId], name: "toolId_languageId")
+  @@schema("tools")
 }
 
 enum Status {
   GLOBAL
   GROUP
   PERSONAL
+
+  @@schema("tools")
 }
 
 model ToolGroup {
@@ -260,6 +286,8 @@ model ToolGroup {
   owners       UserProfile[]
   visibility   Status        @default(PERSONAL)
   userGroups   UserGroup[]
+
+  @@schema("tools")
 }
 
 model UserGroup {
@@ -275,6 +303,8 @@ model UserGroup {
   sortorder    String?   @db.VarChar
 
   ToolGroup ToolGroup[]
+
+  @@schema("tools")
 }
 
 model UserProfile {
@@ -310,6 +340,8 @@ model UserProfile {
   lastLogin DateTime?   @db.Timestamptz(6)
   language  String?     @db.VarChar
   homePage  String?
+
+  @@schema("tools")
 }
 
 model UserRole {
@@ -324,6 +356,8 @@ model UserRole {
   translations Json?
   sortorder    String?       @db.VarChar
   users        UserProfile[]
+
+  @@schema("tools")
 }
 
 model Session {
@@ -337,6 +371,8 @@ model Session {
   data          Json?
   user          UserProfile @relation(fields: [userProfileId], references: [id])
   userProfileId Int
+
+  @@schema("tools")
 }
 
 model BusinessUnit {
@@ -354,6 +390,8 @@ model BusinessUnit {
   isGroupFunction Boolean
   homePageUrl     String?
   newsPageUrl     String?
+
+  @@schema("tools")
 }
 
 model GuestDomain {
@@ -367,6 +405,8 @@ model GuestDomain {
   description  String?   @db.VarChar
   translations Json?
   sortorder    String?   @db.VarChar
+
+  @@schema("tools")
 }
 
 model ChannelCategory {
@@ -381,6 +421,8 @@ model ChannelCategory {
   translations Json?
   sortorder    String?   @db.VarChar
   Channel      Channel[]
+
+  @@schema("tools")
 }
 
 model Channel {
@@ -402,6 +444,8 @@ model Channel {
   externalGroup String?          @db.VarChar
   category      ChannelCategory? @relation(fields: [categoryId], references: [id])
   categoryId    Int?
+
+  @@schema("tools")
 }
 
 model Blob {
@@ -419,6 +463,8 @@ model Blob {
   source_tool    Tool?         @relation(fields: [source_tool_id], references: [id])
   source_tool_id Int?
   BlobResized    BlobResized[]
+
+  @@schema("tools")
 }
 
 model BlobResized {
@@ -427,4 +473,197 @@ model BlobResized {
   data   Bytes
   blob   Blob  @relation(fields: [blobId], references: [id])
   blobId Int
+
+  @@schema("tools")
+}
+
+// Service model to store information about each microservice
+model ServicesService {
+  id                String                @id @default(cuid())
+  name              String                @unique // e.g., "user.create"
+  purpose           String // e.g., "Creates a new user account"
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  active            Boolean               @default(true)
+  // Throttling settings at service level
+  throttleEnabled   Boolean               @default(false)
+  requestsPerMinute Int? // null means no limit
+  requestsPerHour   Int? // null means no limit
+  requestsPerDay    Int? // null means no limit
+  endpoints         ServicesEndpoint[]
+  tags              ServicesTag[]         @relation("ServiceToTag")
+  usageRecords      ServicesUsageRecord[]
+
+  @@index([name])
+  @@schema("services")
+}
+
+// Tag model for categorizing services
+model ServicesTag {
+  id        String            @id @default(cuid())
+  name      String            @unique // e.g., "user", "auth", "payment"
+  services  ServicesService[] @relation("ServiceToTag")
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([name])
+  @@schema("services")
+}
+
+// Endpoint model to store information about each service endpoint
+model ServicesEndpoint {
+  id                String                  @id @default(cuid())
+  name              String // e.g., "createUser"
+  description       String // e.g., "Creates a new user in the system"
+  version           String // e.g., "1.0.0"
+  deprecated        Boolean                 @default(false)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  // Throttling settings at endpoint level (overrides service settings)
+  throttleEnabled   Boolean                 @default(false)
+  requestsPerMinute Int? // null means use service setting
+  requestsPerHour   Int? // null means use service setting
+  requestsPerDay    Int? // null means use service setting
+  service           ServicesService         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId         String
+  parameters        ServicesParameter[]
+  responseSchema    ServicesResponseSchema?
+  usageRecords      ServicesUsageRecord[]
+
+  @@unique([serviceId, name, version])
+  @@index([name])
+  @@index([deprecated])
+  @@index([version])
+  @@schema("services")
+}
+
+// Parameter model to store information about endpoint parameters
+model ServicesParameter {
+  id          String           @id @default(cuid())
+  name        String // e.g., "username"
+  type        String // e.g., "string", "number", "boolean", "object", "array"
+  required    Boolean          @default(false)
+  description String // e.g., "Unique username for the user"
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  endpoint    ServicesEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  endpointId  String
+
+  @@unique([endpointId, name])
+  @@index([name])
+  @@index([type])
+  @@schema("services")
+}
+
+// ResponseSchema model to store information about endpoint response schemas
+model ServicesResponseSchema {
+  id         String                   @id @default(cuid())
+  type       String // e.g., "object"
+  createdAt  DateTime                 @default(now())
+  updatedAt  DateTime                 @updatedAt
+  endpoint   ServicesEndpoint         @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  endpointId String                   @unique
+  properties ServicesSchemaProperty[]
+
+  @@schema("services")
+}
+
+// SchemaProperty model to store information about response schema properties
+model ServicesSchemaProperty {
+  id               String                 @id @default(cuid())
+  name             String // e.g., "userId"
+  type             String // e.g., "string", "number", "boolean", "object", "array"
+  description      String // e.g., "Unique identifier for the created user"
+  format           String? // e.g., "date-time", optional format specifier
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  responseSchema   ServicesResponseSchema @relation(fields: [responseSchemaId], references: [id], onDelete: Cascade)
+  responseSchemaId String
+
+  @@unique([responseSchemaId, name])
+  @@index([name])
+  @@index([type])
+  @@schema("services")
+}
+
+// RequestLog model to store information about service requests
+model ServicesRequestLog {
+  id             String   @id @default(cuid())
+  serviceName    String // e.g., "user.create"
+  endpointName   String? // e.g., "createUser"
+  requestId      String   @unique // A unique identifier for the request
+  payload        Json // The request payload
+  async          Boolean  @default(false)
+  timeout        Int // Timeout in milliseconds
+  status         String // e.g., "success", "error", "timeout"
+  response       Json? // The response payload (if any)
+  errorMessage   String? // Error message (if any)
+  processingTime Int? // Processing time in milliseconds
+  createdAt      DateTime @default(now())
+  apiKeyId       String? // The API key used for the request
+  clientIp       String? // The client IP address
+
+  @@index([serviceName])
+  @@index([status])
+  @@index([createdAt])
+  @@index([apiKeyId])
+  @@schema("services")
+}
+
+// ApiKey model for authentication
+model ServicesApiKey {
+  id                String                @id @default(cuid())
+  key               String                @unique
+  name              String // A friendly name for the key
+  description       String?
+  active            Boolean               @default(true)
+  expiresAt         DateTime?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  // Throttling can also be applied per API key
+  throttleEnabled   Boolean               @default(false)
+  requestsPerMinute Int? // null means no specific limit for this key
+  requestsPerHour   Int? // null means no specific limit for this key
+  requestsPerDay    Int? // null means no specific limit for this key
+  usageRecords      ServicesUsageRecord[]
+
+  @@index([key])
+  @@index([active])
+  @@schema("services")
+}
+
+// UsageRecord model to track usage for throttling
+model ServicesUsageRecord {
+  id         String            @id @default(cuid())
+  serviceId  String?
+  endpointId String?
+  apiKeyId   String?
+  clientIp   String? // For IP-based throttling
+  minute     DateTime? // For per-minute tracking (truncated to minute)
+  hour       DateTime? // For per-hour tracking (truncated to hour)
+  day        DateTime? // For per-day tracking (truncated to day)
+  count      Int               @default(0)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  service    ServicesService?  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  endpoint   ServicesEndpoint? @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  apiKey     ServicesApiKey?   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, minute])
+  @@unique([serviceId, hour])
+  @@unique([serviceId, day])
+  @@unique([endpointId, minute])
+  @@unique([endpointId, hour])
+  @@unique([endpointId, day])
+  @@unique([apiKeyId, minute])
+  @@unique([apiKeyId, hour])
+  @@unique([apiKeyId, day])
+  @@unique([clientIp, minute])
+  @@unique([clientIp, hour])
+  @@unique([clientIp, day])
+  @@index([minute])
+  @@index([hour])
+  @@index([day])
+  @@index([clientIp])
+  @@schema("services")
 }
