@@ -290,7 +290,7 @@ export async function ToolsPage2(props: ToolsPageProps) {
                 <div className="relative">
                   <div className="flex flex-wrap">
                     {yourTools.length === 0 && <div className="p-3" >
-                      <div className="text-center text-2xl p-10">{t.noToolFoundTitle}</div>
+                      <div className="text-center text-2xl p-10">{t.noToolFoundGuide}</div>
 
 
                     </div>}
