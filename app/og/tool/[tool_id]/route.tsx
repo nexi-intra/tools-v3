@@ -12,11 +12,12 @@ async function readItem(id: number) {
 	});
 }
 
-export async function GET(request: NextRequest) {
-	const pathName = request.nextUrl.pathname;
-	const slug = pathName.split('/').filter(Boolean);
+export async function GET(request: NextRequest, { params }: { params: Promise<{ tool_id: string }> }) {
+	// const pathName = request.nextUrl.pathname;
+	// const slug = pathName.split('/').filter(Boolean);
 
-	const [og, tool, tool_id] = slug;
+	// const [og, tool, tool_id] = slug;
+	const { tool_id } = await params;
 	const id = parseInt(tool_id);
 
 	const toolItem = await prisma.tool.findFirst({

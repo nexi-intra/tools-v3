@@ -138,7 +138,17 @@ export async function actionToolUpdate(
 }
 
 export async function actionToolFind() {
-	return prisma.tool.findMany();
+	return prisma.tool.findMany({
+		select: {
+			id: true,
+			name: true,
+			description: true,
+			icon: true,
+		},
+		orderBy: {
+			name: 'asc',
+		},
+	});
 }
 
 export async function actionToolFindById(id: number) {
