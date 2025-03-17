@@ -126,7 +126,7 @@ export default function ServicesPage() {
                   </TableCell>
                   <TableCell>{service.endpoints.length}</TableCell>
                   <TableCell>
-                    <Badge variant={service.active ? "success" : "secondary"}>
+                    <Badge variant={service.active ? "default" : "secondary"}>
                       {service.active ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>

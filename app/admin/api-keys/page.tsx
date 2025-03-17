@@ -154,7 +154,7 @@ export default function ApiKeysPage() {
                     {apiKey.expiresAt ? new Date(apiKey.expiresAt).toLocaleDateString() : "Never"}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={apiKey.active ? "success" : "secondary"}>
+                    <Badge variant={apiKey.active ? "default" : "outline"}>
                       {apiKey.active ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>

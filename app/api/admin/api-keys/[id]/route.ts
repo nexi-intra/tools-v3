@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import prisma from '@/prisma';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const { id } = params;
+		const { id } = await params;
 
 		const apiKey = await prisma.servicesApiKey.findUnique({
 			where: { id },
@@ -20,9 +20,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 	}
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const { id } = params;
+		const { id } = await params;
 		const body = await request.json();
 
 		// Check if API key exists
@@ -52,9 +52,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 	}
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const { id } = params;
+		const { id } = await params;
 
 		// Check if API key exists
 		const existingApiKey = await prisma.servicesApiKey.findUnique({

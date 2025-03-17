@@ -177,11 +177,11 @@ export default function LogsPage() {
                     <Badge
                       variant={
                         log.status === "success"
-                          ? "success"
+                          ? "default"
                           : log.status === "error"
                             ? "destructive"
                             : log.status === "timeout"
-                              ? "warning"
+                              ? "destructive"
                               : "outline"
                       }
                     >

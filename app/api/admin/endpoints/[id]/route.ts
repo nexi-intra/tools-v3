@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import prisma from '@/prisma';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const { id } = params;
+		const { id } = await params;
 
 		const endpoint = await prisma.servicesEndpoint.findUnique({
 			where: { id },
@@ -28,9 +28,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 	}
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const { id } = params;
+		const { id } = await params;
 		const body = await request.json();
 
 		// Check if endpoint exists
@@ -137,9 +137,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 	}
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const { id } = params;
+		const { id } = await params;
 
 		// Check if endpoint exists
 		const existingEndpoint = await prisma.servicesEndpoint.findUnique({

@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import prisma from '@/prisma';
+import { ServicesEndpoint } from '@prisma/client';
 
 interface ThrottleOptions {
 	apiKey: string;
@@ -43,7 +44,7 @@ export async function checkThrottleLimit(options: ThrottleOptions): Promise<{
 		}
 
 		// Get the endpoint record if applicable
-		let endpoint = null;
+		let endpoint: null | undefined | ServicesEndpoint = null;
 		if (endpointName) {
 			endpoint = await prisma.servicesEndpoint.findFirst({
 				where: {
@@ -84,7 +85,7 @@ export async function checkThrottleLimit(options: ThrottleOptions): Promise<{
 		let minuteLimit: number | null = null;
 		if (apiKeyThrottleEnabled && apiKeyRecord.requestsPerMinute !== null) {
 			minuteLimit = apiKeyRecord.requestsPerMinute;
-		} else if (endpointThrottleEnabled && endpoint?.requestsPerMinute !== null) {
+		} else if (endpointThrottleEnabled && endpoint && endpoint.requestsPerMinute !== null) {
 			minuteLimit = endpoint.requestsPerMinute;
 		} else if (serviceThrottleEnabled && service.requestsPerMinute !== null) {
 			minuteLimit = service.requestsPerMinute;
@@ -94,7 +95,7 @@ export async function checkThrottleLimit(options: ThrottleOptions): Promise<{
 		let hourLimit: number | null = null;
 		if (apiKeyThrottleEnabled && apiKeyRecord.requestsPerHour !== null) {
 			hourLimit = apiKeyRecord.requestsPerHour;
-		} else if (endpointThrottleEnabled && endpoint?.requestsPerHour !== null) {
+		} else if (endpointThrottleEnabled && endpoint && endpoint.requestsPerHour !== null) {
 			hourLimit = endpoint.requestsPerHour;
 		} else if (serviceThrottleEnabled && service.requestsPerHour !== null) {
 			hourLimit = service.requestsPerHour;
@@ -104,7 +105,7 @@ export async function checkThrottleLimit(options: ThrottleOptions): Promise<{
 		let dayLimit: number | null = null;
 		if (apiKeyThrottleEnabled && apiKeyRecord.requestsPerDay !== null) {
 			dayLimit = apiKeyRecord.requestsPerDay;
-		} else if (endpointThrottleEnabled && endpoint?.requestsPerDay !== null) {
+		} else if (endpointThrottleEnabled && endpoint && endpoint.requestsPerDay !== null) {
 			dayLimit = endpoint.requestsPerDay;
 		} else if (serviceThrottleEnabled && service.requestsPerDay !== null) {
 			dayLimit = service.requestsPerDay;
@@ -313,9 +314,10 @@ export async function checkThrottleLimit(options: ThrottleOptions): Promise<{
 }
 
 export async function applyThrottling(
-	request: NextRequest,
+	request: Request,
 	serviceName: string,
 	endpointName?: string,
+	ip?: string,
 ): Promise<NextResponse | null> {
 	try {
 		// Extract API key from request
@@ -327,7 +329,7 @@ export async function applyThrottling(
 		}
 
 		// Get client IP
-		const clientIp = request.headers.get('x-forwarded-for') || request.ip || 'unknown';
+		const clientIp = request.headers.get('x-forwarded-for') || ip || 'unknown';
 
 		// Check throttle limits
 		const throttleResult = await checkThrottleLimit({

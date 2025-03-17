@@ -110,3 +110,25 @@ export async function sessionGetIdToken(apiEndPoint: string) {
 	const idToken = await createKoksmatIdTokenForPanel(user, user.roles, apiEndPoint);
 	return idToken;
 }
+
+export async function sessionValidateIdToken(token: string) {
+	const decoded = decodeJwt(token);
+	if (!decoded) {
+		throw new Error('Invalid token');
+	}
+	const user = await prisma.userProfile.findUnique({
+		where: { id: decoded.userId },
+	});
+	if (!user) {
+		throw new Error('User not found');
+	}
+	return user;
+}
+
+export async function sessionValidateKoksmatToken(token: string) {
+	const decoded = decodeJwt(token);
+	if (!decoded) {
+		throw new Error('Invalid token');
+	}
+	return decoded;
+}

@@ -74,7 +74,7 @@ export function RecentLogsTable() {
                 <TableCell className="font-mono text-xs">{log.requestId}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={log.status === "success" ? "success" : log.status === "error" ? "destructive" : "outline"}
+                    variant={log.status === "success" ? "default" : log.status === "error" ? "destructive" : "outline"}
                   >
                     {log.status}
                   </Badge>

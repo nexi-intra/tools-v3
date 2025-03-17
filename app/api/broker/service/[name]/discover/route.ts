@@ -11,10 +11,10 @@ interface EndpointDiscoverRequest {
 	token: string;
 }
 
-export async function POST(request: NextRequest, { params }: { params: { name: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
 	try {
 		// Get the service name from the URL path
-		const { name } = params;
+		const { name } = await params;
 
 		if (!name) {
 			return NextResponse.json({ error: 'Service name is required' }, { status: 400 });

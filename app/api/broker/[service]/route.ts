@@ -2,20 +2,22 @@ import { type NextRequest, NextResponse } from 'next/server';
 import prisma from '@/prisma';
 import { applyThrottling } from '@/lib/throttle';
 
-export async function POST(request: NextRequest, { params }: { params: { service: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ service: string }> }) {
 	try {
 		// Get the service name from the URL path
-		const { service } = params;
+		const { service } = await params;
 
 		if (!service) {
 			return NextResponse.json({ error: 'Service name is required' }, { status: 400 });
 		}
+		// Get client IP
+		const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
 
 		// Clone the request for throttling check
 		const requestClone = request.clone();
 
 		// Apply throttling
-		const throttleResponse = await applyThrottling(requestClone, service);
+		const throttleResponse = await applyThrottling(requestClone, service, clientIp);
 		if (throttleResponse) {
 			return throttleResponse;
 		}
@@ -58,9 +60,6 @@ export async function POST(request: NextRequest, { params }: { params: { service
 
 		// Generate a unique request ID
 		const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-
-		// Get client IP
-		const clientIp = request.headers.get('x-forwarded-for') || request.ip || 'unknown';
 
 		// For async requests, log and return immediately
 		if (async) {

@@ -95,7 +95,7 @@ export default function NewApiKeyPage() {
 
       {newApiKey ? (
         <div className="space-y-6">
-          <Alert variant="success">
+          <Alert variant="default">
             <Check className="h-4 w-4" />
             <AlertTitle>API Key Generated</AlertTitle>
             <AlertDescription>
