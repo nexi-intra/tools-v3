@@ -123,10 +123,10 @@ const translations: Record<SupportedLanguage, Translation> = {
     purposes: "Scopi",
     documents: "Documenti",
     enterToolUrl: "Inserisci l'URL dello strumento",
-    openTool: "Apri strumento",
+    openTool: "Apri applicativo",
     create: "Crea",
     save: "Salva",
-    readMore: "Leggi di più",
+    readMore: "Scopri di più",
     toolCardMediumExample: "Esempio ToolCardMedium",
   },
 };
