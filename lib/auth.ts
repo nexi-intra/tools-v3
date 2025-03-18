@@ -19,6 +19,37 @@ export async function createKoksmatToken(userId: number, sessionId: number): Pro
 
 	return jwt;
 }
+export async function createAccessToken(
+	userId: number,
+	displayName: string,
+	email: string,
+	roles: string[],
+): Promise<string> {
+	const jwt = await new SignJWT({ userId, roles, email, displayName })
+		.setProtectedHeader({ alg: 'HS256' })
+		.setIssuedAt()
+		.setExpirationTime('1h')
+		.sign(getKey());
+
+	return jwt;
+}
+
+export async function validateAccessToken(
+	token: string,
+): Promise<{ userId: number; roles: string[]; email: string; displayName: string } | null> {
+	try {
+		const { payload } = await jwtVerify(token, getKey());
+		return {
+			userId: payload.userId as number,
+			roles: payload.roles as string[],
+			email: payload.email as string,
+			displayName: payload.displayName as string,
+		};
+	} catch (error) {
+		console.error('Error validating token:', error);
+		return null;
+	}
+}
 
 export async function validateSessionToken(token: string): Promise<{ userId: number; sessionId: number } | null> {
 	try {

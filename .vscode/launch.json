@@ -7,7 +7,7 @@
           "type": "node-terminal",
           "request": "launch",
           "cwd": "${workspaceFolder}",
-          "command": "npm run dev"
+          "command": "  nvm use --lts  && npm run dev"
       } ,
     {
         "name": "Debug scripts/base64-to-blob",
