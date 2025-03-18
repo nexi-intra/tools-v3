@@ -333,7 +333,7 @@ export async function ToolsPage2(props: ToolsPageProps) {
               ]} /> */}
               {/* Filters */}
               <div className="flex flex-col md:flex-row gap-4 mb-6 p-3">
-                <SearchInput />
+                <SearchInput label={t.searchFor} />
                 <CountryFilter countries={countries} />
                 <GroupToolsToggle />
               </div>
