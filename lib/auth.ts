@@ -1,3 +1,4 @@
+import { UserProfile, UserRole } from '@prisma/client';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
@@ -57,4 +58,18 @@ export async function parseSessionToken(token: string): Promise<{ userId: number
 		throw new Error('Invalid token');
 	}
 	return tokenData;
+}
+
+export async function createKoksmatIdTokenForPanel(
+	user: UserProfile,
+	roles: UserRole[],
+	apiEndPoint: string,
+): Promise<string> {
+	const jwt = await new SignJWT({ user, roles, apiEndPoint })
+		.setProtectedHeader({ alg: 'HS256' })
+		.setIssuedAt()
+		.setExpirationTime('10weeks')
+		.sign(getKey());
+
+	return jwt;
 }

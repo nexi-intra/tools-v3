@@ -37,6 +37,8 @@ export default async function Page({
   let tools: { title: string, description: string }[] = []
   {
     const filteredTools = await prisma.tool.findMany({
+      // skip: 0,
+      // take: 10,
       where: {
         created_by: user.name,
         koksmat_masterdata_id: {
@@ -45,19 +47,25 @@ export default async function Page({
 
 
       },
+      select: {
+        id: true,
+        name: true,
+        icon: true
+      },
+
       orderBy: {
         name: 'asc'
       }
     })
 
 
-    tools = filteredTools.map((tool: Tool) => {
+    tools = filteredTools.map((tool) => {
 
       return {
         id: tool.id,
         title: tool.name,
         description: "",
-        refObject1: tool
+        refObject1: tool//{ ...tool, icon: tool.icon?.indexOf("data") === 0 ? tool.icon : "/placeholder.png" }
       }
     })
   }

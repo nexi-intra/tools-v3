@@ -398,7 +398,7 @@ export default function ToolsDashboard() {
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <SearchInput />
+        <SearchInput label="Search" />
         <CountryFilter countries={countries} />
         <GroupToolsToggle />
       </div>

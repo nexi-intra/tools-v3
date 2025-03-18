@@ -112,6 +112,8 @@ const translations = {
     language: "Language",
     darkMode: "Dark Mode",
     lightMode: "Light Mode",
+    newsAndGuides: "News & Guides",
+    homePage: "Home Page"
   },
   da: {
     teams: "Versioner",
@@ -124,6 +126,8 @@ const translations = {
     language: "Sprog",
     darkMode: "Mørk tilstand",
     lightMode: "Lys tilstand",
+    newsAndGuides: "Nyheder og vejledninger",
+    homePage: "Hjemmeside"
   },
   it: {
     teams: "Versioni",
@@ -136,6 +140,8 @@ const translations = {
     language: "Lingua",
     darkMode: "Modalità scura",
     lightMode: "Modalità chiara",
+    newsAndGuides: "Notizie e guide",
+    homePage: "Pagina principale"
   },
 };
 
@@ -146,7 +152,17 @@ const TopNavigation: React.FC<{
   changeLanguage: (lang: SupportedLanguage) => void;
   t: typeof translations[SupportedLanguage];
 }> = ({ isDarkMode, toggleDarkMode, language, changeLanguage, t }) => (
-  <div className="flex items-center space-x-4">
+  <div className="flex items-center ">
+    <Link href="https://christianiabpos.sharepoint.com/sites/nexiintra-home" target="_blank" >
+      <Button variant="link" >
+        {t.newsAndGuides}
+      </Button>
+    </Link>
+    <Link href="https://www.nexigroup.com" target="_blank">
+      <Button variant="link" >
+        {t.homePage}
+      </Button></Link>
+
     <Button
       variant="ghost"
       size="icon"
@@ -171,7 +187,7 @@ const TopNavigation: React.FC<{
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem onClick={() => changeLanguage('en')}>English</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => changeLanguage('da')}>Dansk</DropdownMenuItem>
+        {/* <DropdownMenuItem onClick={() => changeLanguage('da')}>Dansk</DropdownMenuItem> */}
         <DropdownMenuItem onClick={() => changeLanguage('it')}>Italian</DropdownMenuItem>
 
       </DropdownMenuContent>

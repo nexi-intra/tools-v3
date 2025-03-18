@@ -6,7 +6,7 @@ import { Search } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useDebounce } from "@/hooks/use-debounce"
 
-export function SearchInput() {
+export function SearchInput(props: { label: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -37,7 +37,7 @@ export function SearchInput() {
       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
       <Input
         type="text"
-        placeholder="Search for"
+        placeholder={props.label}
         className="pl-10 w-full"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}

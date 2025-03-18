@@ -290,7 +290,7 @@ export async function ToolsPage2(props: ToolsPageProps) {
                 <div className="relative">
                   <div className="flex flex-wrap">
                     {yourTools.length === 0 && <div className="p-3" >
-                      <div className="text-center text-2xl p-10">{t.noToolFoundTitle}</div>
+                      <div className="text-center text-2xl p-10">{t.noToolFoundGuide}</div>
 
 
                     </div>}
@@ -333,7 +333,7 @@ export async function ToolsPage2(props: ToolsPageProps) {
               ]} /> */}
               {/* Filters */}
               <div className="flex flex-col md:flex-row gap-4 mb-6 p-3">
-                <SearchInput />
+                <SearchInput label={t.searchFor} />
                 <CountryFilter countries={countries} />
                 <GroupToolsToggle />
               </div>

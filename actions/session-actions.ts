@@ -4,7 +4,12 @@ import { cookies } from 'next/headers';
 import { decodeJwt } from '@/lib/tokens';
 import prisma from '@/prisma';
 
-import { createKoksmatToken, KOKSMAT_TOKEN_NAME, setKoksmatTokenCookie } from '@/lib/auth';
+import {
+	createKoksmatIdTokenForPanel,
+	createKoksmatToken,
+	KOKSMAT_TOKEN_NAME,
+	setKoksmatTokenCookie,
+} from '@/lib/auth';
 import { SupportedLanguage } from '@/contexts/language-context';
 import { UserProfile } from '@prisma/client';
 
@@ -85,10 +90,45 @@ export async function sessionGetUser() {
 	const newToken = await createKoksmatToken(decoded.userId, 1);
 	await setKoksmatTokenCookie(newToken);
 
-	const user: UserProfile | null = await prisma.userProfile.findFirst({
+	const user = await prisma.userProfile.findFirst({
 		where: {
 			id: decoded.userId,
 		},
+		include: {
+			roles: true,
+		},
 	});
 	return user;
+}
+
+export async function sessionGetIdToken(apiEndPoint: string) {
+	const user = await sessionGetUser();
+	if (!user) {
+		return null;
+	}
+
+	const idToken = await createKoksmatIdTokenForPanel(user, user.roles, apiEndPoint);
+	return idToken;
+}
+
+export async function sessionValidateIdToken(token: string) {
+	const decoded = decodeJwt(token);
+	if (!decoded) {
+		throw new Error('Invalid token');
+	}
+	const user = await prisma.userProfile.findUnique({
+		where: { id: decoded.userId },
+	});
+	if (!user) {
+		throw new Error('User not found');
+	}
+	return user;
+}
+
+export async function sessionValidateKoksmatToken(token: string) {
+	const decoded = decodeJwt(token);
+	if (!decoded) {
+		throw new Error('Invalid token');
+	}
+	return decoded;
 }

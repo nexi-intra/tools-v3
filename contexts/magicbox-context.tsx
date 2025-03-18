@@ -11,7 +11,11 @@ export interface Session {
   accessToken: string;
 }
 
+
+
 export type appModeTypes = "normal" | "iframed" | "app"
+export type appRoleTypes = "superadmin" | "dev" | "ring1"
+
 export interface User {
   name: string;
   email: string;
@@ -59,6 +63,7 @@ export type MagicboxContextType = {
   appMode: appModeTypes;
   initializing: boolean;
   setInitializing: (initializing: boolean) => void;
+  hasAppRole(role: appRoleTypes): boolean;
 
 
 };
@@ -119,5 +124,8 @@ export const MagicboxContext = createContext<MagicboxContextType>({
   setInitializing: function (initializing: boolean): void {
     throw new Error("Function not implemented.");
   },
-  userProfile: null
+  userProfile: null,
+  hasAppRole: function (role: "superadmin" | "dev" | "ring1"): boolean {
+    throw new Error("Function not implemented.");
+  }
 });

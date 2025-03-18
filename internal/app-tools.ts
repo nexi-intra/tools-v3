@@ -725,12 +725,24 @@ export class ToolsApp {
 	}
 
 	async isSuperAdmin(user: UserWithRoles) {
-		if (user.roles.some(role => role.name === 'SuperAdmin')) {
+		if (user.roles.some(role => role.name === 'superadmin')) {
 			return true;
 		}
 		return false;
 	}
 
+	public get isRing1(): boolean {
+		if (this._user?.roles.some(role => role.name === 'ring1')) {
+			return true;
+		}
+		return false;
+	}
+	public get isDev(): boolean {
+		if (this._user?.roles.some(role => role.name === 'dev')) {
+			return true;
+		}
+		return false;
+	}
 	public get msGraph() {
 		if (!this._msGraph) {
 			this._msGraph = new OfficeGraphClient(this._tenantId, this._clientId, this._clientSecret, logger);
