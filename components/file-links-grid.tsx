@@ -73,8 +73,8 @@ export function FileLinksGridComponent({ initialLinks, mode, columns, className 
     const isEditMode = mode === 'edit' || mode === 'new';
 
     return (
-      <>
-        <FileIcon filename={link.name} className="w-6 h-6 mr-2" />
+      <div className='flex items-center' key={link.id}>
+        <FileIcon filename={link.url} className="w-6 h-6 mr-2 min-w-6 min-h-6" />
 
         {isEditMode ? (
           <>
@@ -97,15 +97,15 @@ export function FileLinksGridComponent({ initialLinks, mode, columns, className 
             </button>
           </>
         ) : (
-          <>
+          <div className='flex items-center flex-grow'>
 
-            <a href={link.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-blue-500 flex w-full">
+            <a href={link.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-blue-500 flex w-full text-sm">
               <div className="flex-grow">{link.name}</div>
-              <ExternalLink size={18} />
+
             </a>
-          </>
+          </div>
         )}
-      </>
+      </div>
 
     );
   };
