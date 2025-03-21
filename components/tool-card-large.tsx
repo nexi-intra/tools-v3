@@ -116,7 +116,7 @@ const translations: Record<SupportedLanguage, Translation> = {
     purposes: "Scopi",
     documents: "Documenti",
     enterToolUrl: "Inserisci l'URL dello strumento",
-    openTool: "Apri applicativo",
+    openTool: "Apri",
     create: "Crea",
     save: "Salva",
     saved: "Salvato",
