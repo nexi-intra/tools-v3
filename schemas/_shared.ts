@@ -46,7 +46,7 @@ export const translationsSchema = z
 // TypeScript types inferred from Zod schemas
 type Translation = z.infer<typeof translationSchema>;
 type Field = z.infer<typeof fieldSchema>;
-type TranslationsData = z.infer<typeof translationsSchema>;
+export type TranslationsData = z.infer<typeof translationsSchema>;
 
 // --- Function Implementation ---
 

@@ -8,7 +8,7 @@ import { ToolCardMediumComponent } from "./tool-card-medium";
 import { ToolView } from "@/schemas/forms";
 import SearchTools from "./search-tools";
 import { MyToolListServer } from "./my-tools-list-server";
-import { getTranslation } from "@/schemas/_shared";
+import { getTranslation, TranslationsData } from "@/schemas/_shared";
 import { documentsJSONDatabaseFieldSchema, translationJSONDatabaseFieldSchema } from "@/schemas/database";
 import { extractSearchTokens } from "@/lib/search";
 import { Tool } from "@prisma/client"
@@ -164,29 +164,32 @@ export async function ToolsPage2(props: ToolsPageProps) {
 
   let tools = await prisma.tool.findMany({
     where: {
-
-      ToolTexts: {
-        // Using the "some" filter ensures that at least one related ToolText meets the criteria.
-        some: {
-          language: {
-            code: language, // Filtering by the language code in the related Language record.
-          },
-          OR: [
-            {
-              name: {
-                contains: words ?? "",
-                mode: "insensitive", // Optional: makes the search case-insensitive.
-              },
-            },
-            {
-              description: {
-                contains: props.query ?? "",
-                mode: "insensitive",
-              },
-            },
-          ],
-        },
-      },
+      deleted_at: null,
+      categoryId: {
+        not: 28
+      }
+      // ToolTexts: {
+      //   // Using the "some" filter ensures that at least one related ToolText meets the criteria.
+      //   some: {
+      //     language: {
+      //       code: language, // Filtering by the language code in the related Language record.
+      //     },
+      //     OR: [
+      //       {
+      //         name: {
+      //           contains: words ?? "",
+      //           mode: "insensitive", // Optional: makes the search case-insensitive.
+      //         },
+      //       },
+      //       {
+      //         description: {
+      //           contains: props.query ?? "",
+      //           mode: "insensitive",
+      //         },
+      //       },
+      //     ],
+      //   },
+      // },
     },
     orderBy: {
       name: 'asc'
@@ -230,6 +233,43 @@ export async function ToolsPage2(props: ToolsPageProps) {
     )
   }
 
+  if (words) {
+    words = words.trim()
+    tools = tools.filter((tool) => {
+      let found = false
+      let name = tool.name
+      let description = tool.description
+
+      try {
+
+        if (tool.translations !== null) {
+          const translationData: TranslationsData = tool.translations as any as TranslationsData
+          name = getTranslation(translationData, "name", language, "")
+          if (!name) {
+            console.log("No name found for tool", tool.id)
+          }
+          description = getTranslation(translationData, "description", language, "")
+
+        }
+
+        if (name.toLowerCase().includes(words.trim().toLowerCase())) {
+
+          console.log(tool.name, name, tool.description, description)
+          found = true
+        }
+        if (description!.toLowerCase().includes(words.trim().toLowerCase())) {
+
+          console.log(tool.name, name, tool.description, description)
+          found = true
+        }
+        return found
+      } catch (error) {
+        return found
+      }
+    }
+    )
+
+  }
 
   const yourTools = await prisma.tool.findMany({
     where: {
