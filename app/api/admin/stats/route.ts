@@ -59,19 +59,19 @@ export async function GET(request: NextRequest) {
 		const last7Days = new Date();
 		last7Days.setDate(last7Days.getDate() - 7);
 
-		const requestsByDay = await prisma.$queryRaw`
-      SELECT 
-        DATE(created_at) as date, 
-        COUNT(*) as count 
-      FROM 
-        "services_request_log" 
-      WHERE 
-        created_at >= ${last7Days}
-      GROUP BY 
-        DATE(created_at) 
-      ORDER BY 
-        date ASC
-    `;
+		// const requestsByDay = await prisma.$queryRaw`
+		//   SELECT
+		//     DATE(created_at) as date,
+		//     COUNT(*) as count
+		//   FROM
+		//     "ServiceRequestLog"
+		//   WHERE
+		//     created_at >= ${last7Days}
+		//   GROUP BY
+		//     DATE(created_at)
+		//   ORDER BY
+		//     date ASC
+		// `;
 
 		return NextResponse.json({
 			counts: {
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
 				name: service.serviceName,
 				avgTime: service._avg.processingTime,
 			})),
-			requestsByDay,
+			//requestsByDay,
 		});
 	} catch (error) {
 		console.error('Error fetching stats:', error);

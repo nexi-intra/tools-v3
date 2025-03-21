@@ -117,12 +117,22 @@ export async function sessionValidateIdToken(token: string) {
 		throw new Error('Invalid token');
 	}
 	const user = await prisma.userProfile.findUnique({
-		where: { id: decoded.userId },
+		where: { id: decoded.user.id },
+		select: {
+			id: true,
+			email: true,
+			name: true,
+			displayName: true,
+			roles: true,
+		},
 	});
 	if (!user) {
 		throw new Error('User not found');
 	}
-	return user;
+	return {
+		...user,
+		roles: user.roles.map(role => role.name),
+	};
 }
 
 export async function sessionValidateKoksmatToken(token: string) {
