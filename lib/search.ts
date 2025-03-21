@@ -19,6 +19,7 @@ export function tokenizeInput(input: string): Token[] {
 	return tokens;
 }
 export function extractSearchTokens(input: string) {
+	if (!input) return [];
 	const tokens = tokenizeInput(input);
 	return tokens
 		.filter(token => {
